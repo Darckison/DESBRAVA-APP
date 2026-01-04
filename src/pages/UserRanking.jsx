@@ -24,7 +24,7 @@ const UserRanking = () => {
   const geral = membros.slice(3);
 
   return (
-    <div className="min-h-screen bg-[url('/FUNDOAPP.png')] bg-cover bg-center bg-fixed py-10 px-4 font-sans text-white">
+    <div className="min-h-screen bg-cover bg-center bg-fixed py-10 px-4 font-sans text-white" style={{ backgroundImage: "url('/FUNDOAPP.png')" }}>
       <div className="max-w-5xl mx-auto">
         
         {/* CABEÇALHO */}
@@ -123,3 +123,4 @@ const UserRanking = () => {
 
 
 export default UserRanking;
+
