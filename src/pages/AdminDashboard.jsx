@@ -17,7 +17,6 @@ const AdminDashboard = () => {
   const [inputMotivo, setInputMotivo] = useState('');
 
   const carregarMembros = () => {
-    // Link atualizado para o novo servidor
     fetch('https://desbrava-app.onrender.com/membros')
       .then(res => res.json())
       .then(data => setMembros(data));
@@ -35,8 +34,8 @@ const AdminDashboard = () => {
 
     const method = view === 'edicao' ? 'PUT' : 'POST';
     const url = view === 'edicao'  
-  ? `https://desbrava-app.onrender.com/membros/${membroParaEditar._id}` 
-  : 'https://desbrava-app.onrender.com/membros';
+      ? `https://desbrava-app.onrender.com/membros/${membroParaEditar._id}` 
+      : 'https://desbrava-app.onrender.com/membros';
     
     await fetch(url, { method: method, body: data });
     limparFormulario();
@@ -109,7 +108,14 @@ const AdminDashboard = () => {
             </div>
             <div className="md:col-span-2 flex gap-4 mt-4">
                 <button className="bg-green-600 hover:bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase tracking-widest">Salvar Registro</button>
-                <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-8 rounded-2xl font-black uppercase">Cancelar</button>
+                {/* BOTÃO DE CANCELAR ATUALIZADO ABAIXO */}
+                <button 
+                    type="button" 
+                    onClick={limparFormulario} 
+                    className="bg-red-600 hover:bg-red-700 text-white px-8 rounded-2xl font-black uppercase transition-colors"
+                >
+                    Cancelar
+                </button>
             </div>
           </form>
         </div>
@@ -159,7 +165,6 @@ const AdminDashboard = () => {
                       <div className="flex justify-center items-center gap-3">
                         <button onClick={() => setPontuandoId(m._id)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-black shadow-md transition-transform active:scale-95 text-xs">⭐ PONTUAR</button>
                         <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-3 rounded-xl shadow-md transition-transform active:scale-95">✏️</button>
-                        {/* Rota de delete corrigida para o novo link */}
                         <button onClick={async () => { if(window.confirm('Excluir?')) { await fetch(`https://desbrava-app.onrender.com/membros/${m._id}`, {method: 'DELETE'}); carregarMembros(); } }} className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl shadow-md transition-transform active:scale-95">🗑️</button>
                       </div>
                     )}
