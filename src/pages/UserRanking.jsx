@@ -24,7 +24,7 @@ const UserRanking = () => {
   const geral = membros.slice(3);
 
   return (
-    <div className="min-h-screen bg-[url('C:\APP_DBV\frontend\public\FUNDOAPP.png')] bg-cover bg-center bg-fixed py-10 px-4 font-sans text-white">
+    <div className="min-h-screen bg-[url('/FUNDOAPP.png')] bg-cover bg-center bg-fixed py-10 px-4 font-sans text-white">
       <div className="max-w-5xl mx-auto">
         
         {/* CABEÇALHO */}
@@ -120,5 +120,6 @@ const UserRanking = () => {
     </div>
   );
 };
+
 
 export default UserRanking;
