@@ -65,7 +65,7 @@ async def criar_membro(
     # Se uma foto for enviada, faz o upload para o Cloudinary
     if foto:
         try:
-            upload_result = cloudinary.uploader.upload(foto.file)
+            upload_result = cloudinary.uploader.upload(foto.file.read())
             foto_url = upload_result.get("secure_url")
         except Exception as e:
             print(f"Erro no Cloudinary: {e}")
@@ -108,3 +108,4 @@ async def editar_membro(
         {"$set": {"nome": nome, "unidade": unidade, "funcao": funcao}}
     )
     return {"status": "atualizado"}
+
