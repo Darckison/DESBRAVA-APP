@@ -22,7 +22,7 @@ IMAGENS_DIR = "uploads"
 os.makedirs(IMAGENS_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=IMAGENS_DIR), name="uploads")
 
-client = AsyncIOMotorClient("mongodb://localhost:27017")
+client = AsyncIOMotorClient(os.getenv("MONGODB_URL", "mongodb://localhost:27017"))
 db = client["desbravadores"]
 
 @app.get("/membros")
@@ -47,7 +47,7 @@ async def criar(
         with open(caminho, "wb") as buffer:
             shutil.copyfileobj(foto.file, buffer)
         # URL completa para o React encontrar a imagem
-        url_foto = f"http://localhost:8000/uploads/{nome_arquivo}"
+       url_foto = f"https://desbrava-app-1.onrender.com/uploads/{nome_arquivo}"
 
     novo_membro = {
         "nome": nome, "unidade": unidade, "funcao": funcao,
@@ -78,7 +78,7 @@ async def editar(
         caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
         with open(caminho, "wb") as buffer:
             shutil.copyfileobj(foto.file, buffer)
-        update_data["foto_url"] = f"http://localhost:8000/uploads/{nome_arquivo}"
+        update_data["foto_url"] = f"https://desbrava-app-1.onrender.com/uploads/{nome_arquivo}"
 
     resultado = await db.membros.update_one(
         {"_id": ObjectId(id)}, 
@@ -108,4 +108,5 @@ async def remover(id: str):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
