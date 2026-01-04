@@ -69,10 +69,10 @@ const UserRanking = () => {
                     <img src={m.foto_url} className="w-12 h-12 md:w-28 md:h-28 rounded-full border-2 md:border-4 border-white object-cover shadow-xl" alt="" />
                   </div>
                   
-                  {/* NOME E FUNÇÃO */}
+                  {/* NOME COMPLETO REATIVADO AQUI */}
                   <div className="text-center px-1 mb-2">
                     <h2 className="font-black text-[9px] md:text-xl leading-tight text-white uppercase drop-shadow-md">
-                      {window.innerWidth < 768 ? m.nome.split(' ')[0] : m.nome}
+                      {m.nome}
                     </h2>
                     <p className="text-[7px] md:text-[11px] font-bold text-black/40 uppercase italic">
                       {m.funcao}
