@@ -17,7 +17,7 @@ const AdminDashboard = () => {
   const [inputMotivo, setInputMotivo] = useState('');
 
   const carregarMembros = () => {
-    fetch('https://seu-link-do-render.onrender.com/membros')
+    fetch('https://desbrava-app-1.onrender.com/membros')
       .then(res => res.json())
       .then(data => setMembros(data));
   };
@@ -33,9 +33,9 @@ const AdminDashboard = () => {
     if (arquivo) data.append('foto', arquivo);
 
     const method = view === 'edicao' ? 'PUT' : 'POST';
-    const url = view === 'edicao' 
-      ? `http://localhost:8000/membros/${membroParaEditar._id}` 
-      : 'http://localhost:8000/membros';
+    const url = view === 'edicao'  
+  ? `https://desbrava-app-1.onrender.com/membros/${membroParaEditar._id}` 
+  : 'https://desbrava-app-1.onrender.com/membros';
     
     await fetch(url, { method: method, body: data });
     limparFormulario();
@@ -47,7 +47,7 @@ const AdminDashboard = () => {
     data.append('valor', inputPontos);
     data.append('motivo', inputMotivo);
 
-    await fetch(`https://seu-link-do-render.onrender.com/membros/${id}/pontos`, { method: 'PATCH', body: data });
+    await fetch(`https://desbrava-app-1.onrender.com/membros/${id}/pontos`, { method: 'PATCH', body: data });
     setPontuandoId(''); setInputPontos(''); setInputMotivo(''); carregarMembros();
   };
 
@@ -167,7 +167,7 @@ const AdminDashboard = () => {
                       <div className="flex justify-center items-center gap-3">
                         <button onClick={() => setPontuandoId(m._id)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-black shadow-md transition-transform active:scale-95 text-xs">⭐ PONTUAR</button>
                         <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-3 rounded-xl shadow-md transition-transform active:scale-95">✏️</button>
-                        <button onClick={async () => { if(window.confirm('Excluir?')) { await fetch(`http://localhost:8000/membros/${m._id}`, {method: 'DELETE'}); carregarMembros(); } }} className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl shadow-md transition-transform active:scale-95">🗑️</button>
+                        <button onClick={async () => { if(window.confirm('Excluir?')) { await fetch(`https://desbrava-app-1.onrender.com/membros/${m._id}`, {method: 'DELETE'}); carregarMembros(); } }} className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl shadow-md transition-transform active:scale-95">🗑️</button>
                       </div>
                     )}
                   </td>
@@ -180,5 +180,6 @@ const AdminDashboard = () => {
     </div>
   );
 };
+
 
 export default AdminDashboard;
