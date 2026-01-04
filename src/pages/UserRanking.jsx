@@ -6,9 +6,15 @@ const UserRanking = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('https://desbrava-app-1.onrender.com/membros')
+    // Atualizado para o novo link do Render
+    fetch('https://desbrava-app.onrender.com/membros')
       .then(res => res.json())
-      .then(data => setMembros(data));
+      .then(data => {
+        // Organiza do maior para o menor para o pódio funcionar
+        const ordenados = data.sort((a, b) => b.pontos - a.pontos);
+        setMembros(ordenados);
+      })
+      .catch(err => console.error("Erro ao carregar ranking:", err));
   }, []);
 
   const getPatente = (pontos) => {
@@ -34,7 +40,7 @@ const UserRanking = () => {
             <div className="w-20"></div>
         </div>
 
-        {/* PÓDIO AJUSTADO */}
+        {/* PÓDIO */}
         <div className="flex flex-wrap justify-center items-end gap-3 md:gap-6 mb-24">
           {podio.map((m, index) => {
             const isFirst = index === 0;
@@ -52,7 +58,7 @@ const UserRanking = () => {
                     {index + 1}º
                 </div>
 
-                {/* CARD COM TAMANHO DINÂMICO */}
+                {/* CARD DINÂMICO */}
                 <div className={`flex flex-col items-center p-6 rounded-t-[45px] border-x-4 border-t-4 shadow-2xl relative ${
                   isFirst ? 'bg-yellow-500 border-yellow-300 w-72 min-h-[480px]' : 
                   'bg-white/10 backdrop-blur-md border-white/20 w-60 min-h-[380px]'
@@ -60,7 +66,7 @@ const UserRanking = () => {
                   
                   {/* FOTO */}
                   <div className="relative mb-4">
-                    <img src={m.foto_url} className="w-28 h-28 rounded-full border-4 border-white object-cover shadow-xl" alt="" />
+                    <img src={m.foto_url || "https://via.placeholder.com/150"} className="w-28 h-28 rounded-full border-4 border-white object-cover shadow-xl" alt="" />
                   </div>
                   
                   {/* NOME */}
@@ -73,14 +79,14 @@ const UserRanking = () => {
                     {m.funcao}
                   </p>
                   
-                  {/* PATENTE DESTACADA (CONTEINER GARANTIDO) */}
+                  {/* PATENTE */}
                   <div className="bg-green-950 text-yellow-400 px-4 py-2 rounded-2xl shadow-xl border-2 border-green-800 mb-6 w-full max-w-[90%] flex justify-center items-center">
                     <p className="text-[10px] font-black text-center uppercase leading-none">
                       {getPatente(m.pontos)}
                     </p>
                   </div>
                   
-                  {/* BOX DE PONTOS NO FUNDO DO CARD */}
+                  {/* BOX DE PONTOS */}
                   <div className="mt-auto bg-black/20 w-full py-4 rounded-3xl flex flex-col items-center">
                     <p className="text-4xl font-black text-white">{m.pontos}</p>
                     <span className="text-[9px] font-black text-white/70 uppercase tracking-widest">Pontos Totais</span>
@@ -100,7 +106,7 @@ const UserRanking = () => {
             <div key={m._id} className="flex items-center justify-between p-6 border-b hover:bg-green-50 transition-all">
               <div className="flex items-center gap-6">
                 <span className="font-black text-gray-300 text-3xl w-10 text-center">{index + 4}º</span>
-                <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-50 shadow-md" alt="" />
+                <img src={m.foto_url || "https://via.placeholder.com/150"} className="w-16 h-16 rounded-full object-cover border-4 border-green-50 shadow-md" alt="" />
                 <div>
                   <p className="font-black text-gray-900 text-xl leading-none">{m.nome}</p>
                   <p className="text-[10px] text-gray-400 font-bold uppercase mb-2">{m.funcao}</p>
@@ -121,7 +127,4 @@ const UserRanking = () => {
   );
 };
 
-
 export default UserRanking;
-
-
