@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const UserRanking = () => {
+const RankingClube = () => {
   const [membros, setMembros] = useState([]);
 
   useEffect(() => {
@@ -13,57 +13,72 @@ const UserRanking = () => {
   }, []);
 
   return (
-    /* pt-20 garante que o título apareça abaixo da barra do navegador no mobile */
-    <div className="min-h-screen bg-green-700 p-4 md:p-8 overflow-x-hidden pt-20">
-      
-      <div className="flex items-center gap-4 mb-10">
+    <div className="min-h-screen bg-[#064e3b] p-4 md:p-8 overflow-x-hidden">
+      {/* Botão Voltar */}
+      <div className="flex items-center gap-4 mb-8">
         <button className="bg-white/20 text-white text-[10px] px-4 py-2 rounded-lg uppercase font-bold">
           ← Voltar
         </button>
-        <h1 className="text-white text-2xl font-black italic uppercase tracking-widest">
+        <h1 className="text-white text-xl font-black italic uppercase tracking-wider">
           Ranking do Clube
         </h1>
       </div>
 
-      {/* CONTAINER DOS CARDS: Mantendo o seu estilo original de cores */}
-      <div className="flex overflow-x-auto gap-6 pb-10 snap-x scrollbar-hide items-start">
+      {/* CONTAINER DOS CARDS: Ajuste para não cortar */}
+      <div className="flex overflow-x-auto gap-4 pb-10 snap-x scrollbar-hide md:justify-center md:flex-wrap">
         {membros.map((m, index) => (
           <div 
             key={m._id} 
-            /* min-w-[85vw] para o card se ajustar ao tamanho da tela do celular */
-            className="min-w-[85vw] sm:min-w-[320px] bg-green-800/40 rounded-[45px] p-8 border border-white/10 snap-center flex-shrink-0 flex flex-col items-center text-center shadow-2xl relative"
+            className={`
+              /* Define que o card ocupa 85% da largura no mobile para não cortar */
+              min-w-[85vw] sm:min-w-[320px] 
+              rounded-[40px] p-6 snap-center flex-shrink-0 relative flex flex-col items-center text-center shadow-2xl
+              ${index === 0 ? 'bg-[#fbbf24]' : 'bg-white/10 backdrop-blur-md border border-white/10'}
+            `}
           >
             {/* Posição no Ranking */}
-            <div className="text-6xl font-black text-white/10 italic absolute top-6 right-8">
+            <div className={`text-6xl font-black italic mb-2 ${index === 0 ? 'text-black/10' : 'text-white/10'}`}>
               {index + 1}º
             </div>
 
-            {/* Foto de Perfil com a sua borda amarela */}
-            <div className="w-32 h-32 rounded-full border-4 border-yellow-400 overflow-hidden mb-4 shadow-xl">
+            {/* Foto de Perfil */}
+            <div className="w-28 h-28 rounded-full border-4 border-white overflow-hidden mb-4 shadow-lg">
               <img src={m.foto_url} alt={m.nome} className="w-full h-full object-cover" />
             </div>
 
-            <h2 className="text-2xl font-black text-white uppercase leading-tight mb-1">
+            <h2 className={`text-xl font-black uppercase leading-tight mb-1 ${index === 0 ? 'text-black' : 'text-white'}`}>
               {m.nome}
             </h2>
-            <p className="text-[10px] font-bold text-green-200 uppercase italic mb-6">
+            <p className={`text-[10px] font-bold uppercase italic mb-6 ${index === 0 ? 'text-black/60' : 'text-gray-400'}`}>
               {m.funcao}
             </p>
 
-            <div className="bg-green-900 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase italic mb-6 border border-green-500">
+            {/* Badge de Patente */}
+            <div className="bg-[#064e3b] text-white px-6 py-2 rounded-full text-[10px] font-black uppercase italic mb-6">
               🌱 Aspirante
             </div>
 
-            {/* Placar de Pontos original */}
-            <div className="bg-green-900/60 rounded-3xl p-6 w-full border border-white/5">
-              <p className="text-4xl font-black text-white leading-none">{m.pontos}</p>
-              <p className="text-[10px] font-black text-green-300 uppercase mt-2">Pontos Totais</p>
+            {/* Placar de Pontos */}
+            <div className={`${index === 0 ? 'bg-black/5' : 'bg-white/5'} rounded-3xl p-6 w-full`}>
+              <p className={`text-5xl font-black leading-none ${index === 0 ? 'text-black' : 'text-white'}`}>
+                {m.pontos}
+              </p>
+              <p className={`text-[10px] font-black uppercase mt-2 ${index === 0 ? 'text-black/40' : 'text-gray-400'}`}>
+                Pontos Totais
+              </p>
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Rodapé fixo ou informativo */}
+      <div className="bg-white rounded-t-[40px] p-6 mt-4 text-center">
+        <p className="text-[#064e3b] font-black uppercase text-xs tracking-widest">
+          Classificação Geral
+        </p>
       </div>
     </div>
   );
 };
 
-export default UserRanking;
+export default RankingClube;
