@@ -22,6 +22,7 @@ IMAGENS_DIR = "uploads"
 os.makedirs(IMAGENS_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=IMAGENS_DIR), name="uploads")
 
+# Conexão com MongoDB Atlas via variável de ambiente do Render
 client = AsyncIOMotorClient(os.getenv("MONGODB_URL", "mongodb://localhost:27017"))
 db = client["desbravadores"]
 
@@ -46,8 +47,8 @@ async def criar(
         caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
         with open(caminho, "wb") as buffer:
             shutil.copyfileobj(foto.file, buffer)
-        # URL completa para o React encontrar a imagem
-       url_foto = f"https://desbrava-app-1.onrender.com/uploads/{nome_arquivo}"
+        # CORREÇÃO DE IDENTAÇÃO AQUI:
+        url_foto = f"https://desbrava-app-1.onrender.com/uploads/{nome_arquivo}"
 
     novo_membro = {
         "nome": nome, "unidade": unidade, "funcao": funcao,
@@ -56,7 +57,6 @@ async def criar(
     novo = await db.membros.insert_one(novo_membro)
     return {"id": str(novo.inserted_id)}
 
-# NOVA ROTA: Implementação da Edição (PUT)
 @app.put("/membros/{id}")
 async def editar(
     id: str,
@@ -65,19 +65,18 @@ async def editar(
     funcao: str = Form(...),
     foto: UploadFile = File(None)
 ):
-    # Prepara os dados básicos para atualizar
     update_data = {
         "nome": nome,
         "unidade": unidade,
         "funcao": funcao
     }
 
-    # Se uma nova foto for enviada, processa e atualiza a URL
     if foto:
         nome_arquivo = f"{uuid.uuid4()}_{foto.filename}"
         caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
         with open(caminho, "wb") as buffer:
             shutil.copyfileobj(foto.file, buffer)
+        # URL correta para o ambiente de produção
         update_data["foto_url"] = f"https://desbrava-app-1.onrender.com/uploads/{nome_arquivo}"
 
     resultado = await db.membros.update_one(
@@ -95,8 +94,8 @@ async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(.
     await db.membros.update_one(
         {"_id": ObjectId(id)},
         {
-            "$inc": {"pontos": valor}, # Incrementa os pontos
-            "$push": {"historico_pontos": {"valor": valor, "motivo": motivo}} # Salva histórico
+            "$inc": {"pontos": valor},
+            "$push": {"historico_pontos": {"valor": valor, "motivo": motivo}}
         }
     )
     return {"message": "Pontos salvos"}
@@ -105,8 +104,3 @@ async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(.
 async def remover(id: str):
     await db.membros.delete_one({"_id": ObjectId(id)})
     return {"message": "Removido"}
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
