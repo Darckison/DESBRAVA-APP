@@ -6,7 +6,7 @@ const UserRanking = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('https://seu-link-do-render.onrender.com/membros')
+    fetch('https://desbrava-app-1.onrender.com/membros')
       .then(res => res.json())
       .then(data => setMembros(data));
   }, []);
@@ -123,4 +123,5 @@ const UserRanking = () => {
 
 
 export default UserRanking;
+
 
