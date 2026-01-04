@@ -1,106 +1,110 @@
 import os
-import shutil
-import uuid
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+import cloudinary
+import cloudinary.uploader
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
+from typing import List, Optional
 
 app = FastAPI()
 
-# Configuração do CORS para o React conseguir acessar
+# Configuração de CORS para permitir acesso da Vercel ao Render
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Pasta de uploads
-IMAGENS_DIR = "uploads"
-os.makedirs(IMAGENS_DIR, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=IMAGENS_DIR), name="uploads")
+# Configuração do Cloudinary (Puxa as chaves que você colocou no Render)
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
 
-# Conexão com MongoDB Atlas via variável de ambiente do Render
-client = AsyncIOMotorClient(os.getenv("MONGODB_URL", "mongodb://localhost:27017"))
-db = client["desbravadores"]
+# Conexão com MongoDB Atlas via Variável de Ambiente
+link_mongo = os.getenv("MONGODB_URL")
+client = AsyncIOMotorClient(link_mongo)
+db = client.get_database("desbravadores")
+collection = db.get_collection("membros")
 
+# Helper para converter dados do banco para JSON
+def membro_helper(membro) -> dict:
+    return {
+        "_id": str(membro["_id"]),
+        "nome": membro.get("nome"),
+        "unidade": membro.get("unidade"),
+        "funcao": membro.get("funcao"),
+        "foto_url": membro.get("foto_url", ""),
+        "pontos": membro.get("pontos", 0)
+    }
+
+# ROTA: Listar Membros
 @app.get("/membros")
-async def listar():
-    membros = await db.membros.find().sort("pontos", -1).to_list(100)
-    for m in membros:
-        m["_id"] = str(m["_id"])
+async def listar_membros():
+    membros = []
+    cursor = collection.find()
+    async for membro in cursor:
+        membros.append(membro_helper(membro))
     return membros
 
+# ROTA: Criar Membro com Foto no Cloudinary
 @app.post("/membros")
-async def criar(
+async def criar_membro(
     nome: str = Form(...),
     unidade: str = Form(...),
     funcao: str = Form(...),
-    pontos: int = Form(0),
-    foto: UploadFile = File(None)
+    foto: Optional[UploadFile] = File(None)
 ):
-    url_foto = "https://placehold.co/400"
+    foto_url = "https://via.placeholder.com/150"
+    
+    # Se uma foto for enviada, faz o upload para o Cloudinary
     if foto:
-        nome_arquivo = f"{uuid.uuid4()}_{foto.filename}"
-        caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
-        with open(caminho, "wb") as buffer:
-            shutil.copyfileobj(foto.file, buffer)
-        # CORREÇÃO DE IDENTAÇÃO AQUI:
-        url_foto = f"https://desbrava-app-1.onrender.com/uploads/{nome_arquivo}"
+        try:
+            upload_result = cloudinary.uploader.upload(foto.file)
+            foto_url = upload_result.get("secure_url")
+        except Exception as e:
+            print(f"Erro no Cloudinary: {e}")
 
     novo_membro = {
-        "nome": nome, "unidade": unidade, "funcao": funcao,
-        "pontos": pontos, "foto_url": url_foto, "historico_pontos": []
+        "nome": nome,
+        "unidade": unidade,
+        "funcao": funcao,
+        "pontos": 0,
+        "foto_url": foto_url
     }
-    novo = await db.membros.insert_one(novo_membro)
-    return {"id": str(novo.inserted_id)}
+    result = await collection.insert_one(novo_membro)
+    return {"id": str(result.inserted_id)}
 
+# ROTA: Adicionar Pontos
+@app.patch("/membros/{id}/pontos")
+async def adicionar_pontos(id: str, valor: int = Form(...)):
+    await collection.update_one(
+        {"_id": ObjectId(id)},
+        {"$inc": {"pontos": valor}}
+    )
+    return {"status": "pontos atualizados"}
+
+# ROTA: Excluir Membro
+@app.delete("/membros/{id}")
+async def excluir_membro(id: str):
+    await collection.delete_one({"_id": ObjectId(id)})
+    return {"status": "membro removido"}
+
+# ROTA: Editar Membro
 @app.put("/membros/{id}")
-async def editar(
+async def editar_membro(
     id: str,
     nome: str = Form(...),
     unidade: str = Form(...),
-    funcao: str = Form(...),
-    foto: UploadFile = File(None)
+    funcao: str = Form(...)
 ):
-    update_data = {
-        "nome": nome,
-        "unidade": unidade,
-        "funcao": funcao
-    }
-
-    if foto:
-        nome_arquivo = f"{uuid.uuid4()}_{foto.filename}"
-        caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
-        with open(caminho, "wb") as buffer:
-            shutil.copyfileobj(foto.file, buffer)
-        # URL correta para o ambiente de produção
-        update_data["foto_url"] = f"https://desbrava-app-1.onrender.com/uploads/{nome_arquivo}"
-
-    resultado = await db.membros.update_one(
-        {"_id": ObjectId(id)}, 
-        {"$set": update_data}
-    )
-    
-    if resultado.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Membro não encontrado")
-    
-    return {"message": "Atualizado com sucesso"}
-
-@app.patch("/membros/{id}/pontos")
-async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(...)):
-    await db.membros.update_one(
+    await collection.update_one(
         {"_id": ObjectId(id)},
-        {
-            "$inc": {"pontos": valor},
-            "$push": {"historico_pontos": {"valor": valor, "motivo": motivo}}
-        }
+        {"$set": {"nome": nome, "unidade": unidade, "funcao": funcao}}
     )
-    return {"message": "Pontos salvos"}
-
-@app.delete("/membros/{id}")
-async def remover(id: str):
-    await db.membros.delete_one({"_id": ObjectId(id)})
-    return {"message": "Removido"}
+    return {"status": "atualizado"}
