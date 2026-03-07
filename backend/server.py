@@ -22,7 +22,7 @@ IMAGENS_DIR = "uploads"
 os.makedirs(IMAGENS_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=IMAGENS_DIR), name="uploads")
 
-client = AsyncIOMotorClient("mongodb://localhost:27017")
+client = AsyncIOMotorClient("mongodb+srv://tdarckison_user:1234@cluster0.8nvfgfw.mongodb.net/?appName=Cluster0")
 db = client["desbravadores"]
 db_unidades = client["unidades"]
 
@@ -153,4 +153,5 @@ async def listar_membros_da_unidade(nome_unidade: str):
         m["_id"] = str(m["_id"])
         
     return membros
+
 
