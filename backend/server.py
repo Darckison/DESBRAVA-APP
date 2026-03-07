@@ -115,31 +115,25 @@ async def remover(id: str):
 
 @app.get("/ranking-unidades")
 async def obter_ranking_unidades():
-    # 1. Busca no banco db_unidades e na coleção unidades
-    unidades_cursor = db_unidades.unidades.find()
+    # Busca no banco 'unidades' -> coleção 'unidades'
+    unidades_cursor = colecao_unidades.find()
     unidades_lista = await unidades_cursor.to_list(length=100)
     
     ranking_final = []
-
     for unidade in unidades_lista:
-        # 2. Busca membros no banco 'desbravadores' (db) na coleção 'membros'
-        # O campo 'unidade' no membro deve ser IGUAL ao 'nome' da unidade
-        membros_cursor = db.membros.find({"unidade": unidade["nome"]})
+        # Busca no banco 'desbravadores' -> coleção 'membros' (ou o nome que estiver lá)
+        membros_cursor = colecao_membros.find({"unidade": unidade["nome"]})
         membros_m = await membros_cursor.to_list(length=100)
         
-        # 3. Soma os pontos individuais dos membros (campo 'pontos')
-        soma_pontos_membros = sum(m.get("pontos", 0) for m in membros_m)
+        soma = sum(m.get("pontos", 0) for m in membros_m)
         
-        # 4. Monta o objeto com a soma total
         ranking_final.append({
             "nome": unidade["nome"],
             "pontos_unidade": unidade.get("pontos_proprios", 0),
-            "pontos_membros": soma_pontos_membros,
-            "total": unidade.get("pontos_proprios", 0) + soma_pontos_membros,
+            "pontos_membros": soma,
+            "total": unidade.get("pontos_proprios", 0) + soma,
             "total_membros": len(membros_m)
         })
-
-    # 5. Ordena do maior para o menor total
     return sorted(ranking_final, key=lambda x: x['total'], reverse=True)
 
 @app.get("/unidade/{nome_unidade}/membros")
@@ -165,6 +159,7 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
