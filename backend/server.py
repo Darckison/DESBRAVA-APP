@@ -46,7 +46,7 @@ async def criar(
     pontos: int = Form(0),
     foto: UploadFile = File(None)
 ):
-    url_foto = "https://placehold.co/400"
+    url_foto = f"https://desbrava-app.onrender.com/uploads/{nome_arquivo}"
     if foto:
         nome_arquivo = f"{uuid.uuid4()}_{foto.filename}"
         caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
@@ -159,4 +159,5 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
