@@ -1,113 +1,154 @@
 import os
-import cloudinary
-import cloudinary.uploader
-from fastapi import FastAPI, UploadFile, File, Form
+import shutil
+import uuid
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
-from typing import List, Optional
 
 app = FastAPI()
 
-# Configuração de CORS para permitir acesso da Vercel ao Render
+# Configuração do CORS para o React conseguir acessar
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configuração do Cloudinary (Puxa as chaves que você colocou no Render)
-cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
-    secure=True
-)
+# Pasta de uploads
+IMAGENS_DIR = "uploads"
+os.makedirs(IMAGENS_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=IMAGENS_DIR), name="uploads")
 
-# Conexão com MongoDB Atlas via Variável de Ambiente
-link_mongo = os.getenv("MONGODB_URL")
-client = AsyncIOMotorClient(link_mongo)
-db = client.get_database("desbravadores")
-collection = db.get_collection("membros")
+client = AsyncIOMotorClient("mongodb://localhost:27017")
+db = client["desbravadores"]
 
-# Helper para converter dados do banco para JSON
-def membro_helper(membro) -> dict:
-    return {
-        "_id": str(membro["_id"]),
-        "nome": membro.get("nome"),
-        "unidade": membro.get("unidade"),
-        "funcao": membro.get("funcao"),
-        "foto_url": membro.get("foto_url", ""),
-        "pontos": membro.get("pontos", 0)
-    }
-
-# ROTA: Listar Membros
 @app.get("/membros")
-async def listar_membros():
-    membros = []
-    cursor = collection.find()
-    async for membro in cursor:
-        membros.append(membro_helper(membro))
+async def listar():
+    membros = await db.membros.find().sort("pontos", -1).to_list(100)
+    for m in membros:
+        m["_id"] = str(m["_id"])
     return membros
 
-# ROTA: Criar Membro com Foto no Cloudinary
 @app.post("/membros")
-async def criar_membro(
+async def criar(
     nome: str = Form(...),
     unidade: str = Form(...),
     funcao: str = Form(...),
-    foto: Optional[UploadFile] = File(None)
+    pontos: int = Form(0),
+    foto: UploadFile = File(None)
 ):
-    foto_url = "https://via.placeholder.com/150"
-    
-    # Se uma foto for enviada, faz o upload para o Cloudinary
+    url_foto = "https://placehold.co/400"
     if foto:
-        try:
-            conteudo_foto = await foto.read() 
-            upload_result = cloudinary.uploader.upload(conteudo_foto)
-            foto_url = upload_result.get("secure_url")
-        except Exception as e:
-            print(f"Erro no Cloudinary: {e}")
+        nome_arquivo = f"{uuid.uuid4()}_{foto.filename}"
+        caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
+        with open(caminho, "wb") as buffer:
+            shutil.copyfileobj(foto.file, buffer)
+        # URL completa para o React encontrar a imagem
+        url_foto = f"http://localhost:8000/uploads/{nome_arquivo}"
 
     novo_membro = {
-        "nome": nome,
-        "unidade": unidade,
-        "funcao": funcao,
-        "pontos": 0,
-        "foto_url": foto_url
+        "nome": nome, "unidade": unidade, "funcao": funcao,
+        "pontos": pontos, "foto_url": url_foto, "historico_pontos": []
     }
-    result = await collection.insert_one(novo_membro)
-    return {"id": str(result.inserted_id)}
+    novo = await db.membros.insert_one(novo_membro)
+    return {"id": str(novo.inserted_id)}
 
-# ROTA: Adicionar Pontos
-@app.patch("/membros/{id}/pontos")
-async def adicionar_pontos(id: str, valor: int = Form(...)):
-    await collection.update_one(
-        {"_id": ObjectId(id)},
-        {"$inc": {"pontos": valor}}
-    )
-    return {"status": "pontos atualizados"}
-
-# ROTA: Excluir Membro
-@app.delete("/membros/{id}")
-async def excluir_membro(id: str):
-    await collection.delete_one({"_id": ObjectId(id)})
-    return {"status": "membro removido"}
-
-# ROTA: Editar Membro
+# NOVA ROTA: Implementação da Edição (PUT)
 @app.put("/membros/{id}")
-async def editar_membro(
+async def editar(
     id: str,
     nome: str = Form(...),
     unidade: str = Form(...),
-    funcao: str = Form(...)
+    funcao: str = Form(...),
+    foto: UploadFile = File(None)
 ):
-    await collection.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": {"nome": nome, "unidade": unidade, "funcao": funcao}}
+    # Prepara os dados básicos para atualizar
+    update_data = {
+        "nome": nome,
+        "unidade": unidade,
+        "funcao": funcao
+    }
+
+    # Se uma nova foto for enviada, processa e atualiza a URL
+    if foto:
+        nome_arquivo = f"{uuid.uuid4()}_{foto.filename}"
+        caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
+        with open(caminho, "wb") as buffer:
+            shutil.copyfileobj(foto.file, buffer)
+        update_data["foto_url"] = f"http://localhost:8000/uploads/{nome_arquivo}"
+
+    resultado = await db.membros.update_one(
+        {"_id": ObjectId(id)}, 
+        {"$set": update_data}
     )
-    return {"status": "atualizado"}
+    
+    if resultado.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Membro não encontrado")
+    
+    return {"message": "Atualizado com sucesso"}
 
+@app.patch("/membros/{id}/pontos")
+async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(...)):
+    await db.membros.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$inc": {"pontos": valor}, # Incrementa os pontos
+            "$push": {"historico_pontos": {"valor": valor, "motivo": motivo}} # Salva histórico
+        }
+    )
+    return {"message": "Pontos salvos"}
 
+@app.delete("/membros/{id}")
+async def remover(id: str):
+    await db.membros.delete_one({"_id": ObjectId(id)})
+    return {"message": "Removido"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# --- NOVAS ROTAS PARA AS UNIDADES ---
+
+@app.get("/ranking-unidades")
+async def obter_ranking_unidades():
+    # 1. Busca todas as unidades cadastradas
+    unidades_cursor = db.unidades.find()
+    unidades = await unidades_cursor.to_list(length=100)
+    
+    ranking_final = []
+
+    for unidade in unidades:
+        # 2. Para cada unidade, busca os membros dela
+        # Importante: o campo "unidade" no Desbravador deve ser igual ao "nome" da Unidade
+        membros_cursor = db.desbravadores.find({"unidade": unidade["nome"]})
+        membros = await membros_cursor.to_list(length=100)
+        
+        # 3. Soma os pontos individuais dos membros
+        soma_pontos_membros = sum(m.get("points", 0) for m in membros) # Verifique se o campo é 'points' ou 'pontos'
+        
+        # 4. Monta o objeto com a soma total
+        ranking_final.append({
+            "nome": unidade["nome"],
+            "pontos_base_unidade": unidade.get("pontos_proprios", 0),
+            "pontos_dos_membros": soma_pontos_membros,
+            "total_geral": unidade.get("pontos_proprios", 0) + soma_pontos_membros,
+            "qtd_membros": len(membros)
+        })
+
+    # 5. Ordena do maior para o menor
+    return sorted(ranking_final, key=lambda x: x['total_geral'], reverse=True)
+
+@app.get("/unidade/{nome_unidade}/membros")
+async def listar_membros_da_unidade(nome_unidade: str):
+    # Busca apenas os desbravadores daquela unidade específica
+    membros_cursor = db.desbravadores.find({"unidade": nome_unidade})
+    membros = await membros_cursor.to_list(length=100)
+    
+    # Converte o ID do MongoDB para string para o React não dar erro
+    for m in membros:
+        m["_id"] = str(m["_id"])
+        
+    return membros
