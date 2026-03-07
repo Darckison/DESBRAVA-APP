@@ -4,7 +4,8 @@ import LandingPage from './pages/LandingPage';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import NovoMembro from './pages/NovoMembro';
-import UserRanking from './pages/UserRanking'; // Adicione esta linha depois de criar o arquivo
+import UserRanking from './pages/UserRanking'; // Ranking Geral
+import UnitRanking from './pages/UnitRanking'; // Ranking por Unidade
 
 function App() {
   return (
@@ -15,9 +16,11 @@ function App() {
         <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="/novo-membro" element={<NovoMembro />} />
         <Route path="/ranking" element={<UserRanking />} /> {/* Rota para os usuários verem o placar */}
+        <Route path="/ranking-unidades" element={<UnitRanking />} /> {/* Rota para o ranking por unidades */}
       </Routes>
     </Router>
   );
 }
+
 
 export default App;
