@@ -23,7 +23,7 @@ os.makedirs(IMAGENS_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=IMAGENS_DIR), name="uploads")
 
 # --- CONEXÃO COM O MONGODB -
-uri = "mongodb+srv://tdarckison_user:1234@cluster0.8nvfgfw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+uri = "mongodb+srv://tdarckison_user:12345678@cluster0.8nvfgfw.mongodb.net/?appName=Cluster0"
 
 client = AsyncIOMotorClient(uri)
 db = client["desbravadores"]  # Banco onde ficam os membros
@@ -159,3 +159,4 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
