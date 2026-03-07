@@ -23,12 +23,18 @@ os.makedirs(IMAGENS_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=IMAGENS_DIR), name="uploads")
 
 # --- CONEXÃO COM O MONGODB -
-uri = "mongodb+srv://tdarckison_user:12345678@cluster0.8nvfgfw.mongodb.net/?appName=Cluster0"
+client = AsyncIOMotorClient("mongodb+srv://tdarckison_user:1234@cluster0.8nvfgfw.mongodb.net/?retryWrites=true&w=majority")
 
-client = AsyncIOMotorClient(uri)
-db = client["desbravadores"]  # Banco onde ficam os membros
-db_unidades = client["unidades"] # Banco onde ficam as unidades
+# BANCO 1: 'desbravadores'
+db_principal = client["desbravadores"]
+# Verifique no Atlas: se a pasta dentro de 'desbravadores' se chamar 'membros', use:
+colecao_membros = db_principal["membros"] 
 
+# BANCO 2: 'unidades'
+db_unidades_banco = client["unidades"]
+# Na sua imagem, a pasta dentro do banco 'unidades' também se chama 'unidades'
+colecao_unidades = db_unidades_banco["unidades"]
+#-------------------------------------------------------------------------------------
 # --- ROTAS DE MEMBROS (MANTIDAS) ---
 
 @app.get("/membros")
@@ -159,5 +165,6 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
