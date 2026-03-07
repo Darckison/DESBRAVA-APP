@@ -7,7 +7,7 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-green-900 to-black animate-gradient flex flex-col items-center justify-center px-4 text-white font-sans overflow-hidden">
       
-      {/* Container Principal - Aumentado para max-w-4xl para caber o texto inteiro */}
+      {/* Container Principal */}
       <div className="text-center space-y-6 backdrop-blur-md p-8 md:p-12 rounded-[50px] border border-white/10 shadow-2xl bg-black/20 w-full max-w-4xl mx-auto flex flex-col items-center">
         
         {/* LOGO DO CLUBE */}
@@ -22,7 +22,7 @@ const LandingPage = () => {
           </div>
         </div>
 
-        {/* Título e Subtítulo - Ajustado o tamanho da fonte e removido quebras */}
+        {/* Título e Subtítulo */}
         <div className="w-full overflow-visible">
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 leading-none whitespace-nowrap px-2">
             Desbravadores
@@ -32,18 +32,26 @@ const LandingPage = () => {
           </p>
         </div>
 
-        {/* Botões - Ajustados para ficarem lado a lado e bem visíveis */}
-        <div className="flex flex-col sm:flex-row gap-6 pt-10 w-full max-w-lg justify-center">
+        {/* Botões - Adicionado o botão de Ranking por Unidades no meio */}
+        <div className="flex flex-col sm:flex-row gap-4 pt-10 w-full max-w-2xl justify-center">
           <button 
             onClick={() => navigate('/ranking')}
-            className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-green-950 font-black py-4 px-8 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-sm sm:text-base whitespace-nowrap"
+            className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-green-950 font-black py-4 px-6 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-[10px] sm:text-xs whitespace-nowrap"
           >
-            ⭐ Ver Ranking
+            ⭐ Ranking Geral
+          </button>
+
+          {/* NOVO BOTÃO DE UNIDADES */}
+          <button 
+            onClick={() => navigate('/ranking-unidades')}
+            className="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white font-black py-4 px-6 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-[10px] sm:text-xs whitespace-nowrap"
+          >
+            🏆 Ranking Unidades
           </button>
 
           <button 
             onClick={() => navigate('/login')}
-            className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/20 font-bold py-4 px-8 rounded-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-sm sm:text-base whitespace-nowrap"
+            className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/20 font-bold py-4 px-6 rounded-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-[10px] sm:text-xs whitespace-nowrap"
           >
             🔒 Admin
           </button>
