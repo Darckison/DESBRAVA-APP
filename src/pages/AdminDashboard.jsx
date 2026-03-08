@@ -60,11 +60,23 @@ const AdminDashboard = () => {
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto bg-gray-50 min-h-screen font-sans">
-      <div className="flex justify-between items-center mb-8 border-b pb-4">
+      {/* CABEÇALHO MODIFICADO APENAS PARA INCLUIR O BOTÃO DE UNIDADES */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b pb-4 gap-4">
         <h1 className="text-2xl md:text-3xl font-black text-green-800 italic">Clube de Desbravadores Ágata(Admin)</h1>
-        <button onClick={() => navigate('/')} className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-bold shadow-md transition-all">
-          Sair do Sistema
-        </button>
+        
+        <div className="flex gap-3">
+          {/* BOTÃO NOVO: NAVEGAÇÃO PARA GERENCIAR UNIDADES */}
+          <button 
+            onClick={() => navigate('/admin-unidades')} 
+            className="bg-yellow-500 hover:bg-yellow-600 text-slate-900 px-5 py-2 rounded-xl font-black shadow-md transition-all uppercase text-xs flex items-center gap-2"
+          >
+            🛡️ Unidades
+          </button>
+
+          <button onClick={() => navigate('/')} className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-bold shadow-md transition-all">
+            Sair do Sistema
+          </button>
+        </div>
       </div>
 
       {view === 'tabela' && (
@@ -108,7 +120,6 @@ const AdminDashboard = () => {
 
       {view === 'tabela' && (
         <div className="bg-white rounded-[32px] shadow-2xl border border-gray-100">
-          {/* AQUI ESTÁ A CORREÇÃO: overflow-x-auto para não cortar no celular */}
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[600px]">
               <thead className="bg-green-800 text-white">
