@@ -1,6 +1,7 @@
 import os
 import shutil
 import uuid
+import cloudinary.uploader 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -156,25 +157,32 @@ async def criar_unidade(
     pontos_proprios: int = Form(0),
     logo: UploadFile = File(None)
 ):
-    url_logo = "https://placehold.co/200" # Logo padrão
+    url_logo = "https://placehold.co/200" # Logo padrão caso não envie foto
+    
     if logo:
-        nome_arquivo = f"logo_{uuid.uuid4()}_{logo.filename}"
-        caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
-        with open(caminho, "wb") as buffer:
-            shutil.copyfileobj(logo.file, buffer)
-        url_logo = f"/uploads/{nome_arquivo}"
+        # ENVIO PARA O CLOUDINARY
+        upload_result = cloudinary.uploader.upload(logo.file)
+        url_logo = upload_result["secure_url"] # Pega o link real da internet
 
     nova_unidade = {
         "nome": nome.upper().strip(),
         "pontos_proprios": pontos_proprios,
-        "logo_url": url_logo
+        "logo_url": url_logo # Salva o link do Cloudinary no banco
     }
-    await colecao_unidades.insert_one(nova_unidade)
-    return {"message": "Unidade cadastrada!"}
+    
+    # Verifica se já existe uma unidade com esse nome para não duplicar
+    await colecao_unidades.update_one(
+        {"nome": nome.upper().strip()},
+        {"$set": nova_unidade},
+        upsert=True # Se não existir, cria. Se existir, atualiza.
+    )
+    
+    return {"message": "Unidade e Logo salvas no Cloudinary!", "url": url_logo}
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
