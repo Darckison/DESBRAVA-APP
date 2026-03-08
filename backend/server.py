@@ -56,27 +56,19 @@ async def criar_membro(
 # --- ROTA DE UNIDADES (UPLOAD AUTOMÁTICO DO PC) ---
 
 @app.post("/unidades")
-async def criar_unidade(
-    nome: str = Form(...),
-    pontos_proprios: int = Form(0),
-    logo: UploadFile = File(None)
-):
-    url_logo = "https://via.placeholder.com/150"
+async def criar_unidade(nome: str = Form(...), pontos_proprios: int = Form(0), logo: UploadFile = File(None)):
+    url_final = "https://via.placeholder.com/150"
     if logo:
-        # Pega a logo do seu PC e manda pro Cloudinary
+        # Envia para o Cloudinary e pega a URL segura (https)
         res = cloudinary.uploader.upload(logo.file)
-        url_logo = res["secure_url"]
+        url_final = res["secure_url"] 
 
     await colecao_unidades.update_one(
         {"nome": nome.upper().strip()},
-        {"$set": {
-            "nome": nome.upper().strip(), 
-            "pontos_proprios": int(pontos_proprios), 
-            "logo_url": url_logo
-        }},
+        {"$set": {"nome": nome.upper().strip(), "pontos_proprios": int(pontos_proprios), "logo_url": url_final}},
         upsert=True
     )
-    return {"status": "sucesso"}
+    return {"status": "sucesso", "url": url_final}
 
 @app.get("/membros")
 async def listar_membros():
@@ -108,3 +100,4 @@ async def deletar_unidade(nome: str):
 async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(...)):
     await colecao_membros.update_one({"_id": ObjectId(id)}, {"$inc": {"pontos": valor}})
     return {"message": "ok"}
+
