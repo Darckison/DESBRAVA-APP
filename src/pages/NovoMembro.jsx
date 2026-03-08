@@ -8,37 +8,33 @@ const NovoMembro = () => {
   const [fotoUrl, setFotoUrl] = useState('');
   const navigate = useNavigate();
 
-  // URL CORRIGIDA (Sem o -1 e com o protocolo correto)
-  const API_URL = "https://desbrava-app-01.onrender.com";
+  // VOLTEI PARA O LINK QUE VOCÊ ESTAVA USANDO
+  const API_URL = "https://desbrava-app-1.onrender.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Usando FormData para garantir que o servidor receba os dados como campos de formulário
-    const formData = new FormData();
-    formData.append('nome', nome);
-    formData.append('unidade', unidade);
-    formData.append('funcao', funcao);
-    // Enviamos o link da foto como texto no campo que o servidor espera
-    formData.append('foto_url', fotoUrl || "https://via.placeholder.com/150");
-
     try {
-      const response = await fetch(`${API_URL}/membros`, {
+      // VOLTEI PARA A LÓGICA DE JSON QUE VOCÊ TINHA
+      const response = await fetch(`${API_URL}/membros/`, {
         method: 'POST',
-        // Note: Quando usamos FormData, NÃO colocamos o Header de Content-Type manual
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          nome, 
+          unidade, 
+          funcao, 
+          foto_url: fotoUrl || "https://via.placeholder.com/150",
+          status: 'Ativo' 
+        })
       });
 
       if (response.ok) {
         alert("Desbravador cadastrado com sucesso!");
         navigate('/dashboard');
       } else {
-        const erroTxt = await response.text();
-        alert("Erro no servidor: " + erroTxt);
+        alert("Erro ao salvar. O servidor não aceitou os dados.");
       }
     } catch (error) {
-      console.error(error);
-      alert("Erro ao conectar com o servidor! Verifique sua internet.");
+      alert("Erro ao conectar com o servidor!");
     }
   };
 
@@ -51,7 +47,6 @@ const NovoMembro = () => {
           <label className="block text-[10px] font-black text-gray-400 uppercase ml-2 mb-1">Nome Completo</label>
           <input
             type="text"
-            value={nome}
             className="w-full border-2 p-4 rounded-2xl focus:border-blue-500 outline-none font-bold uppercase"
             placeholder="Ex: João Silva"
             onChange={(e) => setNome(e.target.value)}
@@ -63,7 +58,6 @@ const NovoMembro = () => {
           <label className="block text-[10px] font-black text-gray-400 uppercase ml-2 mb-1">Unidade</label>
           <input
             type="text"
-            value={unidade}
             className="w-full border-2 p-4 rounded-2xl focus:border-blue-500 outline-none font-bold uppercase"
             placeholder="Ex: Águia"
             onChange={(e) => setUnidade(e.target.value)}
@@ -75,7 +69,6 @@ const NovoMembro = () => {
           <label className="block text-[10px] font-black text-gray-400 uppercase ml-2 mb-1">Função</label>
           <input
             type="text"
-            value={funcao}
             className="w-full border-2 p-4 rounded-2xl focus:border-blue-500 outline-none font-bold uppercase"
             placeholder="Ex: Capitão"
             onChange={(e) => setFuncao(e.target.value)}
@@ -87,7 +80,6 @@ const NovoMembro = () => {
           <label className="block text-[10px] font-black text-gray-400 uppercase ml-2 mb-1">Link da Foto (URL)</label>
           <input
             type="text"
-            value={fotoUrl}
             className="w-full border-2 p-4 rounded-2xl focus:border-blue-500 outline-none font-bold"
             placeholder="Cole o link da imagem aqui"
             onChange={(e) => setFotoUrl(e.target.value)}
@@ -112,5 +104,3 @@ const NovoMembro = () => {
 };
 
 export default NovoMembro;
-
-
