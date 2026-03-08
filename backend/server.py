@@ -110,6 +110,8 @@ async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(.
 
 # --- ROTAS DE RANKING DE UNIDADES ---
 
+# --- ROTAS DE RANKING DE UNIDADES (CORRIGIDAS) ---
+
 @app.get("/ranking-unidades")
 async def obter_ranking_unidades():
     unidades_cursor = colecao_unidades.find()
@@ -117,8 +119,12 @@ async def obter_ranking_unidades():
     
     ranking_final = []
     for unidade in unidades_lista:
-        # Busca membros no banco correto e coleção correta
-        membros_cursor = colecao_membros.find({"unidade": unidade["nome"]})
+        nome_unidade = unidade["nome"].strip() # Remove espaços bobos
+        
+        # BUSCA INTELIGENTE: O '$options': 'i' ignora maiúsculas/minúsculas
+        membros_cursor = colecao_membros.find({
+            "unidade": {"$regex": f"^{nome_unidade}$", "$options": "i"}
+        })
         membros_m = await membros_cursor.to_list(length=100)
         
         soma_membros = sum(m.get("pontos", 0) for m in membros_m)
@@ -135,7 +141,10 @@ async def obter_ranking_unidades():
 
 @app.get("/unidade/{nome_unidade}/membros")
 async def listar_membros_da_unidade(nome_unidade: str):
-    membros_cursor = colecao_membros.find({"unidade": nome_unidade})
+    # Também ignora maiúsculas/minúsculas ao listar detalhes
+    membros_cursor = colecao_membros.find({
+        "unidade": {"$regex": f"^{nome_unidade}$", "$options": "i"}
+    })
     membros_m = await membros_cursor.to_list(length=100)
     for m in membros_m:
         m["_id"] = str(m["_id"])
@@ -144,5 +153,6 @@ async def listar_membros_da_unidade(nome_unidade: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
