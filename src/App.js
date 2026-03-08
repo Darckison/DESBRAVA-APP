@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import NovoMembro from './pages/NovoMembro';
 import UserRanking from './pages/UserRanking'; // Ranking Geral
 import UnitRanking from './pages/UnitRanking'; // Ranking por Unidade
+import GerenciarUnidades from './pages/GerenciarUnidades';//Gerenciar as unidades dbv
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/novo-membro" element={<NovoMembro />} />
         <Route path="/ranking" element={<UserRanking />} /> {/* Rota para os usuários verem o placar */}
         <Route path="/ranking-unidades" element={<UnitRanking />} /> {/* Rota para o ranking por unidades */}
+        <Route path="/admin-unidades" element={<GerenciarUnidades />} />{/* Rota para gerenciar Unidades */}
       </Routes>
     </Router>
   );
@@ -24,3 +26,4 @@ function App() {
 
 
 export default App;
+
