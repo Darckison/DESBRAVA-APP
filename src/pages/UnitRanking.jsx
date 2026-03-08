@@ -4,7 +4,7 @@ export default function UnitRanking() {
   const [ranking, setRanking] = useState([]);
   const [unidadeAberta, setUnidadeAberta] = useState(null);
   const [membros, setMembros] = useState([]);
-  const API_URL = "https://desbrava-app-1.onrender.com";
+  const API_URL = "https://desbrava-app.onrender.com";
 
   useEffect(() => {
     fetch(`${API_URL}/ranking-unidades`)
@@ -98,3 +98,4 @@ export default function UnitRanking() {
     </div>
   );
 }
+
