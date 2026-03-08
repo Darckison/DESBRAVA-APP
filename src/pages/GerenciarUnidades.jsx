@@ -10,7 +10,7 @@ export default function GerenciarUnidades() {
   const navigate = useNavigate();
 
   // MUITO IMPORTANTE: Verifique se este link abre no seu navegador
-  const API_URL = "https://desbrava-app-1.onrender.com"; 
+  const API_URL = "https://desbrava-app.onrender.com"; 
 
   const carregarUnidades = async () => {
     try {
@@ -121,3 +121,4 @@ export default function GerenciarUnidades() {
     </div>
   );
 }
+
