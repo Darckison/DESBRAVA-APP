@@ -8,7 +8,7 @@ const UnitRanking = () => {
     const [loading, setLoading] = useState(true);
 
     // Substitua pela URL do seu backend no Render ou localhost
-    const API_URL = "https://desbrava-app.onrender.com/ranking-unidades"; 
+    const API_URL = "https://desbrava-app.onrender.com"; 
 
     useEffect(() => {
         buscarRanking();
@@ -119,3 +119,4 @@ const UnitRanking = () => {
 
 
 export default UnitRanking;
+
