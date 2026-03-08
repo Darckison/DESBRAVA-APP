@@ -1,15 +1,15 @@
 import os
 import cloudinary
 import cloudinary.uploader
-from fastapi import FastAPI, UploadFile, File, Form, Body
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 
 app = FastAPI()
 
-# --- CONFIGURAÇÃO DE SEGURANÇA (CORS) ---
-# Isso libera tanto o seu site oficial quanto os testes locais
+# --- AQUI ESTÁ O SEGREDO: LIBERAR A CONEXÃO ---
+# Isso impede que o erro de conexão aconteça quando você clica em salvar
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -18,7 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- CONFIGURAÇÃO DO CLOUDINARY ---
+# Configuração do Cloudinary (Automático)
 cloudinary.config( 
   cloud_name = "dihv9y0o8", 
   api_key = "499596956247957", 
@@ -26,7 +26,7 @@ cloudinary.config(
   secure = True
 )
 
-# --- CONEXÃO MONGODB ---
+# Conexão MongoDB
 uri = "mongodb+srv://tdarckison_user:Clube2026@cluster0.8nvfgfw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(uri)
 db_principal = client["desbravadores"]
@@ -34,22 +34,24 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE UNIDADES (CORRIGIDA) ---
+# --- ROTA DE UNIDADES (FEITA PARA O SEU FORMULÁRIO) ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
     pontos_proprios: int = Form(0),
     logo: UploadFile = File(None)
 ):
-    url_logo = "https://via.placeholder.com/150?text=SEM+LOGO"
+    # Se não escolher foto, usa uma padrão
+    url_logo = "https://via.placeholder.com/150?text=LOGO"
     
     if logo:
-        # Envia o arquivo do seu PC direto pro Cloudinary
+        # Puxa a foto do seu PC e manda pro Cloudinary
         res = cloudinary.uploader.upload(logo.file)
         url_logo = res["secure_url"]
 
     nome_formatado = nome.upper().strip()
     
+    # Salva ou atualiza no Banco de Dados
     await colecao_unidades.update_one(
         {"nome": nome_formatado},
         {"$set": {
@@ -61,7 +63,7 @@ async def criar_unidade(
     )
     return {"status": "sucesso", "url": url_logo}
 
-# --- ROTA DE RANKING ---
+# Rota de Ranking (para mostrar na lista embaixo)
 @app.get("/ranking-unidades")
 async def obter_ranking():
     unidades = await colecao_unidades.find().to_list(100)
@@ -80,7 +82,7 @@ async def obter_ranking():
         })
     return sorted(ranking, key=lambda x: x['total'], reverse=True)
 
-# --- OUTRAS ROTAS NECESSÁRIAS ---
+# Outras rotas (Membros e Delete)
 @app.get("/membros")
 async def listar_membros():
     membros = await colecao_membros.find().sort("pontos", -1).to_list(100)
