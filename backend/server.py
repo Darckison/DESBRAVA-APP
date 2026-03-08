@@ -153,33 +153,21 @@ async def listar_membros_da_unidade(nome_unidade: str):
 
 # --- ADICIONE OU SUBSTITUA ESTAS ROTAS NO SEU SERVER.PY ---
 
-@app.post("/unidades")
-async def criar_unidade(
-    nome: str = Form(...),
-    pontos_proprios: int = Form(0),
-    logo: UploadFile = File(None)
-):
-    url_logo = "https://placehold.co/200?text=SEM+LOGO"
-    
-    if logo:
-        # ISSO AQUI PRECISA ESTAR CORRETO PARA PEGAR O LINK DO CLOUDINARY
-        upload_result = cloudinary.uploader.upload(logo.file)
-        # O BANCO PRECISA SALVAR O 'secure_url' (O link que começa com https)
-        url_logo = upload_result["secure_url"] 
-
+@app.post("/unidades/")
+async def criar_unidade(dados: dict):
     nova_unidade = {
-        "nome": nome.upper().strip(),
-        "pontos_proprios": int(pontos_proprios),
-        "logo_url": url_logo # Aqui ele salva o link completo
+        "nome": dados["nome"].upper().strip(),
+        "pontos_proprios": int(dados.get("pontos_proprios", 0)),
+        "logo_url": dados.get("logo_url", "https://via.placeholder.com/150")
     }
     
+    # Atualiza ou cria a unidade no banco
     await colecao_unidades.update_one(
-        {"nome": nome.upper().strip()},
+        {"nome": nova_unidade["nome"]},
         {"$set": nova_unidade},
-        upsert=True 
+        upsert=True
     )
-    
-    return {"message": "Unidade salva!", "url": url_logo}
+    return {"status": "sucesso"}
 
 @app.get("/ranking-unidades")
 async def obter_ranking_unidades():
@@ -212,6 +200,7 @@ async def obter_ranking_unidades():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
