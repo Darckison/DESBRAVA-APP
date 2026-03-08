@@ -27,7 +27,69 @@ const UnitRanking = () => {
     // FUNÇÃO QUE ABRE OS DETALHES (O QUE TINHA SUMIDO)
     const verDetalhesUnidade = async (unidade) => {
         try {
-            const response = await fetch(`${API_URL}/unidade/${unidade.nome}/membros`);
+            const response = await fetch(`${import React, { useState, useEffect } from 'react';
+
+const GerenciarUnidades = () => {
+    const [unidades, setUnidades] = useState([]);
+    const [nome, setNome] = useState('');
+    const [pontos, setPontos] = useState(0);
+    const [logo, setLogo] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const API_URL = "https://desbrava-app.onrender.com";
+
+    useEffect(() => { buscarUnidades(); }, []);
+
+    const buscarUnidades = async () => {
+        const res = await fetch(`${API_URL}/ranking-unidades`);
+        const data = await res.json();
+        setUnidades(data);
+    };
+
+    const handleSalvar = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('nome', nome.toUpperCase());
+        formData.append('pontos_proprios', pontos);
+        if (logo) formData.append('logo', logo);
+
+        await fetch(`${API_URL}/unidades`, { method: 'POST', body: formData });
+        alert("Unidade Salva!");
+        setNome(''); setPontos(0); setLogo(null);
+        buscarUnidades();
+        setLoading(false);
+    };
+
+    return (
+        <div className="p-8 bg-green-950 min-h-screen text-white">
+            <h1 className="text-3xl font-black text-center mb-8 text-yellow-500 uppercase italic">🛡️ Gerenciar Unidades</h1>
+            
+            <form onSubmit={handleSalvar} className="max-w-2xl mx-auto bg-green-900 p-8 rounded-[40px] border-4 border-green-800 shadow-2xl mb-12">
+                <div className="grid grid-cols-1 gap-6">
+                    <input type="text" placeholder="NOME DA UNIDADE (EX: ÔNIX)" value={nome} onChange={e => setNome(e.target.value)} className="bg-green-800 p-4 rounded-2xl outline-none border-2 border-green-700 font-bold" required />
+                    <input type="number" placeholder="PONTOS PRÓPRIOS DA UNIDADE" value={pontos} onChange={e => setPontos(e.target.value)} className="bg-green-800 p-4 rounded-2xl outline-none border-2 border-green-700 font-bold" />
+                    <input type="file" onChange={e => setLogo(e.target.files[0])} className="bg-green-950 p-4 rounded-2xl border-2 border-dashed border-green-700" />
+                    <button className="bg-yellow-500 text-green-950 font-black py-5 rounded-2xl uppercase shadow-xl tracking-widest">{loading ? "SALVANDO..." : "✅ SALVAR UNIDADE"}</button>
+                </div>
+            </form>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                {unidades.map(u => (
+                    <div key={u.nome} className="flex items-center justify-between bg-white/10 p-4 rounded-3xl border border-white/10">
+                        <div className="flex items-center gap-4">
+                            <img src={u.logo_url} className="w-14 h-14 rounded-full object-cover border-2 border-yellow-500" alt="logo" />
+                            <span className="font-black uppercase italic">{u.nome}</span>
+                        </div>
+                        <button onClick={async () => { if(window.confirm('Excluir Unidade?')) { await fetch(`${API_URL}/unidades/${u.nome}`, {method: 'DELETE'}); buscarUnidades(); } }} className="bg-red-600 p-2 rounded-xl">🗑️</button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default GerenciarUnidades;API_URL}/unidade/${unidade.nome}/membros`);
             const data = await response.json();
             setMembros(Array.isArray(data) ? data : []);
             setUnidadeSelecionada(unidade); 
@@ -126,3 +188,4 @@ const UnitRanking = () => {
 };
 
 export default UnitRanking;
+
