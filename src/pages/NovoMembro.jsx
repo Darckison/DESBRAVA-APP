@@ -9,7 +9,7 @@ const NovoMembro = () => {
   const navigate = useNavigate();
 
   // URL CORRIGIDA (Sem o -1 e com o protocolo correto)
-  const API_URL = "https://desbrava-app.onrender.com";
+  const API_URL = "https://desbrava-app-1.onrender.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,3 +112,4 @@ const NovoMembro = () => {
 };
 
 export default NovoMembro;
+
