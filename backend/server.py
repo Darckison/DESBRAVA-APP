@@ -151,39 +151,73 @@ async def listar_membros_da_unidade(nome_unidade: str):
         m["_id"] = str(m["_id"])
     return membros_m
 
+# --- ADICIONE OU SUBSTITUA ESTAS ROTAS NO SEU SERVER.PY ---
+
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
     pontos_proprios: int = Form(0),
     logo: UploadFile = File(None)
-    upload_result = cloudinary.uploader.upload(logo.file)
-    url_logo = upload_result["secure_url"] # Isso gera o link https:/
 ):
-    url_logo = "https://placehold.co/200" # Logo padrão caso não envie foto
+    # Logo padrão caso não envie foto
+    url_logo = "https://placehold.co/200?text=SEM+LOGO"
     
     if logo:
-        # ENVIO PARA O CLOUDINARY
-        upload_result = cloudinary.uploader.upload(logo.file)
-        url_logo = upload_result["secure_url"] # Pega o link real da internet
+        try:
+            # ENVIO DIRETO PARA O CLOUDINARY (IGUAL AOS MEMBROS)
+            upload_result = cloudinary.uploader.upload(logo.file)
+            url_logo = upload_result["secure_url"] 
+        except Exception as e:
+            print(f"Erro no Cloudinary: {e}")
+            raise HTTPException(status_code=500, detail="Erro ao subir imagem")
 
     nova_unidade = {
         "nome": nome.upper().strip(),
-        "pontos_proprios": pontos_proprios,
-        "logo_url": url_logo # Salva o link do Cloudinary no banco
+        "pontos_proprios": int(pontos_proprios),
+        "logo_url": url_logo 
     }
     
-    # Verifica se já existe uma unidade com esse nome para não duplicar
+    # SALVA OU ATUALIZA NO BANCO (Evita nomes repetidos com logos diferentes)
     await colecao_unidades.update_one(
         {"nome": nome.upper().strip()},
         {"$set": nova_unidade},
-        upsert=True # Se não existir, cria. Se existir, atualiza.
+        upsert=True 
     )
     
-    return {"message": "Unidade e Logo salvas no Cloudinary!", "url": url_logo}
+    return {"message": "Unidade salva com sucesso!", "url": url_logo}
+
+@app.get("/ranking-unidades")
+async def obter_ranking_unidades():
+    unidades_cursor = colecao_unidades.find()
+    unidades_lista = await unidades_cursor.to_list(length=100)
+    
+    ranking_final = []
+    for unidade in unidades_lista:
+        nome_uni = unidade["nome"]
+        
+        # Busca membros ignorando maiúsculas/minúsculas
+        membros_cursor = colecao_membros.find({
+            "unidade": {"$regex": f"^{nome_uni}$", "$options": "i"}
+        })
+        membros_m = await membros_cursor.to_list(length=100)
+        
+        soma_membros = sum(m.get("pontos", 0) for m in membros_m)
+        
+        ranking_final.append({
+            "nome": nome_uni,
+            "logo_url": unidade.get("logo_url", "https://placehold.co/200"),
+            "pontos_unidade": unidade.get("pontos_proprios", 0),
+            "pontos_membros": soma_membros,
+            "total": unidade.get("pontos_proprios", 0) + soma_membros,
+            "total_membros": len(membros_m)
+        })
+
+    return sorted(ranking_final, key=lambda x: x['total'], reverse=True)
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
