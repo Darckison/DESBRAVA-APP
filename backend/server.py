@@ -159,32 +159,27 @@ async def criar_unidade(
     pontos_proprios: int = Form(0),
     logo: UploadFile = File(None)
 ):
-    # Logo padrão caso não envie foto
     url_logo = "https://placehold.co/200?text=SEM+LOGO"
     
     if logo:
-        try:
-            # ENVIO DIRETO PARA O CLOUDINARY (IGUAL AOS MEMBROS)
-            upload_result = cloudinary.uploader.upload(logo.file)
-            url_logo = upload_result["secure_url"] 
-        except Exception as e:
-            print(f"Erro no Cloudinary: {e}")
-            raise HTTPException(status_code=500, detail="Erro ao subir imagem")
+        # ISSO AQUI PRECISA ESTAR CORRETO PARA PEGAR O LINK DO CLOUDINARY
+        upload_result = cloudinary.uploader.upload(logo.file)
+        # O BANCO PRECISA SALVAR O 'secure_url' (O link que começa com https)
+        url_logo = upload_result["secure_url"] 
 
     nova_unidade = {
         "nome": nome.upper().strip(),
         "pontos_proprios": int(pontos_proprios),
-        "logo_url": url_logo 
+        "logo_url": url_logo # Aqui ele salva o link completo
     }
     
-    # SALVA OU ATUALIZA NO BANCO (Evita nomes repetidos com logos diferentes)
     await colecao_unidades.update_one(
         {"nome": nome.upper().strip()},
         {"$set": nova_unidade},
         upsert=True 
     )
     
-    return {"message": "Unidade salva com sucesso!", "url": url_logo}
+    return {"message": "Unidade salva!", "url": url_logo}
 
 @app.get("/ranking-unidades")
 async def obter_ranking_unidades():
@@ -217,6 +212,7 @@ async def obter_ranking_unidades():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
