@@ -156,6 +156,8 @@ async def criar_unidade(
     nome: str = Form(...),
     pontos_proprios: int = Form(0),
     logo: UploadFile = File(None)
+    upload_result = cloudinary.uploader.upload(logo.file)
+    url_logo = upload_result["secure_url"] # Isso gera o link https:/
 ):
     url_logo = "https://placehold.co/200" # Logo padrão caso não envie foto
     
@@ -182,6 +184,7 @@ async def criar_unidade(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
