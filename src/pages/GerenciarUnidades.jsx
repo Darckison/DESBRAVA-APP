@@ -102,7 +102,7 @@ const GerenciarUnidades = () => {
                         <div key={uni.nome} className="flex items-center justify-between bg-white/10 p-4 rounded-3xl border border-white/5 backdrop-blur-md">
                             <div className="flex items-center gap-4">
                                 <img 
-                                    src={uni.logo_url?.startsWith('http') ? uni.logo_url : `${API_URL}${uni.logo_url}`} 
+                                    src={uni.logo_url} 
                                     className="w-16 h-16 rounded-full object-cover border-4 border-green-500 shadow-lg"
                                     alt="Logo"
                                     onError={(e) => e.target.src = "https://placehold.co/100x100?text=LOGO"}
@@ -124,3 +124,4 @@ const GerenciarUnidades = () => {
 };
 
 export default GerenciarUnidades;
+
