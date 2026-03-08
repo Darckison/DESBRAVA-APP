@@ -150,9 +150,32 @@ async def listar_membros_da_unidade(nome_unidade: str):
         m["_id"] = str(m["_id"])
     return membros_m
 
+@app.post("/unidades")
+async def criar_unidade(
+    nome: str = Form(...),
+    pontos_proprios: int = Form(0),
+    logo: UploadFile = File(None)
+):
+    url_logo = "https://placehold.co/200" # Logo padrão
+    if logo:
+        nome_arquivo = f"logo_{uuid.uuid4()}_{logo.filename}"
+        caminho = os.path.join(IMAGENS_DIR, nome_arquivo)
+        with open(caminho, "wb") as buffer:
+            shutil.copyfileobj(logo.file, buffer)
+        url_logo = f"/uploads/{nome_arquivo}"
+
+    nova_unidade = {
+        "nome": nome.upper().strip(),
+        "pontos_proprios": pontos_proprios,
+        "logo_url": url_logo
+    }
+    await colecao_unidades.insert_one(nova_unidade)
+    return {"message": "Unidade cadastrada!"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
