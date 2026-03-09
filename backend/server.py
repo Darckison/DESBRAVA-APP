@@ -8,14 +8,14 @@ from bson import ObjectId
 
 app = FastAPI()
 
-# --- AQUI ESTÁ A SOLUÇÃO DA BRONCA (CORS) ---
-# Isso resolve o erro vermelho do seu print (image_3dd0b8.png)
+# --- A CHAVE DO PROBLEMA: CONFIGURAÇÃO DE CORS ---
+# Isso resolve o erro "blocked by CORS policy" do seu print
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite que qualquer origem (Vercel) acesse
+    allow_origins=["*"],  # Libera para o Vercel e qualquer outro lugar
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos os métodos (POST, GET, etc)
-    allow_headers=["*"],  # Permite todos os cabeçalhos
+    allow_methods=["*"],  # Libera POST, GET, OPTIONS, etc.
+    allow_headers=["*"],  # Libera todos os cabeçalhos
 )
 
 # Configuração Cloudinary
@@ -34,7 +34,7 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE UNIDADES (CORRIGIDA) ---
+# --- ROTA DE UNIDADES ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -54,7 +54,7 @@ async def criar_unidade(
     )
     return {"status": "sucesso"}
 
-# --- ROTA DE MEMBROS (CORRIGIDA) ---
+# --- ROTA DE MEMBROS ---
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -95,3 +95,13 @@ async def listar_membros():
     membros = await colecao_membros.find().sort("pontos", -1).to_list(100)
     for m in membros: m["_id"] = str(m["_id"])
     return membros
+
+@app.delete("/unidades/{nome}")
+async def deletar_unidade(nome: str):
+    await colecao_unidades.delete_one({"nome": nome.upper().strip()})
+    return {"message": "Removido"}
+
+@app.patch("/membros/{id}/pontos")
+async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(...)):
+    await colecao_membros.update_one({"_id": ObjectId(id)}, {"$inc": {"pontos": valor}})
+    return {"message": "ok"}
