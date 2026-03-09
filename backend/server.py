@@ -34,36 +34,27 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE UNIDADES (FEITA PARA O SEU FORMULÁRIO) ---
+# --- ROTA DE UNIDADES (CORRIGIDA) ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
     pontos_proprios: int = Form(0),
     logo: UploadFile = File(None)
 ):
-    # Se não escolher foto, usa uma padrão
     url_logo = "https://via.placeholder.com/150?text=LOGO"
-    
     if logo:
-        # Puxa a foto do seu PC e manda pro Cloudinary
         res = cloudinary.uploader.upload(logo.file)
         url_logo = res["secure_url"]
 
     nome_formatado = nome.upper().strip()
-    
-    # Salva ou atualiza no Banco de Dados
     await colecao_unidades.update_one(
         {"nome": nome_formatado},
-        {"$set": {
-            "nome": nome_formatado, 
-            "pontos_proprios": int(pontos_proprios), 
-            "logo_url": url_logo
-        }},
+        {"$set": {"nome": nome_formatado, "pontos_proprios": int(pontos_proprios), "logo_url": url_logo}},
         upsert=True
     )
-    return {"status": "sucesso", "url": url_logo}
+    return {"status": "sucesso"} # O retorno deve ser um objeto {}, não uma lista []
 
-# Rota de Ranking (para mostrar na lista embaixo)
+# --- ROTA DE RANKING (CORRIGIDA) ---
 @app.get("/ranking-unidades")
 async def obter_ranking():
     unidades = await colecao_unidades.find().to_list(100)
@@ -76,11 +67,9 @@ async def obter_ranking():
             "nome": nome_uni,
             "logo_url": uni.get("logo_url", "https://via.placeholder.com/150"),
             "pontos_unidade": uni.get("pontos_proprios", 0),
-            "pontos_membros": soma,
-            "total": uni.get("pontos_proprios", 0) + soma,
-            "total_membros": len(membros_m)
+            "total": uni.get("pontos_proprios", 0) + soma
         })
-    return sorted(ranking, key=lambda x: x['total'], reverse=True)
+    return ranking # Garanta que retorna apenas a lista 'ranking'
 
 # Outras rotas (Membros e Delete)
 @app.get("/membros")
@@ -97,3 +86,4 @@ async def deletar_unidade(nome: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
