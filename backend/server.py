@@ -74,19 +74,26 @@ async def obter_ranking():
     return ranking # Retorna apenas a lista final
 
 # Outras rotas (Membros e Delete)
-@app.get("/membros")
-async def listar_membros():
-    membros = await colecao_membros.find().sort("pontos", -1).to_list(100)
-    for m in membros: m["_id"] = str(m["_id"])
-    return membros
+@app.post("/membros")
+async def criar_membro(
+    nome: str = Form(...),
+    unidade: str = Form(...),
+    funcao: str = Form(...),
+    foto: UploadFile = File(None)
+):
+    url_foto = "https://via.placeholder.com/150"
+    if foto:
+        res = cloudinary.uploader.upload(foto.file)
+        url_foto = res["secure_url"]
 
-@app.delete("/unidades/{nome}")
-async def deletar_unidade(nome: str):
-    await colecao_unidades.delete_one({"nome": nome.upper().strip()})
-    return {"message": "Removido"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    await colecao_membros.insert_one({
+        "nome": nome, 
+        "unidade": unidade, 
+        "funcao": funcao,
+        "foto_url": url_foto, 
+        "pontos": 0, 
+        "historico_pontos": []
+    })
+    return {"status": "sucesso"}
 
 
