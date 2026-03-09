@@ -8,17 +8,16 @@ from bson import ObjectId
 
 app = FastAPI()
 
-# --- A CHAVE DO PROBLEMA: CONFIGURAÇÃO DE CORS ---
-# Isso resolve o erro "blocked by CORS policy" do seu print
+# --- LIBERAÇÃO DE CONEXÃO (CORS) ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Libera para o Vercel e qualquer outro lugar
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Libera POST, GET, OPTIONS, etc.
-    allow_headers=["*"],  # Libera todos os cabeçalhos
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Configuração Cloudinary
+# --- CONFIGURAÇÃO CLOUDINARY ---
 cloudinary.config( 
   cloud_name = "dihv9y0o8", 
   api_key = "499596956247957", 
@@ -26,7 +25,7 @@ cloudinary.config(
   secure = True
 )
 
-# Conexão MongoDB
+# --- CONEXÃO MONGODB ---
 uri = "mongodb+srv://tdarckison_user:Clube2026@cluster0.8nvfgfw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(uri)
 db_principal = client["desbravadores"]
@@ -34,7 +33,7 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE UNIDADES ---
+# --- ROTA DE UNIDADES (MODIFICADA COM PROTEÇÃO) ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -42,19 +41,30 @@ async def criar_unidade(
     logo: UploadFile = File(None)
 ):
     url_logo = "https://via.placeholder.com/150?text=LOGO"
+    
     if logo:
-        res = cloudinary.uploader.upload(logo.file)
-        url_logo = res["secure_url"]
+        try:
+            # Tenta fazer o upload
+            res = cloudinary.uploader.upload(logo.file)
+            url_logo = res["secure_url"]
+        except Exception as e:
+            # Se der erro no Cloudinary, avisa o log mas NÃO trava o salvamento
+            print(f"ERRO CLOUDINARY UNIDADES: {e}")
+            url_logo = "https://via.placeholder.com/150?text=ERRO+FOTO"
 
     nome_formatado = nome.upper().strip()
     await colecao_unidades.update_one(
         {"nome": nome_formatado},
-        {"$set": {"nome": nome_formatado, "pontos_proprios": int(pontos_proprios), "logo_url": url_logo}},
+        {"$set": {
+            "nome": nome_formatado, 
+            "pontos_proprios": int(pontos_proprios), 
+            "logo_url": url_logo
+        }},
         upsert=True
     )
-    return {"status": "sucesso"}
+    return {"status": "sucesso", "url": url_logo}
 
-# --- ROTA DE MEMBROS ---
+# --- ROTA DE MEMBROS (MODIFICADA COM PROTEÇÃO) ---
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -63,15 +73,24 @@ async def criar_membro(
     foto: UploadFile = File(None)
 ):
     url_foto = "https://via.placeholder.com/150"
+    
     if foto:
-        res = cloudinary.uploader.upload(foto.file)
-        url_foto = res["secure_url"]
+        try:
+            res = cloudinary.uploader.upload(foto.file)
+            url_foto = res["secure_url"]
+        except Exception as e:
+            print(f"ERRO CLOUDINARY MEMBROS: {e}")
+            url_foto = "https://via.placeholder.com/150?text=ERRO+FOTO"
 
     await colecao_membros.insert_one({
-        "nome": nome, "unidade": unidade, "funcao": funcao,
-        "foto_url": url_foto, "pontos": 0, "historico_pontos": []
+        "nome": nome, 
+        "unidade": unidade, 
+        "funcao": funcao,
+        "foto_url": url_foto, 
+        "pontos": 0, 
+        "historico_pontos": []
     })
-    return {"status": "sucesso"}
+    return {"status": "sucesso", "url": url_foto}
 
 # --- ROTAS DE LISTAGEM ---
 @app.get("/ranking-unidades")
@@ -105,3 +124,7 @@ async def deletar_unidade(nome: str):
 async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(...)):
     await colecao_membros.update_one({"_id": ObjectId(id)}, {"$inc": {"pontos": valor}})
     return {"message": "ok"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
