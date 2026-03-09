@@ -39,14 +39,13 @@ const UserRanking = () => {
             <div className="w-8 md:w-20"></div>
         </div>
 
-        {/* --- PÓDIO DESIGN DE ELITE (LADO A LADO SEMPRE) --- */}
+        {/* --- PÓDIO DESIGN DE ELITE (SIDE-BY-SIDE) --- */}
         <div className="flex flex-row justify-center items-end gap-1.5 md:gap-8 mb-20 w-full max-w-5xl mx-auto px-1 relative pt-10 md:pt-20">
           
           {podio.map((m, index) => {
             const isFirst = index === 0;
             const rankLabel = index === 0 ? "1º" : index === 1 ? "2º" : "3º";
             
-            // Cores de destaque para cada posição
             const themeColor = isFirst ? "text-yellow-400" : index === 1 ? "text-slate-300" : "text-amber-600";
             const borderCol = isFirst ? "border-yellow-500" : index === 1 ? "border-slate-400" : "border-amber-800";
             const bgGradient = isFirst ? "from-yellow-600/20 to-green-900/60" : "from-slate-500/10 to-green-900/60";
@@ -57,10 +56,8 @@ const UserRanking = () => {
                 index === 1 ? 'order-1 z-10' : 'order-3 z-10'
               }`}>
                 
-                {/* CARD ESTILO ESCUDO MODERNO */}
                 <div className={`relative w-full bg-gradient-to-b ${bgGradient} backdrop-blur-xl border-t-2 md:border-t-4 ${borderCol} p-2 md:p-8 rounded-t-[20px] md:rounded-t-[40px] rounded-b-[40px] md:rounded-b-[100px] shadow-[0_10px_40px_rgba(0,0,0,0.6)] text-center overflow-visible`}>
                   
-                  {/* FOTO CIRCULAR SUSPENSA */}
                   <div className="relative -mt-10 md:-mt-28 mb-3 flex justify-center">
                     {isFirst && <div className="absolute -top-6 md:-top-14 text-2xl md:text-6xl animate-bounce">👑</div>}
                     <div className={`p-1 rounded-full bg-gradient-to-b ${isFirst ? 'from-yellow-400 to-transparent' : 'from-white/20 to-transparent'}`}>
@@ -68,12 +65,11 @@ const UserRanking = () => {
                     </div>
                     <span className={`absolute -bottom-1 ${isFirst ? 'bg-yellow-500' : 'bg-white/90'} text-green-950 font-black px-2 py-0.5 rounded-full text-[8px] md:text-sm shadow-xl`}>
                       {rankLabel}
-                    </h2>
+                    </span>
                   </div>
 
-                  {/* INFO DO DESBRAVADOR */}
                   <div className="min-h-[50px] md:min-h-[100px] flex flex-col justify-center">
-                    <h2 className={`font-black text-[9px] md:text-2xl uppercase italic tracking-tighter leading-none mb-1 ${isFirst ? 'text-white' : 'text-white/90'}`}>
+                    <h2 className="font-black text-[9px] md:text-2xl uppercase italic tracking-tighter leading-none mb-1 text-white">
                       {m.nome.split(' ')[0]}
                     </h2>
                     <p className="text-[6px] md:text-xs font-bold text-yellow-500/70 uppercase tracking-widest mb-2 truncate px-1">
@@ -81,30 +77,20 @@ const UserRanking = () => {
                     </p>
                   </div>
 
-                  {/* PONTOS DESTAQUE */}
                   <div className="mt-auto pt-2 border-t border-white/5">
                     <p className={`font-black text-sm md:text-5xl leading-none ${themeColor}`}>
                       {m.pontos}
                     </p>
                     <span className="text-[5px] md:text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">PONTOS</span>
                   </div>
-
-                  {/* PATENTE ESTILIZADA */}
-                  <div className="mt-3 hidden md:block">
-                    <span className="bg-black/40 px-3 py-1 rounded-full text-[10px] font-black text-yellow-500 border border-white/5">
-                      {getPatente(m.pontos)}
-                    </span>
-                  </div>
                 </div>
-
-                {/* SOMBRA DE CHÃO */}
                 <div className={`h-1.5 md:h-3 w-full opacity-20 blur-md mt-2 rounded-full ${isFirst ? 'bg-yellow-500' : 'bg-white'}`}></div>
               </div>
             );
           })}
         </div>
 
-        {/* LISTA GERAL (4º LUGAR EM DIANTE) */}
+        {/* --- LISTA GERAL (4º LUGAR EM DIANTE) --- */}
         <div className="bg-black/30 backdrop-blur-md rounded-[30px] md:rounded-[60px] overflow-hidden shadow-2xl border border-white/5 mb-20 mx-2">
           <div className="bg-white/5 p-4 text-center font-black text-white/20 uppercase text-[10px] md:text-sm tracking-[0.4em]">
             Classificação Geral
@@ -112,13 +98,15 @@ const UserRanking = () => {
           
           <div className="divide-y divide-white/5 px-2 md:px-10">
             {geral.map((m, index) => (
-              <div key={m._id} className="flex items-center justify-between py-4 md:py-8 hover:bg-white/5 transition-all group">
+              <div key={m._id} className="flex items-center justify-between py-4 md:py-8 transition-all group">
                 <div className="flex items-center gap-3 md:gap-10 flex-1 min-w-0">
-                  <span className="font-black text-white text-lg md:text-5xl w-8 md:w-20 text-center opacity-40 group-hover:opacity-100 group-hover:text-yellow-500 transition-all italic">
+                  {/* NÚMERO EM BRANCO */}
+                  <span className="font-black text-white text-lg md:text-5xl w-8 md:w-20 text-center opacity-40 group-hover:opacity-100 transition-all italic">
                     {index + 4}º
                   </span>
                   <img src={m.foto_url} className="w-12 h-12 md:w-20 md:h-20 rounded-full object-cover border-2 border-white/10 shadow-lg flex-shrink-0" alt="" />
                   <div className="truncate">
+                    {/* NOME EM BRANCO */}
                     <p className="font-black text-sm md:text-3xl text-white uppercase italic tracking-tighter truncate leading-none mb-1">{m.nome}</p>
                     <p className="text-[8px] md:text-xs text-yellow-500/60 font-bold uppercase tracking-widest">{m.funcao} • {getPatente(m.pontos).split(' ')[1]}</p>
                   </div>
