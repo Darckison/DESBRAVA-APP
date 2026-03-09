@@ -27,102 +27,98 @@ const UserRanking = () => {
   const geral = membros.slice(3);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6 md:py-10 px-2 md:px-4 font-sans text-gray-800 overflow-x-hidden">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-green-950 bg-gradient-to-b from-green-900 via-green-950 to-black py-4 md:py-10 px-1 md:px-4 font-sans text-white overflow-x-hidden">
+      <div className="max-w-6xl mx-auto">
         
-        {/* CABEÇALHO LIMPO */}
-        <div className="flex justify-between items-center mb-12 md:mb-20">
-            <button onClick={() => navigate('/')} className="bg-green-800 hover:bg-green-900 text-white px-5 py-2 rounded-2xl font-black shadow-md transition-all text-xs md:text-sm uppercase italic">← Voltar</button>
-            <h1 className="text-2xl md:text-4xl font-black uppercase italic flex-1 text-center tracking-tighter text-green-900">
-              Ranking <span className="text-yellow-500">Geral</span>
+        {/* CABEÇALHO */}
+        <div className="flex justify-between items-center mb-12 md:mb-32 px-2">
+            <button onClick={() => navigate('/')} className="bg-yellow-500 hover:bg-yellow-600 text-green-950 px-3 py-1.5 md:px-6 md:py-2 rounded-full font-black shadow-lg transition-all text-[9px] md:text-xs uppercase italic">← Voltar</button>
+            <h1 className="text-xl md:text-5xl font-black uppercase italic flex-1 text-center tracking-tighter text-yellow-500 drop-shadow-[0_2px_10px_rgba(234,179,8,0.4)]">
+              Ranking <span className="text-white">Elite Ágata</span>
             </h1>
-            <div className="w-10 md:w-20"></div>
+            <div className="w-8 md:w-20"></div>
         </div>
 
-        {/* PÓDIO EM CARDS (ESTILO A FOTO QUE VOCÊ MANDOU) */}
-        <div className="flex flex-col md:flex-row justify-center items-end gap-6 mb-20 px-4">
-          {podio.map((m, index) => {
-            const isFirst = index === 0;
-            const isSecond = index === 1;
-
-            // Cores baseadas na posição para os detalhes
-            const rankColor = isFirst ? 'border-yellow-500' : isSecond ? 'border-gray-300' : 'border-orange-400';
-            const badgeBg = isFirst ? 'bg-yellow-500' : isSecond ? 'bg-gray-300' : 'bg-orange-400';
-
-            return (
-              <div key={m._id} className={`w-full md:flex-1 flex flex-col items-center transition-all duration-500 ${
-                isFirst ? 'order-1 md:order-2 md:scale-110 z-20 mb-4 md:mb-10' : 
-                isSecond ? 'order-2 md:order-1 z-10' : 
-                'order-3 z-10'
-              }`}>
-                
-                {/* CARD BRANCO FLUTUANTE */}
-                <div className={`bg-white w-full max-w-[280px] p-6 rounded-[40px] shadow-2xl border-b-[10px] ${rankColor} relative transform hover:-translate-y-2 transition-transform`}>
-                  
-                  {/* NÚMERO DA POSIÇÃO NO TOPO */}
-                  <div className={`absolute -top-5 left-1/2 -translate-x-1/2 ${badgeBg} text-white px-6 py-1 rounded-full font-black text-sm shadow-lg`}>
-                    {index + 1}º LUGAR
+        {/* PÓDIO FUTURISTA - SEMPRE LADO A LADO (flex-row) */}
+        <div className="flex flex-row justify-center items-end gap-1 md:gap-8 mb-20 w-full max-w-5xl mx-auto px-1 relative">
+          
+          {/* 2º LUGAR */}
+          {podio[1] && (
+            <div className="flex-1 max-w-[110px] md:max-w-[280px] order-1 z-10 transition-transform">
+              <div className="relative">
+                <div className="bg-green-900/40 backdrop-blur-xl border-t-2 md:border-t-4 border-gray-400 p-2 md:p-8 rounded-t-[15px] md:rounded-t-[20px] rounded-b-[40px] md:rounded-b-[60px] shadow-2xl text-center">
+                  <div className="relative -mt-8 md:-mt-20 mb-2 md:mb-4 flex justify-center">
+                    <img src={podio[1].foto_url} className="w-10 h-10 md:w-28 md:h-28 rounded-full border-2 md:border-4 border-gray-400 object-cover shadow-2xl" alt="" />
+                    <span className="absolute -bottom-1 bg-gray-400 text-green-950 font-black px-2 py-0.5 rounded-full text-[7px] md:text-sm shadow-lg">2º</span>
                   </div>
+                  <h2 className="font-black text-[8px] md:text-xl uppercase italic truncate">{podio[1].nome.split(' ')[0]}</h2>
+                  <p className="text-yellow-500 font-black text-xs md:text-3xl mt-0.5 md:mt-1">{podio[1].pontos}</p>
+                  <p className="text-[5px] md:text-[10px] text-white/50 font-bold uppercase leading-none mt-1">{getPatente(podio[1].pontos).split(' ')[1]}</p>
+                </div>
+                <div className="h-1.5 w-full bg-gray-400/20 blur-sm mt-1 rounded-full"></div>
+              </div>
+            </div>
+          )}
 
-                  {/* FOTO CIRCULAR COM BORDA */}
-                  <div className="flex justify-center mt-4 mb-4">
-                    <img 
-                      src={m.foto_url} 
-                      className={`w-24 h-24 md:w-32 md:h-32 rounded-full border-4 ${rankColor} object-cover shadow-md`} 
-                      alt={m.nome} 
-                    />
+          {/* 1º LUGAR (MAIOR E CENTRAL) */}
+          {podio[0] && (
+            <div className="flex-1 max-w-[130px] md:max-w-[320px] order-2 z-20 scale-110 mb-4 md:mb-12">
+              <div className="relative">
+                <div className="bg-green-800/60 backdrop-blur-2xl border-t-2 md:border-t-4 border-yellow-500 p-3 md:p-10 rounded-t-[20px] md:rounded-t-[30px] rounded-b-[50px] md:rounded-b-[80px] shadow-[0_15px_45px_rgba(234,179,8,0.25)] text-center relative overflow-hidden">
+                  <div className="relative -mt-10 md:-mt-24 mb-3 md:mb-6 flex justify-center">
+                    <div className="absolute -top-4 text-lg md:text-5xl animate-bounce">👑</div>
+                    <img src={podio[0].foto_url} className="w-12 h-12 md:w-36 md:h-36 rounded-full border-2 md:border-4 border-yellow-500 object-cover shadow-[0_0_20px_rgba(234,179,8,0.4)]" alt="" />
+                    <span className="absolute -bottom-2 bg-yellow-500 text-green-950 font-black px-2 py-0.5 rounded-full text-[9px] md:text-lg shadow-xl">1º</span>
                   </div>
-
-                  {/* NOME E FUNÇÃO */}
-                  <div className="text-center mb-4">
-                    <h2 className="font-black text-lg md:text-xl text-green-900 uppercase truncate px-2">
-                      {m.nome.split(' ')[0]}
-                    </h2>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                      {m.funcao}
-                    </p>
-                  </div>
-
-                  {/* PATENTE CENTRALIZADA */}
-                  <div className="bg-gray-50 py-2 px-3 rounded-2xl border border-gray-100 mb-6 text-center">
-                    <span className="text-[10px] font-black text-green-700 italic">
-                      {getPatente(m.pontos)}
-                    </span>
-                  </div>
-
-                  {/* PONTUAÇÃO DESTAQUE */}
-                  <div className="text-center">
-                    <p className="text-3xl md:text-4xl font-black text-gray-800 leading-none">
-                      {m.pontos}
-                    </p>
-                    <span className="text-[10px] font-black text-gray-300 uppercase italic">Pontos Totais</span>
+                  <h2 className="font-black text-[9px] md:text-2xl uppercase italic tracking-tight text-white truncate">{podio[0].nome.split(' ')[0]}</h2>
+                  <p className="text-yellow-400 font-black text-sm md:text-5xl mt-1 md:mt-2 drop-shadow-md">{podio[0].pontos}</p>
+                  <div className="mt-1 md:mt-2 inline-block bg-yellow-500/10 px-2 md:px-3 py-0.5 rounded-full border border-yellow-500/20">
+                    <span className="text-[5px] md:text-xs text-yellow-500 font-black uppercase italic leading-none">{getPatente(podio[0].pontos).split(' ')[1]}</span>
                   </div>
                 </div>
+                <div className="h-2 w-full bg-yellow-500/30 blur-lg mt-3 rounded-full animate-pulse"></div>
               </div>
-            );
-          })}
+            </div>
+          )}
+
+          {/* 3º LUGAR */}
+          {podio[2] && (
+            <div className="flex-1 max-w-[110px] md:max-w-[280px] order-3 z-10">
+              <div className="relative">
+                <div className="bg-green-900/40 backdrop-blur-xl border-t-2 md:border-t-4 border-amber-700 p-2 md:p-8 rounded-t-[15px] md:rounded-t-[20px] rounded-b-[40px] md:rounded-b-[60px] shadow-2xl text-center">
+                  <div className="relative -mt-8 md:-mt-20 mb-2 md:mb-4 flex justify-center">
+                    <img src={podio[2].foto_url} className="w-10 h-10 md:w-28 md:h-28 rounded-full border-2 md:border-4 border-amber-700 object-cover shadow-2xl" alt="" />
+                    <span className="absolute -bottom-1 bg-amber-700 text-white font-black px-2 py-0.5 rounded-full text-[7px] md:text-sm shadow-lg">3º</span>
+                  </div>
+                  <h2 className="font-black text-[8px] md:text-xl uppercase italic truncate">{podio[2].nome.split(' ')[0]}</h2>
+                  <p className="text-yellow-500 font-black text-xs md:text-3xl mt-0.5 md:mt-1">{podio[2].pontos}</p>
+                  <p className="text-[5px] md:text-[10px] text-white/50 font-bold uppercase leading-none mt-1">{getPatente(podio[2].pontos).split(' ')[1]}</p>
+                </div>
+                <div className="h-1.5 w-full bg-amber-700/20 blur-sm mt-1 rounded-full"></div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* CLASSIFICAÇÃO GERAL (LISTA ABAIXO) */}
-        <div className="bg-white rounded-[40px] shadow-xl overflow-hidden max-w-4xl mx-auto border border-gray-100">
-          <div className="bg-green-800 p-4 text-center text-white font-black uppercase text-xs tracking-widest italic">
-            Demais Classificações
+        {/* LISTA GERAL (DARK) */}
+        <div className="bg-black/40 backdrop-blur-md rounded-[30px] md:rounded-[40px] overflow-hidden shadow-2xl border border-white/5 mb-10 mx-2">
+          <div className="bg-white/5 p-3 md:p-4 text-center font-black text-yellow-500/50 uppercase text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em]">
+            Classificação Geral Ágata
           </div>
-          
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-white/5 px-2 md:px-6">
             {geral.map((m, index) => (
-              <div key={m._id} className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <span className="font-black text-gray-200 text-2xl w-8 text-center">{index + 4}º</span>
-                  <img src={m.foto_url} className="w-12 h-12 rounded-full object-cover border-2 border-gray-100" alt="" />
+              <div key={m._id} className="flex items-center justify-between py-3 md:py-5 hover:bg-white/5 transition-all">
+                <div className="flex items-center gap-2 md:gap-8">
+                  <span className="font-black text-white/20 text-base md:text-4xl w-6 md:w-12 text-center">{index + 4}º</span>
+                  <img src={m.foto_url} className="w-10 h-10 md:w-16 md:h-16 rounded-full object-cover border border-white/10" alt="" />
                   <div>
-                    <p className="font-black text-green-900 uppercase text-sm italic">{m.nome}</p>
-                    <p className="text-[9px] text-gray-400 font-bold uppercase">{m.funcao}</p>
+                    <p className="font-black text-xs md:text-xl text-white uppercase italic truncate max-w-[100px] md:max-w-none">{m.nome}</p>
+                    <p className="text-[7px] md:text-[10px] text-yellow-500/60 font-bold uppercase truncate">{getPatente(m.pontos)}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-green-700 text-2xl leading-none">{m.pontos}</p>
-                  <span className="text-[8px] font-black text-gray-300 uppercase">Pts</span>
+                  <p className="font-black text-yellow-500 text-lg md:text-3xl leading-none">{m.pontos}</p>
+                  <span className="text-[7px] md:text-[8px] font-black text-white/30 uppercase">PTS</span>
                 </div>
               </div>
             ))}
