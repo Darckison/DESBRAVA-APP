@@ -8,14 +8,14 @@ from bson import ObjectId
 
 app = FastAPI()
 
-# --- RESOLUÇÃO DO ERRO DE CONEXÃO (CORS) ---
-# Esta parte é fundamental para resolver o erro do seu print (image_3dd0b8.png)
+# --- AQUI ESTÁ A SOLUÇÃO DA BRONCA (CORS) ---
+# Isso resolve o erro vermelho do seu print (image_3dd0b8.png)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Libera para o Vercel enviar os dados
+    allow_origins=["*"],  # Permite que qualquer origem (Vercel) acesse
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Permite todos os métodos (POST, GET, etc)
+    allow_headers=["*"],  # Permite todos os cabeçalhos
 )
 
 # Configuração Cloudinary
@@ -34,7 +34,7 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE UNIDADES ---
+# --- ROTA DE UNIDADES (CORRIGIDA) ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -54,7 +54,7 @@ async def criar_unidade(
     )
     return {"status": "sucesso"}
 
-# --- ROTA DE MEMBROS ---
+# --- ROTA DE MEMBROS (CORRIGIDA) ---
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -73,7 +73,7 @@ async def criar_membro(
     })
     return {"status": "sucesso"}
 
-# Rotas de Listagem (Ranking)
+# --- ROTAS DE LISTAGEM ---
 @app.get("/ranking-unidades")
 async def obter_ranking():
     unidades = await colecao_unidades.find().to_list(100)
