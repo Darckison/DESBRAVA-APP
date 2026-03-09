@@ -8,16 +8,17 @@ from bson import ObjectId
 
 app = FastAPI()
 
-# LIBERAÇÃO TOTAL DE CONEXÃO (Resolve o Erro de Conexão)
+# --- RESOLUÇÃO DO ERRO DE CONEXÃO (CORS) ---
+# Esta parte é o que resolve o erro do seu print (image_3dd0b8.png)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], # Libera para o seu site no Vercel acessar
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# CONFIGURAÇÃO DO CLOUDINARY
+# Configuração Cloudinary
 cloudinary.config( 
   cloud_name = "dihv9y0o8", 
   api_key = "499596956247957", 
@@ -25,7 +26,7 @@ cloudinary.config(
   secure = True
 )
 
-# CONEXÃO COM O MONGODB
+# Conexão MongoDB
 uri = "mongodb+srv://tdarckison_user:Clube2026@cluster0.8nvfgfw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = AsyncIOMotorClient(uri)
 db_principal = client["desbravadores"]
@@ -53,7 +54,7 @@ async def criar_unidade(
     )
     return {"status": "sucesso"}
 
-# --- ROTA DE MEMBROS (CORRIGIDA PARA UPLOAD DO PC) ---
+# --- ROTA DE MEMBROS (CORRIGIDA) ---
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -72,11 +73,10 @@ async def criar_membro(
     })
     return {"status": "sucesso"}
 
-# --- ROTA DE RANKING (CORRIGIDA - SEM O "]" NO TOPO) ---
+# Rotas de Listagem
 @app.get("/ranking-unidades")
 async def obter_ranking():
-    unidades_cursor = colecao_unidades.find()
-    unidades = await unidades_cursor.to_list(length=100)
+    unidades = await colecao_unidades.find().to_list(100)
     ranking = []
     for uni in unidades:
         nome_uni = uni["nome"]
@@ -100,8 +100,3 @@ async def listar_membros():
 async def deletar_unidade(nome: str):
     await colecao_unidades.delete_one({"nome": nome.upper().strip()})
     return {"message": "Removido"}
-
-@app.patch("/membros/{id}/pontos")
-async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(...)):
-    await colecao_membros.update_one({"_id": ObjectId(id)}, {"$inc": {"pontos": valor}})
-    return {"message": "ok"}
