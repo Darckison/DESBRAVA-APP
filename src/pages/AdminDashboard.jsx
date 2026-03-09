@@ -31,29 +31,40 @@ export default function AdminDashboard() {
     e.preventDefault();
     setLoading(true);
 
+    // Prepara os dados para enviar o arquivo do PC
     const data = new FormData();
     data.append('nome', nome);
     data.append('unidade', unidade);
     data.append('funcao', funcao);
-    if (arquivo) data.append('foto', arquivo);
+    
+    if (arquivo) {
+      data.append('foto', arquivo); // "foto" deve ser o mesmo nome que está no server.py
+    }
 
     const isEdicao = view === 'edicao';
     const method = isEdicao ? 'PUT' : 'POST';
+    
+    // URL CORRETA (Sem o -1)
     const url = isEdicao 
       ? `${API_URL}/membros/${membroParaEditar._id}` 
       : `${API_URL}/membros`;
     
     try {
-      const res = await fetch(url, { method: method, body: data });
+      const res = await fetch(url, { 
+        method: method, 
+        body: data // Envia como FormData para o servidor aceitar o arquivo
+      });
+
       if (res.ok) {
-        alert(isEdicao ? "Cadastro atualizado!" : "Novo desbravador salvo!");
+        alert(isEdicao ? "✅ Cadastro atualizado!" : "✅ Novo desbravador salvo!");
         limparFormulario();
         carregarMembros();
       } else {
-        alert("Erro ao salvar no servidor.");
+        alert("❌ Erro no servidor ao salvar o membro.");
       }
     } catch (err) {
-      alert("Erro de conexão!");
+      // Aqui é onde dava o Erro de Conexão
+      alert("❌ ERRO DE CONEXÃO: Verifique se o server.py no Render já foi atualizado com o CORS.");
     } finally {
       setLoading(false);
     }
@@ -209,3 +220,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
