@@ -39,7 +39,7 @@ const UserRanking = () => {
             <div className="w-10 md:w-20"></div>
         </div>
 
-        {/* PÓDIO (LADO A LADO) */}
+        {/* PÓDIO - O DESIGN QUE VOCÊ GOSTOU */}
         <div className="flex flex-row justify-center items-end gap-1 md:gap-6 mb-20 relative pt-10">
           {podio.map((m, index) => {
             const isFirst = index === 0;
@@ -60,10 +60,7 @@ const UserRanking = () => {
                 <div className={`bg-green-800/80 p-2 md:p-6 rounded-[20px] md:rounded-[40px] border-b-4 ${borderCol} w-full text-center shadow-xl`}>
                   <h2 className="font-black text-[9px] md:text-xl uppercase italic truncate mb-1">{m.nome.split(' ')[0]}</h2>
                   <p className="text-[7px] md:text-xs font-bold text-gray-300 uppercase leading-none mb-1">{m.funcao}</p>
-                  <p className="text-white font-black text-sm md:text-4xl leading-tight">{m.pontos} <span className="text-[7px] md:text-sm opacity-50 font-normal">PTS</span></p>
-                  <div className="mt-1 bg-green-950/50 py-0.5 rounded-full px-1">
-                    <p className="text-[5px] md:text-[10px] text-yellow-400 font-bold uppercase truncate">{getPatente(m.pontos).split(' ')[1]}</p>
-                  </div>
+                  <p className="text-white font-black text-sm md:text-4xl leading-tight">{m.pontos} <span className="text-[7px] md:text-sm opacity-50 font-normal text-white">PONTOS</span></p>
                 </div>
               </div>
             );
@@ -72,9 +69,9 @@ const UserRanking = () => {
 
         {/* CLASSIFICAÇÃO GERAL */}
         <div className="bg-black/30 rounded-[30px] md:rounded-[50px] overflow-hidden shadow-2xl border border-white/5 mb-20 mx-2">
-          {/* TEXTO ALTERADO PARA BRANCO */}
+          {/* TÍTULO EM BRANCO CONFORME SOLICITADO */}
           <div className="bg-white/5 p-4 text-center font-black text-white uppercase text-[10px] md:text-sm tracking-[0.3em] border-b border-white/5">
-            Classificação Geral
+            CLASSIFICAÇÃO GERAL
           </div>
           
           <div className="divide-y divide-white/5 px-3 md:px-10">
@@ -83,7 +80,6 @@ const UserRanking = () => {
                 
                 {/* LADO ESQUERDO: POSIÇÃO E NOME (BRANCOS) */}
                 <div className="flex items-center gap-2 md:gap-12 flex-1 min-w-0">
-                  {/* Número da Posição em BRANCO */}
                   <span className="font-black text-white text-base md:text-5xl w-8 md:w-20 text-center flex-shrink-0">
                     {index + 4}º
                   </span>
@@ -91,7 +87,6 @@ const UserRanking = () => {
                   <img src={m.foto_url} className="w-10 h-10 md:w-20 md:h-20 rounded-full object-cover border border-white/10 shadow-lg flex-shrink-0" alt="" />
                   
                   <div className="min-w-0 flex-1">
-                    {/* Nome em BRANCO */}
                     <p className="font-black text-[11px] md:text-3xl text-white uppercase italic tracking-tighter truncate leading-none mb-1">
                       {m.nome}
                     </p>
@@ -101,7 +96,7 @@ const UserRanking = () => {
                   </div>
                 </div>
 
-                {/* LADO DIREITO: PONTOS SEMPRE VISÍVEIS */}
+                {/* LADO DIREITO: PONTUAÇÃO DO 4º EM DIANTE TRAVADA NA DIREITA */}
                 <div className="text-right flex-shrink-0 ml-4">
                   <p className="font-black text-yellow-500 text-xl md:text-5xl leading-none">
                     {m.pontos}
