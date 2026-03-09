@@ -108,7 +108,7 @@ export default function AdminDashboard() {
       
       {/* CABEÇALHO */}
       <div className="bg-white p-6 rounded-[32px] shadow-lg mb-8 text-center border-t-8 border-green-800">
-        <h1 className="text-3xl font-black text-green-800 italic uppercase mb-6 tracking-tighter">DASHBOARD ÁGATA</h1>
+        <h1 className="text-3xl font-black text-green-800 italic uppercase mb-6 tracking-tighter">Clube de desbravadores Ágata (Admin)</h1>
         <div className="flex justify-center gap-4 flex-wrap">
           <button 
             onClick={() => navigate('/admin-unidades')} 
@@ -220,4 +220,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
 
