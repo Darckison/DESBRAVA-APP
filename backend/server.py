@@ -9,10 +9,10 @@ from bson import ObjectId
 app = FastAPI()
 
 # --- RESOLUÇÃO DO ERRO DE CONEXÃO (CORS) ---
-# Esta parte é o que resolve o erro do seu print (image_3dd0b8.png)
+# Esta parte é fundamental para resolver o erro do seu print (image_3dd0b8.png)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Libera para o seu site no Vercel acessar
+    allow_origins=["*"], # Libera para o Vercel enviar os dados
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,7 +34,7 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE UNIDADES (CORRIGIDA) ---
+# --- ROTA DE UNIDADES ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -54,7 +54,7 @@ async def criar_unidade(
     )
     return {"status": "sucesso"}
 
-# --- ROTA DE MEMBROS (CORRIGIDA) ---
+# --- ROTA DE MEMBROS ---
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -73,7 +73,7 @@ async def criar_membro(
     })
     return {"status": "sucesso"}
 
-# Rotas de Listagem
+# Rotas de Listagem (Ranking)
 @app.get("/ranking-unidades")
 async def obter_ranking():
     unidades = await colecao_unidades.find().to_list(100)
@@ -95,8 +95,3 @@ async def listar_membros():
     membros = await colecao_membros.find().sort("pontos", -1).to_list(100)
     for m in membros: m["_id"] = str(m["_id"])
     return membros
-
-@app.delete("/unidades/{nome}")
-async def deletar_unidade(nome: str):
-    await colecao_unidades.delete_one({"nome": nome.upper().strip()})
-    return {"message": "Removido"}
