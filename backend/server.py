@@ -35,6 +35,7 @@ db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
 # --- ROTA DE UNIDADES (CORRIGIDA) ---
+# --- ROTA DE UNIDADES (CORRIGIDA) ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -52,9 +53,10 @@ async def criar_unidade(
         {"$set": {"nome": nome_formatado, "pontos_proprios": int(pontos_proprios), "logo_url": url_logo}},
         upsert=True
     )
-    return {"status": "sucesso"} # O retorno deve ser um objeto {}, não uma lista []
+    # IMPORTANTE: Retorne um dicionário {}, nunca uma lista [] ou texto solto
+    return {"status": "sucesso", "url": url_logo}
 
-# --- ROTA DE RANKING (CORRIGIDA) ---
+# --- ROTA DE RANKING (LIMPA) ---
 @app.get("/ranking-unidades")
 async def obter_ranking():
     unidades = await colecao_unidades.find().to_list(100)
@@ -69,7 +71,7 @@ async def obter_ranking():
             "pontos_unidade": uni.get("pontos_proprios", 0),
             "total": uni.get("pontos_proprios", 0) + soma
         })
-    return ranking # Garanta que retorna apenas a lista 'ranking'
+    return ranking # Retorna apenas a lista final
 
 # Outras rotas (Membros e Delete)
 @app.get("/membros")
@@ -86,4 +88,5 @@ async def deletar_unidade(nome: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
