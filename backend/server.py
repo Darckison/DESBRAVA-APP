@@ -19,9 +19,9 @@ app.add_middleware(
 
 # --- CONFIGURAÇÃO CLOUDINARY ---
 cloudinary.config( 
-  cloud_name = "dihv9y0o8", 
-  api_key = "499596956247957", 
-  api_secret = "mZ9uU0N6y9mX3R7u0vRz2F0fXkM",
+  cloud_name = "dkuqdscin", 
+  api_key = "723664166637722", 
+  api_secret = "lB5BVenoLxnyx9Vx3KfPrQEKL5I",
   secure = True
 )
 
@@ -128,3 +128,4 @@ async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(.
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
