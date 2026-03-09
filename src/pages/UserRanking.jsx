@@ -39,7 +39,7 @@ const UserRanking = () => {
             <div className="w-6 md:w-20"></div>
         </div>
 
-        {/* PÓDIO - IGUAL AO ANTERIOR */}
+        {/* PÓDIO - MANTIDO EXATAMENTE IGUAL */}
         <div className="flex flex-row justify-center items-end gap-1 md:gap-8 mb-20 w-full max-w-5xl mx-auto px-1 relative pt-10 md:pt-20">
           {podio[1] && (
             <div className="flex-1 max-w-[105px] md:max-w-[280px] order-1 z-10">
@@ -60,7 +60,7 @@ const UserRanking = () => {
             <div className="flex-1 max-w-[125px] md:max-w-[340px] order-2 z-20 scale-110 mb-5 md:mb-16">
               <div className="bg-green-800/40 backdrop-blur-2xl border-t-2 md:border-t-4 border-yellow-500 p-2 md:p-12 rounded-t-[20px] md:rounded-t-[40px] rounded-b-[45px] md:rounded-b-[100px] shadow-[0_15px_45px_rgba(234,179,8,0.3)] text-center relative border-x border-yellow-500/20">
                 <div className="relative -mt-10 md:-mt-32 mb-3 flex justify-center">
-                  <div className="absolute -top-4 md:-top-12 text-lg md:text-6xl animate-bounce">👑</div>
+                  <div className="absolute -top-4 md:-top-12 text-lg md:text-6xl animate-bounce drop-shadow-md">👑</div>
                   <img src={podio[0].foto_url} className="w-11 h-11 md:w-40 md:h-40 rounded-full border-2 md:border-4 border-yellow-500 object-cover shadow-[0_0_20px_rgba(234,179,8,0.4)]" alt="" />
                   <span className="absolute -bottom-1.5 bg-yellow-500 text-green-950 font-black px-2 py-0.5 rounded-full text-[8px] md:text-xl shadow-xl">1º</span>
                 </div>
@@ -74,7 +74,7 @@ const UserRanking = () => {
 
           {podio[2] && (
             <div className="flex-1 max-w-[105px] md:max-w-[280px] order-3 z-10">
-              <div className="bg-white/10 backdrop-blur-xl border-t-2 md:border-t-4 border-amber-700 p-1.5 md:p-8 rounded-t-[15px] md:rounded-t-[30px] rounded-b-[35px] md:rounded-b-[80px] shadow-2xl text-center relative border-x border-white/5">
+              <div className="bg-white/10 backdrop-blur-xl border-t-2 md:border-t-4 border-amber-700 p-1.5 md:p-8 rounded-t-[15px] md:rounded-t-[30px] rounded-b-[35px] md:rounded-b-[80px] shadow-2xl text-center relative">
                 <div className="relative -mt-8 md:-mt-24 mb-2 flex justify-center">
                   <img src={podio[2].foto_url} className="w-9 h-9 md:w-32 md:h-32 rounded-full border-2 md:border-4 border-amber-700 object-cover shadow-2xl" alt="" />
                   <span className="absolute -bottom-1 bg-amber-700 text-white font-black px-1.5 py-0.5 rounded-full text-[6px] md:text-sm shadow-lg">3º</span>
@@ -88,7 +88,7 @@ const UserRanking = () => {
           )}
         </div>
 
-        {/* --- CLASSIFICAÇÃO GERAL CORRIGIDA --- */}
+        {/* --- CLASSIFICAÇÃO GERAL CORRIGIDA: NOMES E NÚMEROS BRANCOS --- */}
         <div className="bg-black/40 backdrop-blur-md rounded-[30px] md:rounded-[50px] overflow-hidden shadow-2xl border border-white/5 mb-20 mx-2">
           <div className="bg-white/5 p-3 md:p-6 text-center font-black text-yellow-500 uppercase text-[8px] md:text-sm tracking-[0.2em] md:tracking-[0.4em]">
             Classificação Geral Ágata
@@ -97,16 +97,17 @@ const UserRanking = () => {
             {geral.map((m, index) => (
               <div key={m._id} className="flex items-center justify-between py-4 md:py-8 hover:bg-white/5 transition-all">
                 
-                {/* LADO ESQUERDO: POSIÇÃO, FOTO E NOME */}
+                {/* LADO ESQUERDO: POSIÇÃO (BRANCA), FOTO E NOME (BRANCO) */}
                 <div className="flex items-center gap-2 md:gap-12 flex-1 min-w-0">
-                  {/* Número da Posição - Agora com amarelo brilhante e visível */}
-                  <span className="font-black text-yellow-500 text-lg md:text-5xl w-6 md:w-16 text-center drop-shadow-md">
+                  {/* Número da Posição - Agora BRANCO */}
+                  <span className="font-black text-white text-base md:text-5xl w-6 md:w-16 text-center">
                     {index + 4}º
                   </span>
                   
                   <img src={m.foto_url} className="w-10 h-10 md:w-20 md:h-20 rounded-full object-cover border border-white/10 shadow-lg flex-shrink-0" alt="" />
                   
                   <div className="min-w-0 flex-1 pr-2">
+                    {/* Nome - Garantido em BRANCO */}
                     <p className="font-black text-[10px] md:text-2xl text-white uppercase italic tracking-tighter truncate leading-none mb-1">
                       {m.nome}
                     </p>
@@ -116,9 +117,9 @@ const UserRanking = () => {
                   </div>
                 </div>
 
-                {/* LADO DIREITO: PONTOS - Fixado na borda direita e totalmente visível */}
+                {/* LADO DIREITO: PONTOS - FIXADO E VISÍVEL */}
                 <div className="text-right flex-shrink-0">
-                  <p className="font-black text-yellow-500 text-lg md:text-5xl leading-none drop-shadow-md">
+                  <p className="font-black text-yellow-500 text-base md:text-5xl leading-none">
                     {m.pontos}
                   </p>
                   <span className="text-[6px] md:text-[8px] font-black text-white/30 uppercase tracking-widest block">
