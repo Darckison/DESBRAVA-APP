@@ -62,91 +62,96 @@ export default function Chamada() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-800 p-3 md:p-8">
+    <div className="min-h-screen bg-[#0a2614] font-sans text-gray-800 p-3 md:p-8 transition-colors duration-500">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* COLUNA PRINCIPAL - CHAMADA (LARGURA 8/12) */}
+        {/* COLUNA PRINCIPAL - CHAMADA */}
         <div className="lg:col-span-8 space-y-6">
           {!mostrarLista ? (
-            <div className="bg-white p-12 rounded-[50px] shadow-2xl text-center border-2 border-green-100 flex flex-col items-center justify-center min-h-[400px] transition-all hover:border-green-300">
-               <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-6 shadow-inner">📋</div>
-               <h2 className="text-3xl md:text-4xl font-black text-green-900 uppercase italic tracking-tighter mb-2">Frequência</h2>
-               <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.3em] mb-8">Gestão de Presença Diária</p>
+            <div className="bg-white/95 backdrop-blur-md p-12 rounded-[50px] shadow-2xl text-center border-4 border-white/20 flex flex-col items-center justify-center min-h-[450px] animate-in fade-in zoom-in duration-500">
+               <img src="/logo.png" className="w-24 h-24 mb-6 drop-shadow-lg" alt="Logo Ágata" />
+               <h2 className="text-3xl md:text-5xl font-black text-green-900 uppercase italic tracking-tighter mb-2 leading-none">Frequência</h2>
+               <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.4em] mb-10">Gestão de Presença Diária</p>
                <button 
                 onClick={() => setMostrarLista(true)}
-                className="group relative bg-green-600 hover:bg-green-700 text-white px-12 py-5 rounded-[25px] font-black uppercase tracking-widest shadow-[0_15px_30px_rgba(22,101,52,0.2)] transition-all active:scale-95 overflow-hidden"
+                className="bg-green-600 hover:bg-green-700 text-white px-14 py-6 rounded-[30px] font-black uppercase tracking-widest shadow-2xl transition-all active:scale-95 text-sm"
                >
-                 <span className="relative z-10">📝 Iniciar Chamada de Hoje</span>
-                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                 📝 Iniciar Chamada de Hoje
                </button>
             </div>
           ) : (
-            <div className="bg-white rounded-[50px] shadow-[0_30px_60px_rgba(0,0,0,0.1)] overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-500">
-              <div className="bg-gradient-to-r from-green-800 to-green-900 p-8 text-white flex justify-between items-end">
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-black uppercase italic leading-none tracking-tighter">Chamada do Dia</h2>
-                  <p className="text-[11px] font-black text-yellow-400 uppercase mt-2 tracking-widest opacity-90">{hoje}</p>
+            <div className="bg-white rounded-[50px] shadow-2xl overflow-hidden border border-white/20 animate-in slide-in-from-bottom-6 duration-500">
+              <div className="bg-gradient-to-r from-green-800 to-[#0a2614] p-8 text-white">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-4">
+                    <img src="/logo.png" className="w-14 h-14 object-contain bg-white rounded-2xl p-1 shadow-xl" alt="Logo" />
+                    <div>
+                      <h2 className="text-2xl md:text-3xl font-black uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
+                      <p className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest opacity-90 mt-1">Lista de Frequência</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setMostrarLista(false)} className="bg-white/10 hover:bg-red-500/40 px-5 py-3 rounded-2xl font-black text-[10px] uppercase transition-all backdrop-blur-md">Cancelar</button>
                 </div>
-                <button onClick={() => setMostrarLista(false)} className="bg-white/10 hover:bg-red-500/20 px-5 py-2.5 rounded-2xl font-black text-[10px] uppercase transition-all border border-white/10">Cancelar</button>
+                <div className="h-[1px] bg-white/10 w-full mb-4"></div>
+                <div className="flex justify-center items-center gap-2 bg-black/20 py-2 rounded-full border border-white/5">
+                   <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                   <p className="text-[11px] font-black text-white/80 uppercase tracking-widest">Data: {hoje}</p>
+                </div>
               </div>
 
-              <div className="p-6 space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar bg-gray-50/50">
+              <div className="p-6 space-y-4 max-h-[550px] overflow-y-auto custom-scrollbar bg-gray-50/50">
                 {membros.map(m => (
-                  <div key={m._id} className="group flex items-center justify-between p-4 bg-white rounded-[30px] shadow-sm border border-gray-100 transition-all hover:shadow-md hover:scale-[1.01]">
+                  <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-lg">
                     <div className="flex items-center gap-4">
-                      <div className="relative">
-                        <img src={m.foto_url} className="w-14 h-14 rounded-full object-cover border-4 border-gray-50 shadow-md group-hover:border-green-100 transition-all" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
-                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white shadow-sm ${presencas[m._id] === 'P' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      </div>
+                      <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
                       <div className="truncate">
-                        <p className="font-black text-sm md:text-base uppercase leading-none text-gray-800">{m.nome.split(' ')[0]}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1">{m.unidade}</p>
+                        <p className="font-black text-sm md:text-lg uppercase leading-none text-gray-800 tracking-tighter">{m.nome.split(' ')[0]}</p>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">{m.unidade}</p>
                       </div>
                     </div>
 
-                    <div className="flex bg-gray-100 p-1.5 rounded-[20px] gap-1">
+                    <div className="flex bg-gray-100 p-1.5 rounded-[25px] gap-1 shadow-inner border border-gray-200">
                       <button 
                         onClick={() => alternarPresenca(m._id, 'P')}
-                        className={`px-5 py-2.5 rounded-2xl text-[10px] font-black transition-all ${presencas[m._id] === 'P' ? 'bg-green-600 text-white shadow-lg shadow-green-900/20' : 'text-gray-400 hover:text-gray-600'}`}
-                      >P</button>
+                        className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'P' ? 'bg-green-600 text-white shadow-lg' : 'text-gray-400'}`}
+                      >PRESENTE</button>
                       <button 
                         onClick={() => alternarPresenca(m._id, 'F')}
-                        className={`px-5 py-2.5 rounded-2xl text-[10px] font-black transition-all ${presencas[m._id] === 'F' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-gray-600'}`}
-                      >F</button>
+                        className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'F' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400'}`}
+                      >FALTA</button>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="p-8 bg-white border-t border-gray-50">
+              <div className="p-8 bg-white border-t border-gray-100">
                 <button 
                   onClick={salvarChamada}
                   disabled={loading}
-                  className="w-full bg-green-800 hover:bg-black text-white py-5 rounded-[25px] font-black uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all text-sm disabled:opacity-50"
+                  className="w-full bg-[#0a2614] hover:bg-black text-white py-6 rounded-[30px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all text-xs disabled:opacity-50"
                 >
-                  {loading ? "PROCESSANDO..." : "CONCLUIR CHAMADA"}
+                  {loading ? "SALVANDO..." : "CONCLUIR FREQUÊNCIA"}
                 </button>
               </div>
             </div>
           )}
 
-          {/* DETALHES DO RELATÓRIO SELECIONADO */}
           {chamadaSelecionada && (
-            <div className="bg-white p-8 rounded-[50px] shadow-2xl border-t-[12px] border-blue-600 animate-in slide-in-from-top-6 duration-500">
-              <div className="flex justify-between items-center mb-8">
+            <div className="bg-white p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 animate-in zoom-in-95 duration-500">
+              <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
                 <div>
-                  <h3 className="font-black text-blue-900 uppercase italic text-xl tracking-tighter">Relatório Geral</h3>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{chamadaSelecionada.data}</p>
+                  <h3 className="font-black text-green-900 uppercase italic text-2xl tracking-tighter">Relatório de Presença</h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{chamadaSelecionada.data}</p>
                 </div>
-                <button onClick={() => setChamadaSelecionada(null)} className="bg-gray-100 hover:bg-gray-200 text-gray-400 w-10 h-10 rounded-full font-black flex items-center justify-center transition-all">✕</button>
+                <button onClick={() => setChamadaSelecionada(null)} className="bg-gray-100 text-gray-400 w-12 h-12 rounded-full font-black flex items-center justify-center transition-all hover:bg-red-500 hover:text-white">✕</button>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {chamadaSelecionada.lista.map((item, idx) => (
-                  <div key={idx} className={`p-3 rounded-3xl border-2 flex items-center gap-3 transition-all ${item.status === 'P' ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100'}`}>
-                    <img src={item.foto} className="w-8 h-8 rounded-full object-cover shadow-sm" alt="" />
+                  <div key={idx} className={`p-4 rounded-[30px] border-2 flex items-center gap-3 ${item.status === 'P' ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100'}`}>
+                    <img src={item.foto} className="w-10 h-10 rounded-full object-cover shadow-sm border-2 border-white" alt="" />
                     <div className="min-w-0">
-                       <p className="text-[10px] font-black uppercase truncate text-gray-700">{item.nome.split(' ')[0]}</p>
-                       <p className={`text-[8px] font-bold ${item.status === 'P' ? 'text-green-600' : 'text-red-600'}`}>{item.status === 'P' ? 'PRESENTE' : 'FALTA'}</p>
+                       <p className="text-[10px] font-black uppercase truncate text-gray-800">{item.nome.split(' ')[0]}</p>
+                       <p className={`text-[8px] font-black ${item.status === 'P' ? 'text-green-600' : 'text-red-600'}`}>{item.status === 'P' ? 'PRESENTE' : 'FALTOU'}</p>
                     </div>
                   </div>
                 ))}
@@ -155,32 +160,34 @@ export default function Chamada() {
           )}
         </div>
 
-        {/* COLUNA HISTÓRICO (LARGURA 4/12) */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-28">
-            <div className="flex justify-between items-center mb-8">
-                <h3 className="font-black text-green-900 uppercase italic text-lg tracking-tighter">Histórico</h3>
-                <button onClick={() => navigate('/dashboard')} className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 rounded-2xl font-black text-[10px] uppercase transition-all">← Voltar</button>
+        {/* COLUNA HISTÓRICO */}
+        <div className="lg:col-span-4">
+          <div className="bg-white/95 backdrop-blur-md p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10">
+            <div className="flex justify-between items-center mb-10">
+                <h3 className="font-black text-green-900 uppercase italic text-xl tracking-tighter">Histórico</h3>
+                <button onClick={() => navigate('/dashboard')} className="bg-gray-100 hover:bg-green-800 hover:text-white text-gray-600 px-6 py-3 rounded-2xl font-black text-[10px] uppercase transition-all shadow-sm">← Voltar</button>
             </div>
             
-            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {historico.length === 0 ? (
-                <div className="text-center py-16">
-                   <p className="text-4xl mb-4 opacity-20">📭</p>
-                   <p className="text-[10px] text-gray-300 font-black uppercase tracking-widest">Sem registros</p>
+                <div className="text-center py-20 opacity-30">
+                   <div className="text-6xl mb-4">📂</div>
+                   <p className="text-[10px] font-black uppercase tracking-widest">Nenhuma chamada salva</p>
                 </div>
               ) : (
                 historico.map((h, i) => (
                   <button 
                     key={i} 
                     onClick={() => setChamadaSelecionada(h)}
-                    className="w-full p-5 bg-gray-50 hover:bg-white rounded-[30px] border-l-8 border-green-800 flex justify-between items-center transition-all group active:scale-95 shadow-sm hover:shadow-xl hover:-translate-y-1 border border-transparent hover:border-gray-100"
+                    className="w-full p-6 bg-gray-50 hover:bg-white rounded-[35px] border-l-8 border-green-800 flex justify-between items-center transition-all group active:scale-95 shadow-sm hover:shadow-xl border border-transparent hover:border-gray-100"
                   >
                     <div className="text-left">
-                      <p className="text-sm font-black text-green-950 mb-1 group-hover:text-green-600 transition-colors">{h.data}</p>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{h.lista.length} Membros registrados</p>
+                      <p className="text-base font-black text-green-950 mb-1 group-hover:text-green-700 transition-colors">{h.data}</p>
+                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">{h.lista.length} Desbravadores</p>
                     </div>
-                    <div className="bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-md group-hover:bg-green-800 group-hover:text-white transition-all text-xs">👁️</div>
+                    <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg group-hover:bg-green-800 group-hover:text-white transition-all">
+                       <span className="text-xs">👁️</span>
+                    </div>
                   </button>
                 ))
               )}
