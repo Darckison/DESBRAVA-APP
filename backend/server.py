@@ -33,6 +33,8 @@ db_principal = client["desbravadores"]
 colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
+# NOVA COLEÇÃO PARA CHAMADAS
+colecao_presenca = db_principal["presencas"]
 
 # --- ROTA DE CRIAR UNIDADE ---
 @app.post("/unidades")
@@ -50,11 +52,11 @@ async def criar_unidade(
             print(f"ERRO CLOUDINARY UNIDADES: {e}")
             url_logo = "https://via.placeholder.com/150?text=ERRO+FOTO"
 
-    nome_formatado = nome.upper().strip()
+    nome_formatated = nome.upper().strip()
     await colecao_unidades.update_one(
-        {"nome": nome_formatado},
+        {"nome": nome_formatated},
         {"$set": {
-            "nome": nome_formatado, 
+            "nome": nome_formatated, 
             "pontos_proprios": int(pontos_proprios), 
             "logo_url": url_logo,
             "historico_pontos": [] 
@@ -66,7 +68,7 @@ async def criar_unidade(
 # --- ROTA DE PONTUAR UNIDADE ---
 @app.patch("/unidades/{nome}/pontos")
 async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: str = Form(...)):
-    nome_formatado = nome.upper().strip()
+    nome_formatated = nome.upper().strip()
     
     novo_ponto = {
         "valor": valor,
@@ -75,7 +77,7 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: st
     }
 
     await colecao_unidades.update_one(
-        {"nome": nome_formatado},
+        {"nome": nome_formatated},
         {
             "$inc": {"pontos_proprios": valor},
             "$push": {"historico_pontos": novo_ponto}
@@ -167,6 +169,28 @@ async def deletar_membro(id: str):
         return {"status": "erro", "message": "Membro não encontrado"}
     except Exception as e:
         return {"status": "erro", "message": str(e)}
+
+# --- NOVAS ROTAS PARA CHAMADA ---
+
+@app.post("/chamada")
+async def salvar_chamada(dados: dict):
+    try:
+        # Salva ou atualiza a chamada daquela data específica
+        await colecao_presenca.update_one(
+            {"data": dados["data"]},
+            {"$set": dados},
+            upsert=True
+        )
+        return {"status": "sucesso"}
+    except Exception as e:
+        return {"status": "erro", "message": str(e)}
+
+@app.get("/chamada-historico")
+async def historico_chamada():
+    # Retorna todas as chamadas feitas, da mais recente para a mais antiga
+    historico = await colecao_presenca.find().sort("data", -1).to_list(100)
+    for h in historico: h["_id"] = str(h["_id"])
+    return historico
 
 if __name__ == "__main__":
     import uvicorn
