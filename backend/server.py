@@ -5,6 +5,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
+from datetime import datetime  # Importado para registrar a data e hora
 
 app = FastAPI()
 
@@ -33,7 +34,7 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE UNIDADES (MODIFICADA COM PROTEÇÃO) ---
+# --- ROTA DE UNIDADES (MANTIDA) ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -44,11 +45,9 @@ async def criar_unidade(
     
     if logo:
         try:
-            # Tenta fazer o upload
             res = cloudinary.uploader.upload(logo.file)
             url_logo = res["secure_url"]
         except Exception as e:
-            # Se der erro no Cloudinary, avisa o log mas NÃO trava o salvamento
             print(f"ERRO CLOUDINARY UNIDADES: {e}")
             url_logo = "https://via.placeholder.com/150?text=ERRO+FOTO"
 
@@ -64,7 +63,7 @@ async def criar_unidade(
     )
     return {"status": "sucesso", "url": url_logo}
 
-# --- ROTA DE MEMBROS (MODIFICADA COM PROTEÇÃO) ---
+# --- ROTA DE MEMBROS (MANTIDA) ---
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -92,7 +91,7 @@ async def criar_membro(
     })
     return {"status": "sucesso", "url": url_foto}
 
-# --- ROTAS DE LISTAGEM ---
+# --- ROTAS DE LISTAGEM (MANTIDAS) ---
 @app.get("/ranking-unidades")
 async def obter_ranking():
     unidades = await colecao_unidades.find().to_list(100)
@@ -120,12 +119,26 @@ async def deletar_unidade(nome: str):
     await colecao_unidades.delete_one({"nome": nome.upper().strip()})
     return {"message": "Removido"}
 
+# --- ROTA DE PONTOS (MODIFICADA COM MOTIVO E DATA) ---
 @app.patch("/membros/{id}/pontos")
 async def adicionar_pontos(id: str, valor: int = Form(...), motivo: str = Form(...)):
-    await colecao_membros.update_one({"_id": ObjectId(id)}, {"$inc": {"pontos": valor}})
-    return {"message": "ok"}
+    # Criamos o registro do novo ponto
+    novo_ponto = {
+        "valor": valor,
+        "motivo": motivo,
+        "data": datetime.now().strftime("%d/%m/%Y %H:%M") # Salva no formato brasileiro
+    }
+
+    # Atualiza o total de pontos E adiciona o registro no histórico
+    await colecao_membros.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$inc": {"pontos": valor}, # Soma no total
+            "$push": {"historico_pontos": novo_ponto} # Adiciona na lista de histórico
+        }
+    )
+    return {"message": "ok", "registro": novo_ponto}
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
