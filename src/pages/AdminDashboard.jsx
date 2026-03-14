@@ -31,20 +31,17 @@ export default function AdminDashboard() {
     e.preventDefault();
     setLoading(true);
 
-    // Prepara os dados para enviar o arquivo do PC
     const data = new FormData();
     data.append('nome', nome);
     data.append('unidade', unidade);
     data.append('funcao', funcao);
     
     if (arquivo) {
-      data.append('foto', arquivo); // "foto" deve ser o mesmo nome que está no server.py
+      data.append('foto', arquivo);
     }
 
     const isEdicao = view === 'edicao';
     const method = isEdicao ? 'PUT' : 'POST';
-    
-    // URL CORRETA (Sem o -1)
     const url = isEdicao 
       ? `${API_URL}/membros/${membroParaEditar._id}` 
       : `${API_URL}/membros`;
@@ -52,7 +49,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch(url, { 
         method: method, 
-        body: data // Envia como FormData para o servidor aceitar o arquivo
+        body: data 
       });
 
       if (res.ok) {
@@ -63,26 +60,41 @@ export default function AdminDashboard() {
         alert("❌ Erro no servidor ao salvar o membro.");
       }
     } catch (err) {
-      // Aqui é onde dava o Erro de Conexão
-      alert("❌ ERRO DE CONEXÃO: Verifique se o server.py no Render já foi atualizado com o CORS.");
+      alert("❌ ERRO DE CONEXÃO: Verifique o servidor.");
     } finally {
       setLoading(false);
     }
   };
 
+  // --- FUNÇÃO ATUALIZADA COM MOTIVO E DATA ---
   const salvarPontos = async (id) => {
+    if (!inputPontos || !inputMotivo) {
+      alert("Preencha a quantidade e o motivo!");
+      return;
+    }
+
     const data = new FormData();
     data.append('valor', inputPontos);
     data.append('motivo', inputMotivo);
+    // A data é gerada automaticamente no servidor (new Date()), 
+    // mas enviamos os campos que o banco de dados vai registrar.
     
     try {
-      await fetch(`${API_URL}/membros/${id}/pontos`, { method: 'PATCH', body: data });
-      setPontuandoId(''); 
-      setInputPontos(''); 
-      setInputMotivo(''); 
-      carregarMembros();
+      const res = await fetch(`${API_URL}/membros/${id}/pontos`, { 
+        method: 'PATCH', 
+        body: data 
+      });
+
+      if (res.ok) {
+        setPontuandoId(''); 
+        setInputPontos(''); 
+        setInputMotivo(''); 
+        carregarMembros();
+      } else {
+        alert("Erro ao salvar pontos no servidor.");
+      }
     } catch (err) {
-      alert("Erro ao salvar pontos.");
+      alert("Erro de conexão ao salvar pontos.");
     }
   };
 
@@ -195,7 +207,6 @@ export default function AdminDashboard() {
           </div>
         </>
       ) : (
-        /* FORMULÁRIO DE CADASTRO/EDIÇÃO */
         <div className="bg-white p-8 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in fade-in zoom-in duration-300">
           <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">
             {view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}
@@ -220,5 +231,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-
-
