@@ -65,7 +65,6 @@ export default function Chamada() {
     <div className="min-h-screen bg-[#061a0d] font-sans text-gray-800 p-3 md:p-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* COLUNA PRINCIPAL */}
         <div className="lg:col-span-8 space-y-6">
           {!mostrarLista ? (
             <div className="bg-white/10 backdrop-blur-2xl p-12 rounded-[50px] shadow-2xl text-center border-2 border-white/10 flex flex-col items-center justify-center min-h-[450px] animate-in fade-in zoom-in duration-500 relative">
@@ -98,7 +97,6 @@ export default function Chamada() {
               
               <div className="bg-gradient-to-br from-green-800 to-[#061a0d] p-8 text-white">
                 <div className="flex items-center justify-start gap-12 mb-8 relative">
-                  {/* BOTÃO VOLTAR BEM AFASTADO À ESQUERDA NO HEADER */}
                   <button 
                     onClick={() => setMostrarLista(false)} 
                     className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border border-white/10 flex-shrink-0"
@@ -157,6 +155,7 @@ export default function Chamada() {
             </div>
           )}
 
+          {/* RELATÓRIO DO HISTÓRICO - AJUSTE PARA TEXTO COMPLETO */}
           {chamadaSelecionada && (
             <div className="bg-white/95 backdrop-blur-xl p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 animate-in zoom-in-95 duration-500 mt-6">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
@@ -172,7 +171,10 @@ export default function Chamada() {
                     <img src={item.foto} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" alt="" />
                     <div className="min-w-0">
                        <p className="text-[10px] font-black uppercase truncate text-gray-800">{item.nome.split(' ')[0]}</p>
-                       <p className={`text-[8px] font-black ${item.status === 'P' ? 'text-green-600' : 'text-red-600'}`}>{item.status === 'P' ? 'P' : 'F'}</p>
+                       {/* AQUI ESTÁ A MUDANÇA PARA 'PRESENTE' OU 'FALTA' */}
+                       <p className={`text-[8px] font-black ${item.status === 'P' ? 'text-green-600' : 'text-red-600'}`}>
+                         {item.status === 'P' ? 'PRESENTE' : 'FALTA'}
+                       </p>
                     </div>
                   </div>
                 ))}
@@ -184,8 +186,7 @@ export default function Chamada() {
         {/* COLUNA HISTÓRICO */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10">
-            <h3 className="font-black text-white uppercase italic text-2xl tracking-tighter mb-10">Histórico</h3>
-            
+            <h3 className="font-black text-white uppercase italic text-xl tracking-tighter mb-10">Histórico</h3>
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {historico.length === 0 ? (
                 <div className="text-center py-20 opacity-30 text-white">
@@ -201,7 +202,7 @@ export default function Chamada() {
                   >
                     <div className="text-left">
                       <p className="text-base font-black text-white mb-1 group-hover:text-yellow-400 transition-colors">{h.data}</p>
-                      <p className="text-[11px] font-bold text-white/50 uppercase tracking-tight">{h.lista.length} Membros</p>
+                      <p className="text-[11px] font-bold text-white/50 uppercase tracking-tight">{h.lista.length} Desbravadores</p>
                     </div>
                     <div className="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg group-hover:bg-yellow-500 group-hover:text-[#0a2614] transition-all text-white font-black text-xs">VER</div>
                   </button>
