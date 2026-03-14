@@ -78,11 +78,13 @@ export default function Chamada() {
                   ←
                </button>
 
-               <img src="/logo.png" className="w-24 h-24 mb-6 drop-shadow-2xl" alt="Logo" />
-               
-               <div className="mb-8">
-                  <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
-                  <p className="text-[10px] md:text-xs font-bold text-green-400 uppercase tracking-[0.2em] mt-2 opacity-80">Painel Administrativo</p>
+               {/* SEÇÃO DA LOGO AO LADO DO TÍTULO E SUBTÍTULO */}
+               <div className="flex items-center gap-6 mb-10 border-l-2 border-white/20 pl-6">
+                  <img src="/logo.png" className="w-24 h-24 drop-shadow-2xl" alt="Logo" />
+                  <div className="text-left">
+                    <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
+                    <p className="text-[10px] md:text-xs font-bold text-green-400 uppercase tracking-[0.2em] mt-2 opacity-80">Painel Administrativo</p>
+                  </div>
                </div>
 
                <h2 className="text-2xl md:text-4xl font-black text-white/40 uppercase italic tracking-tighter mb-4">Frequência</h2>
@@ -96,6 +98,7 @@ export default function Chamada() {
           ) : (
             <div className="bg-white rounded-[50px] shadow-2xl overflow-hidden border border-white/20 animate-in slide-in-from-bottom-6 duration-500">
               
+              {/* HEADER DA LISTA COM LOGO AO LADO DO TÍTULO E SUBTÍTULO */}
               <div className="bg-gradient-to-br from-green-800 to-[#061a0d] p-8 text-white relative">
                 <div className="flex items-center">
                   
@@ -107,8 +110,8 @@ export default function Chamada() {
                     <span className="text-2xl">←</span>
                   </button>
 
-                  {/* LOGO E TÍTULOS AFASTADOS DO BOTÃO */}
-                  <div className="flex items-center gap-4 ml-auto mr-auto">
+                  {/* LOGO E TÍTULOS JUNTOS E CENTRALIZADOS */}
+                  <div className="flex items-center gap-4 ml-auto mr-auto border-l-2 border-white/20 pl-4">
                     <img src="/logo.png" className="w-14 h-14 object-contain bg-white/10 backdrop-blur-md rounded-2xl p-1 shadow-xl border border-white/20" alt="Logo" />
                     <div>
                       <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
@@ -122,6 +125,7 @@ export default function Chamada() {
                 </div>
               </div>
 
+              {/* LISTA DE MEMBROS */}
               <div className="p-6 space-y-4 max-h-[550px] overflow-y-auto custom-scrollbar bg-gray-50/50">
                 {membros.map(m => (
                   <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl hover:scale-[1.01]">
@@ -137,17 +141,17 @@ export default function Chamada() {
                       <button 
                         onClick={() => alternarPresenca(m._id, 'P')}
                         className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'P' ? 'bg-green-600 text-white shadow-lg shadow-green-900/20' : 'text-gray-400 hover:bg-white'}`}
-                      >PRESENTE</button>
+                      >P</button>
                       <button 
                         onClick={() => alternarPresenca(m._id, 'F')}
                         className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'F' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-white'}`}
-                      >FALTA</button>
+                      >F</button>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="p-8 bg-white border-t border-gray-100">
+              <div className="p-8 bg-white border-t border-gray-100 text-center">
                 <button 
                   onClick={salvarChamada}
                   disabled={loading}
@@ -175,7 +179,7 @@ export default function Chamada() {
                     <div className="min-w-0">
                        <p className="text-[10px] font-black uppercase truncate text-gray-800">{item.nome.split(' ')[0]}</p>
                        <p className={`text-[8px] font-black ${item.status === 'P' ? 'text-green-600' : 'text-red-600'}`}>
-                         {item.status === 'P' ? 'PRESENTE' : 'FALTA'}
+                         {item.status === 'P' ? 'P' : 'F'}
                        </p>
                     </div>
                   </div>
@@ -185,12 +189,14 @@ export default function Chamada() {
           )}
         </div>
 
-        {/* COLUNA HISTÓRICO - BOTÃO VOLTAR PARA DASHBOARD REORGANIZADO PARA A ESQUERDA DO HEADER PRINCIPAL ACIMA */}
+        {/* COLUNA HISTÓRICO */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10">
-            <div className="flex justify-between items-center mb-10">
-                <h3 className="font-black text-white uppercase italic text-xl tracking-tighter">Histórico</h3>
-                {/* BOTÃO VOLTAR REMOVIDO DAQUI CONFORME SOLICITADO */}
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10 relative">
+            
+            {/* LOGO AO LADO DO TÍTULO NO HISTÓRICO */}
+            <div className="flex items-center gap-4 mb-10 border-l-2 border-yellow-500 pl-4">
+              <img src="/logo.png" className="w-12 h-12 object-contain bg-white/10 backdrop-blur-md rounded-xl p-1 border border-white/20" alt="Logo" />
+              <h3 className="font-black text-white uppercase italic text-xl tracking-tighter">Histórico</h3>
             </div>
             
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
