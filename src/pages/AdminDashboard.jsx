@@ -17,10 +17,6 @@ export default function AdminDashboard() {
   const [inputPontos, setInputPontos] = useState('');
   const [inputMotivo, setInputMotivo] = useState('');
 
-  // Controle de Swipe Mobile
-  const [touchStartX, setTouchStartX] = useState(0);
-  const [menuAbertoId, setMenuAbertoId] = useState(null);
-
   const API_URL = "https://desbrava-app.onrender.com";
 
   const carregarMembros = () => {
@@ -32,21 +28,12 @@ export default function AdminDashboard() {
 
   useEffect(() => carregarMembros(), []);
 
-  // --- FUNÇÕES DE TOQUE (SWIPE) ---
-  const handleTouchStart = (e) => setTouchStartX(e.targetTouches[0].clientX);
-  const handleTouchMove = (e, id) => {
-    const touchCurrentX = e.targetTouches[0].clientX;
-    const distance = touchStartX - touchCurrentX;
-    if (distance > 70) setMenuAbertoId(id);
-    else if (distance < -50) setMenuAbertoId(null);
-  };
-
-  // --- FUNÇÕES LÓGICAS (RESTAURADAS) ---
+  // --- FUNÇÕES LÓGICAS MANTIDAS ---
   const deletarMembro = async (id) => {
     if (window.confirm("Deseja realmente excluir este desbravador?")) {
       try {
         const res = await fetch(`${API_URL}/membros/${id}`, { method: 'DELETE' });
-        if (res.ok) { carregarMembros(); setMenuAbertoId(null); }
+        if (res.ok) carregarMembros();
       } catch (err) { alert("Erro de conexão ao excluir."); }
     }
   };
@@ -87,7 +74,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch(`${API_URL}/membros/${id}/pontos`, { method: 'PATCH', body: data });
       if (res.ok) {
-        setPontuandoId(''); setInputPontos(''); setInputMotivo(''); setMenuAbertoId(null);
+        setPontuandoId(''); setInputPontos(''); setInputMotivo('');
         carregarMembros();
       }
     } catch (err) { alert("Erro ao salvar pontos."); }
@@ -95,7 +82,7 @@ export default function AdminDashboard() {
 
   const abrirEdicao = (m) => {
     setMembroParaEditar(m); setNome(m.nome); setUnidade(m.unidade); setFuncao(m.funcao);
-    setMenuAbertoId(null); setView('edicao');
+    setView('edicao');
   };
 
   const limparFormulario = () => {
@@ -105,10 +92,10 @@ export default function AdminDashboard() {
   return (
     <div className="p-2 md:p-8 max-w-7xl mx-auto bg-gray-50 min-h-screen font-sans text-gray-800">
       
-      {/* MODAL DE HISTÓRICO (MANTIDO) */}
+      {/* MODAL DE HISTÓRICO */}
       {historicoAberto && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden border-4 border-green-800">
+          <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800">
             <div className="bg-green-800 p-6 text-white flex justify-between items-center">
               <div>
                 <h3 className="font-black uppercase italic leading-none">Histórico de Pontos</h3>
@@ -137,12 +124,12 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* CABEÇALHO CLARO */}
+      {/* CABEÇALHO */}
       <div className="bg-white p-6 rounded-[32px] shadow-lg mb-8 text-center border-t-8 border-green-800">
-        <h1 className="text-xl md:text-3xl font-black text-green-800 italic uppercase mb-6 tracking-tighter">Admin Ágata</h1>
+        <h1 className="text-xl md:text-3xl font-black text-green-800 italic uppercase mb-6 tracking-tighter">Clube de desbravadores Ágata (Admin)</h1>
         <div className="flex justify-center gap-4 flex-wrap">
-          <button onClick={() => navigate('/admin-unidades')} className="bg-yellow-500 text-green-950 px-6 py-2.5 rounded-2xl font-black shadow-md uppercase text-xs">🛡️ Unidades</button>
-          <button onClick={() => navigate('/')} className="bg-red-600 text-white px-6 py-2.5 rounded-2xl font-black shadow-md uppercase text-xs">Sair</button>
+          <button onClick={() => navigate('/admin-unidades')} className="bg-yellow-500 text-green-950 px-6 py-2.5 rounded-2xl font-black shadow-md uppercase text-xs transition-all">🛡️ Gerenciar Unidades</button>
+          <button onClick={() => navigate('/')} className="bg-red-600 text-white px-6 py-2.5 rounded-2xl font-black shadow-md uppercase text-xs transition-all">Sair do Sistema</button>
         </div>
       </div>
 
@@ -150,75 +137,65 @@ export default function AdminDashboard() {
         <>
           <button onClick={() => setView('cadastro')} className="mb-8 w-full md:w-auto bg-green-700 text-white px-10 py-5 rounded-[25px] font-black shadow-xl uppercase tracking-widest text-xs">+ Novo Desbravador</button>
 
-          {/* DESKTOP TABLE */}
-          <div className="hidden md:block bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
-                <tr><th className="p-8">Membro</th><th className="p-8 text-center">Unidade</th><th className="p-8 text-center">Pontos</th><th className="p-8 text-center">Ações</th></tr>
-              </thead>
-              <tbody>
-                {membros.map(m => (
-                  <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
-                    <td className="p-6"><div className="flex items-center gap-4"><img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} /><div><p className="font-black text-gray-800 uppercase leading-none mb-1">{m.nome}</p><p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p></div></div></td>
-                    <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
-                    <td className="p-6 text-center"><button onClick={() => setHistoricoAberto(m)} className="bg-green-100 text-green-800 px-6 py-3 rounded-2xl font-black text-2xl border border-green-200">{m.pontos}</button></td>
-                    <td className="p-6 text-center">
-                      {pontuandoId === m._id ? (
-                        <div className="flex flex-col gap-2 bg-yellow-50 p-4 rounded-2xl border-2 border-yellow-400 min-w-[200px]">
-                          <input type="number" placeholder="Qtd" className="p-2 border rounded-lg font-bold" value={inputPontos} onChange={e => setInputPontos(e.target.value)} />
-                          <input type="text" placeholder="Motivo" className="p-2 border rounded-lg text-xs" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
-                          <div className="flex gap-2"><button onClick={() => salvarPontos(m._id)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black uppercase text-[10px]">OK</button><button onClick={() => setPontuandoId('')} className="bg-red-500 text-white px-2 rounded-lg font-black">✕</button></div>
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
+                  <tr><th className="p-8">Membro / Função</th><th className="p-8 text-center">Unidade</th><th className="p-8 text-center">Pontos</th><th className="p-8 text-center">Ações</th></tr>
+                </thead>
+                <tbody>
+                  {membros.map(m => (
+                    <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
+                      <td className="p-6">
+                        <div className="flex items-center gap-4">
+                          <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
+                          <div>
+                            <p className="font-black text-gray-800 uppercase leading-none mb-1 text-sm md:text-base">{m.nome}</p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="flex justify-center gap-2"><button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black shadow-md text-[10px] uppercase">⭐ Pontuar</button><button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl">✏️</button><button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white p-2.5 rounded-xl">🗑️</button></div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* MOBILE LIST WITH SWIPE */}
-          <div className="md:hidden space-y-4 pb-10">
-            {membros.map(m => (
-              <div key={m._id} className="relative bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden" onTouchStart={handleTouchStart} onTouchMove={(e) => handleTouchMove(e, m._id)}>
-                <div className={`p-5 flex items-center justify-between gap-3 transition-transform duration-300 ${menuAbertoId === m._id ? '-translate-x-[240px]' : 'translate-x-0'}`}>
-                    <div className="flex items-center gap-3">
-                        <img src={m.foto_url} className="w-14 h-14 rounded-full object-cover border-2 border-green-100 shadow-sm" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
-                        <div className="truncate"><p className="font-black text-gray-800 uppercase leading-none mb-1 text-sm">{m.nome}</p><p className="text-[9px] font-bold text-gray-400 uppercase italic">{m.funcao} • {m.unidade}</p></div>
-                    </div>
-                    <button onClick={() => setHistoricoAberto(m)} className="bg-green-100 text-green-800 w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black text-xl border border-green-200">{m.pontos}<span className="text-[6px] tracking-widest">PTS</span></button>
-                </div>
-
-                {/* SIDE ACTIONS (VISIBLE ON SWIPE) */}
-                <div className={`absolute top-0 right-0 h-full flex items-center gap-2 p-3 bg-gray-100 transition-transform duration-300 ${menuAbertoId === m._id ? 'translate-x-0' : 'translate-x-full'}`}>
-                    <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white h-16 w-16 rounded-2xl flex flex-col items-center justify-center font-black text-[10px] uppercase shadow-md">⭐<br/>Pontuar</button>
-                    <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white h-16 w-16 rounded-2xl flex flex-col items-center justify-center font-black text-[10px] uppercase shadow-md">✏️<br/>Editar</button>
-                    <button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white h-16 w-16 rounded-2xl flex flex-col items-center justify-center font-black text-[10px] uppercase shadow-md">🗑️<br/>Excluir</button>
-                </div>
-
-                {/* PONTUAÇÃO MOBILE AREA */}
-                {pontuandoId === m._id && (
-                  <div className="absolute inset-0 bg-yellow-50/95 p-4 z-20 flex flex-col gap-2 border-l-8 border-yellow-400">
-                    <input type="number" placeholder="Quantidade" className="p-3 border rounded-xl font-black w-full" value={inputPontos} onChange={e => setInputPontos(e.target.value)} />
-                    <input type="text" placeholder="Motivo" className="p-3 border rounded-xl text-xs w-full" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
-                    <div className="flex gap-2"><button onClick={() => salvarPontos(m._id)} className="bg-green-600 text-white flex-1 py-3 rounded-xl font-black uppercase text-xs text-center">Confirmar</button><button onClick={() => setPontuandoId('')} className="bg-red-500 text-white px-4 rounded-xl font-black">✕</button></div>
-                  </div>
-                )}
-              </div>
-            ))}
+                      </td>
+                      <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
+                      <td className="p-6 text-center">
+                        <button onClick={() => setHistoricoAberto(m)} className="bg-green-100 hover:bg-green-200 text-green-800 px-6 py-3 rounded-2xl font-black text-2xl border border-green-200">{m.pontos}</button>
+                      </td>
+                      <td className="p-6 text-center">
+                        {pontuandoId === m._id ? (
+                          <div className="flex flex-col gap-2 bg-yellow-50 p-4 rounded-2xl border-2 border-yellow-400 min-w-[200px]">
+                            <input type="number" placeholder="Qtd" className="p-2 border rounded-lg font-bold" value={inputPontos} onChange={e => setInputPontos(e.target.value)} />
+                            <input type="text" placeholder="Motivo" className="p-2 border rounded-lg text-xs" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
+                            <div className="flex gap-2">
+                              <button onClick={() => salvarPontos(m._id)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black uppercase text-[10px]">OK</button>
+                              <button onClick={() => setPontuandoId('')} className="bg-red-500 text-white px-2 rounded-lg font-black">✕</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex justify-center gap-2">
+                            <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-black shadow-md text-[10px] uppercase">⭐ Pontuar</button>
+                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-2.5 rounded-xl shadow-md">✏️</button>
+                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl shadow-md">🗑️</button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       ) : (
-        <div className="bg-white p-6 md:p-10 rounded-[35px] shadow-2xl border-4 border-green-800 mb-10">
-          <h2 className="text-xl md:text-3xl font-black mb-10 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
-          <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-             <input type="text" placeholder="NOME" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={nome} onChange={e => setNome(e.target.value)} required />
+        <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in fade-in zoom-in duration-300">
+          <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
+          <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={nome} onChange={e => setNome(e.target.value)} required />
              <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={unidade} onChange={e => setUnidade(e.target.value)} required />
              <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
-             <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3.5 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
-             <div className="md:col-span-2 flex gap-4 mt-6"><button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar"}</button><button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-8 rounded-2xl font-black uppercase">Cancelar</button></div>
+             <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
+             <div className="md:col-span-2 flex gap-4 mt-4">
+                <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
+                <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
+             </div>
           </form>
         </div>
       )}
