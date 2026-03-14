@@ -35,10 +35,10 @@ export default function UnitRanking() {
       {/* TÍTULO NEON */}
       <div className="text-center mb-12 relative">
         <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter uppercase text-green-500 drop-shadow-[0_0_15px_rgba(34,197,94,0.8)] leading-none mb-2">
-          TABELA
+          RANKING
         </h1>
         <p className="text-xl md:text-3xl font-black uppercase italic text-white -mt-4 drop-shadow-md">
-           de Unidades
+           das Unidades
         </p>
       </div>
 
