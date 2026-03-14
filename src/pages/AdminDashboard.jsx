@@ -9,7 +9,6 @@ export default function AdminDashboard() {
   const [membroParaEditar, setMembroParaEditar] = useState(null);
   const [loading, setLoading] = useState(false);
   
-  // Novo estado para controlar o histórico flutuante
   const [historicoAberto, setHistoricoAberto] = useState(null);
 
   const [nome, setNome] = useState('');
@@ -29,6 +28,24 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => carregarMembros(), []);
+
+  // --- FUNÇÃO DE EXCLUIR CORRIGIDA ---
+  const deletarMembro = async (id) => {
+    if (window.confirm("Deseja realmente excluir este desbravador?")) {
+      try {
+        const res = await fetch(`${API_URL}/membros/${id}`, {
+          method: 'DELETE',
+        });
+        if (res.ok) {
+          carregarMembros();
+        } else {
+          alert("Erro ao excluir membro no servidor.");
+        }
+      } catch (err) {
+        alert("Erro de conexão ao excluir.");
+      }
+    }
+  };
 
   const handleSalvar = async (e) => {
     e.preventDefault();
@@ -118,7 +135,6 @@ export default function AdminDashboard() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto bg-gray-50 min-h-screen font-sans text-gray-800">
       
-      {/* MODAL DE HISTÓRICO (FLUTUANTE) */}
       {historicoAberto && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden border-4 border-green-800">
@@ -152,34 +168,17 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* CABEÇALHO */}
       <div className="bg-white p-6 rounded-[32px] shadow-lg mb-8 text-center border-t-8 border-green-800">
         <h1 className="text-3xl font-black text-green-800 italic uppercase mb-6 tracking-tighter">Clube de desbravadores Ágata (Admin)</h1>
         <div className="flex justify-center gap-4 flex-wrap">
-          <button 
-            onClick={() => navigate('/admin-unidades')} 
-            className="bg-yellow-500 hover:bg-yellow-600 text-green-950 px-6 py-2 rounded-2xl font-black shadow-md uppercase text-xs flex items-center gap-2 transition-all"
-          >
-            🛡️ Gerenciar Unidades
-          </button>
-          <button 
-            onClick={() => navigate('/')} 
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-2xl font-black shadow-md uppercase text-xs transition-all"
-          >
-            Sair do Sistema
-          </button>
+          <button onClick={() => navigate('/admin-unidades')} className="bg-yellow-500 hover:bg-yellow-600 text-green-950 px-6 py-2 rounded-2xl font-black shadow-md uppercase text-xs transition-all">🛡️ Gerenciar Unidades</button>
+          <button onClick={() => navigate('/')} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-2xl font-black shadow-md uppercase text-xs transition-all">Sair do Sistema</button>
         </div>
       </div>
 
-      {/* CONTEÚDO DINÂMICO */}
       {view === 'tabela' ? (
         <>
-          <button 
-            onClick={() => setView('cadastro')} 
-            className="mb-8 bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-[25px] font-black shadow-xl uppercase tracking-widest active:scale-95 transition-all"
-          >
-            + Novo Desbravador
-          </button>
+          <button onClick={() => setView('cadastro')} className="mb-8 bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-[25px] font-black shadow-xl uppercase tracking-widest transition-all">+ Novo Desbravador</button>
 
           <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
             <div className="overflow-x-auto">
@@ -197,12 +196,7 @@ export default function AdminDashboard() {
                     <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
-                          <img 
-                            src={m.foto_url} 
-                            className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" 
-                            alt="foto" 
-                            onError={(e) => e.target.src = "https://via.placeholder.com/150"}
-                          />
+                          <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="foto" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
                           <div>
                             <p className="font-black text-gray-800 uppercase leading-none mb-1">{m.nome}</p>
                             <p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p>
@@ -211,14 +205,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
                       <td className="p-6 text-center">
-                        {/* AGORA O BOTÃO DE PONTOS ABRE O HISTÓRICO AO CLICAR */}
-                        <button 
-                          onClick={() => setHistoricoAberto(m)}
-                          title="Clique para ver o extrato"
-                          className="bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2 rounded-xl font-black text-xl border border-green-200 active:scale-90 transition-all cursor-pointer"
-                        >
-                          {m.pontos}
-                        </button>
+                        <button onClick={() => setHistoricoAberto(m)} className="bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2 rounded-xl font-black text-xl border border-green-200 active:scale-90 transition-all cursor-pointer">{m.pontos}</button>
                       </td>
                       <td className="p-6 text-center">
                         {pontuandoId === m._id ? (
@@ -234,7 +221,8 @@ export default function AdminDashboard() {
                           <div className="flex justify-center gap-2">
                             <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-black shadow-md text-[10px] uppercase">⭐ Pontuar</button>
                             <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-2 rounded-xl shadow-md">✏️</button>
-                            <button onClick={async () => { if(window.confirm('Excluir?')) { await fetch(`${API_URL}/membros/${m._id}`, {method: 'DELETE'}); carregarMembros(); } }} className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-xl shadow-md">🗑️</button>
+                            {/* BOTÃO EXCLUIR AGORA CHAMA A FUNÇÃO CORRETA */}
+                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-xl shadow-md">🗑️</button>
                           </div>
                         )}
                       </td>
@@ -247,9 +235,7 @@ export default function AdminDashboard() {
         </>
       ) : (
         <div className="bg-white p-8 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in fade-in zoom-in duration-300">
-          <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">
-            {view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}
-          </h2>
+          <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
           <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-bold outline-none focus:border-green-600 uppercase" value={nome} onChange={e => setNome(e.target.value)} required />
              <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-bold outline-none focus:border-green-600 uppercase" value={unidade} onChange={e => setUnidade(e.target.value)} required />
@@ -259,9 +245,7 @@ export default function AdminDashboard() {
                <input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} />
              </div>
              <div className="md:col-span-2 flex gap-4 mt-4">
-                <button disabled={loading} className="bg-green-700 hover:bg-green-800 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase tracking-widest">
-                  {loading ? "PROCESSANDO..." : "Salvar Registro"}
-                </button>
+                <button disabled={loading} className="bg-green-700 hover:bg-green-800 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase tracking-widest">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
                 <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
              </div>
           </form>
