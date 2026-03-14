@@ -92,10 +92,9 @@ export default function AdminDashboard() {
   };
 
   return (
-    // COR DE FUNDO AJUSTADA PARA VERDE QUE COMBINA
     <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800">
       
-      {/* CABEÇALHO COM TÍTULO E SUBTÍTULO AO LADO DO BOTÃO */}
+      {/* CABEÇALHO FIXO */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800">
           <button 
             onClick={() => setMenuLateralAberto(true)}
@@ -114,32 +113,35 @@ export default function AdminDashboard() {
           </div>
       </header>
 
-      {/* MENU LATERAL (SIDEBAR OFUSCADO) */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-black/80 backdrop-blur-lg shadow-2xl transform transition-transform duration-300 border-r-2 border-white/5 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-6 text-center text-white">
+      {/* MENU LATERAL (SIDEBAR CLARA, OFUSCADA E SEM BORDA VERDE) */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-6 text-center text-green-900 flex flex-col h-full">
             <div className="flex justify-end">
                 <button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button>
             </div>
-            {/* TÍTULO E SUBTÍTULO MANTIDOS NO CABEÇALHO, AQUI É SÓ NAVEGAÇÃO */}
             <h2 className="text-xl font-black uppercase italic mb-8 mt-2 tracking-tighter">Navegação</h2>
             
             <div className="flex flex-col gap-4">
                 {/* BOTÃO DASHBOARD REMOVIDO */}
                 <button 
                   onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }}
-                  className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-green-700 active:scale-95 transition-all"
+                  className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
                 >
                   + NOVO DESBRAVADOR
                 </button>
                 <button 
                   onClick={() => navigate('/admin-unidades')}
-                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-yellow-600 active:scale-95 transition-all"
+                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
                 >
                   🛡️ GERENCIAR UNIDADES
                 </button>
+            </div>
+
+            {/* SAIR DO SISTEMA (IGUAL AO PRINT, SEM ÍCONE) */}
+            <div className="mt-auto pb-6">
                 <button 
                   onClick={() => navigate('/')}
-                  className="bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-red-700 active:scale-95 transition-all"
+                  className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
                 >
                   SAIR DO SISTEMA
                 </button>
@@ -148,15 +150,15 @@ export default function AdminDashboard() {
       </div>
 
       {menuLateralAberto && (
-        <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/40 z-40"></div>
+        <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/20 z-40"></div>
       )}
 
-      {/* CONTEÚDO PRINCIPAL COM AJUSTE DE MARGEM PARA O HEADER FIXO */}
+      {/* CONTEÚDO PRINCIPAL */}
       <div className="p-2 md:p-8 pt-28 max-w-7xl mx-auto">
         
         {historicoAberto && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800 animate-in zoom-in-95 duration-200">
+            <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800">
               <div className="bg-green-800 p-6 text-white flex justify-between items-center">
                 <div>
                   <h3 className="font-black uppercase italic leading-none">Histórico de Pontos</h3>
@@ -164,13 +166,13 @@ export default function AdminDashboard() {
                 </div>
                 <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm">✕</button>
               </div>
-              <div className="p-6 max-h-[400px] overflow-y-auto bg-gray-50">
+              <div className="p-6 max-h-[400px] overflow-y-auto">
                 {(!historicoAberto.historico_pontos || historicoAberto.historico_pontos.length === 0) ? (
                   <p className="text-center text-gray-400 font-bold py-10 uppercase text-xs tracking-widest">Nenhum registro encontrado</p>
                 ) : (
                   <div className="space-y-4">
                     {[...historicoAberto.historico_pontos].reverse().map((h, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-white rounded-2xl border-l-4 border-yellow-500 shadow-sm">
+                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-yellow-500 shadow-sm">
                         <div className="flex-1 pr-4">
                           <p className="text-[10px] font-black uppercase text-green-900 leading-none mb-1">{h.motivo}</p>
                           <p className="text-[8px] text-gray-400 font-bold uppercase">{h.data}</p>
@@ -186,7 +188,7 @@ export default function AdminDashboard() {
         )}
 
         {view === 'tabela' ? (
-          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in duration-500">
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
@@ -194,13 +196,13 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {membros.map(m => (
-                    <tr key={m._id} className="border-b last:border-0 hover:bg-green-50/50 transition-colors">
+                    <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
                           <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
                           <div>
-                            <p className="font-black text-gray-800 uppercase leading-none mb-1 text-sm md:text-base tracking-tight">{m.nome}</p>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase italic tracking-wider">{m.funcao}</p>
+                            <p className="font-black text-gray-800 uppercase leading-none mb-1 text-sm md:text-base">{m.nome}</p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p>
                           </div>
                         </div>
                       </td>
@@ -215,7 +217,7 @@ export default function AdminDashboard() {
                             <input type="text" placeholder="Motivo" className="p-2 border rounded-lg text-xs" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
                             <div className="flex gap-2">
                               <button onClick={() => salvarPontos(m._id)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black uppercase text-[10px]">OK</button>
-                              <button onClick={() => setPointuandoId('')} className="bg-red-500 text-white px-2 rounded-lg font-black">✕</button>
+                              <button onClick={() => setPontuandoId('')} className="bg-red-500 text-white px-2 rounded-lg font-black">✕</button>
                             </div>
                           </div>
                         ) : (
@@ -234,27 +236,15 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in zoom-in-95 duration-300">
-            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic tracking-tight">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
+            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
             <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="space-y-1">
-                 <label className="text-[10px] font-black text-gray-400 ml-4 uppercase tracking-widest">Nome Completo</label>
-                 <input type="text" placeholder="NOME DO MEMBRO" className="w-full border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase transition-colors" value={nome} onChange={e => setNome(e.target.value)} required />
-               </div>
-               <div className="space-y-1">
-                 <label className="text-[10px] font-black text-gray-400 ml-4 uppercase tracking-widest">Unidade</label>
-                 <input type="text" placeholder="EX: ÔNIX" className="w-full border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase transition-colors" value={unidade} onChange={e => setUnidade(e.target.value)} required />
-               </div>
-               <div className="space-y-1">
-                 <label className="text-[10px] font-black text-gray-400 ml-4 uppercase tracking-widest">Função / Cargo</label>
-                 <input type="text" placeholder="EX: CONSELHEIRO" className="w-full border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase transition-colors" value={funcao} onChange={e => setFuncao(e.target.value)} required />
-               </div>
-               <div className="flex flex-col gap-2">
-                 <label className="text-[10px] font-black text-gray-400 ml-4 uppercase tracking-widest">Foto de Perfil (Opcional)</label>
-                 <input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} />
-               </div>
-               <div className="md:col-span-2 flex gap-4 mt-6">
-                  <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase tracking-widest hover:bg-green-800 active:scale-95 disabled:opacity-50 transition-all">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
-                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase transition-colors hover:bg-gray-500">Cancelar</button>
+               <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={nome} onChange={e => setNome(e.target.value)} required />
+               <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={unidade} onChange={e => setUnidade(e.target.value)} required />
+               <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={funcao} onChange={e => setFuncao(e.target.value)} required />
+               <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
+               <div className="md:col-span-2 flex gap-4 mt-4">
+                  <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
+                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
                </div>
             </form>
           </div>
