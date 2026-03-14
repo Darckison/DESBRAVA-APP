@@ -68,23 +68,24 @@ export default function Chamada() {
         {/* COLUNA PRINCIPAL */}
         <div className="lg:col-span-8 space-y-6">
           {!mostrarLista ? (
-            <div className="bg-white/10 backdrop-blur-2xl p-12 rounded-[50px] shadow-2xl text-center border-2 border-white/10 flex flex-col items-center justify-center min-h-[450px] animate-in fade-in zoom-in duration-500">
-               <div className="flex items-center gap-6 mb-10">
-                  {/* BOTÃO VOLTAR À ESQUERDA */}
-                  <button 
-                    onClick={() => navigate('/dashboard')} 
-                    className="bg-white/10 hover:bg-white/20 text-white w-16 h-16 rounded-2xl flex items-center justify-center transition-all shadow-lg border border-white/10 text-3xl active:scale-90"
-                  >
-                    ←
-                  </button>
-                  <img src="/logo.png" className="w-24 h-24 drop-shadow-2xl" alt="Logo" />
-                  <div className="text-left border-l-2 border-white/20 pl-6">
-                    <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
-                    <p className="text-[10px] md:text-xs font-bold text-green-400 uppercase tracking-[0.2em] mt-2 opacity-80">Painel Administrativo</p>
-                  </div>
+            <div className="bg-white/10 backdrop-blur-2xl p-12 rounded-[50px] shadow-2xl text-center border-2 border-white/10 flex flex-col items-center justify-center min-h-[450px] animate-in fade-in zoom-in duration-500 relative">
+               
+               {/* BOTÃO VOLTAR AFASTADO NO CANTO ESQUERDO DO CONTEINER */}
+               <button 
+                  onClick={() => navigate('/dashboard')} 
+                  className="absolute top-8 left-8 bg-white/10 hover:bg-white/20 text-white w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg border border-white/10 text-2xl active:scale-90"
+               >
+                  ←
+               </button>
+
+               <img src="/logo.png" className="w-24 h-24 mb-6 drop-shadow-2xl" alt="Logo" />
+               
+               <div className="mb-8">
+                  <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
+                  <p className="text-[10px] md:text-xs font-bold text-green-400 uppercase tracking-[0.2em] mt-2 opacity-80">Painel Administrativo</p>
                </div>
-               <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter mb-4">Frequência</h2>
-               <p className="text-white/40 font-bold uppercase text-[10px] tracking-[0.5em] mb-12">Registro de Presença Diária</p>
+
+               <h2 className="text-2xl md:text-4xl font-black text-white/40 uppercase italic tracking-tighter mb-4">Frequência</h2>
                <button 
                 onClick={() => setMostrarLista(true)}
                 className="bg-green-500 hover:bg-green-400 text-[#0a2614] px-16 py-6 rounded-[30px] font-black uppercase tracking-widest shadow-[0_15px_40px_rgba(34,197,94,0.3)] transition-all active:scale-95 text-sm"
@@ -95,21 +96,22 @@ export default function Chamada() {
           ) : (
             <div className="bg-white rounded-[50px] shadow-2xl overflow-hidden border border-white/20 animate-in slide-in-from-bottom-6 duration-500">
               
-              {/* HEADER DA LISTA COM REORGANIZAÇÃO */}
               <div className="bg-gradient-to-br from-green-800 to-[#061a0d] p-8 text-white">
-                <div className="flex items-center gap-5 mb-8">
+                <div className="flex items-center justify-start gap-12 mb-8 relative">
+                  {/* BOTÃO VOLTAR BEM AFASTADO À ESQUERDA NO HEADER */}
                   <button 
                     onClick={() => setMostrarLista(false)} 
-                    className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border border-white/10"
+                    className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border border-white/10 flex-shrink-0"
                   >
                     <span className="text-2xl">←</span>
                   </button>
 
-                  <img src="/logo.png" className="w-14 h-14 object-contain bg-white/10 backdrop-blur-md rounded-2xl p-1 shadow-xl border border-white/20" alt="Logo" />
-                  
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
-                    <p className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest opacity-90 mt-1">Painel Administrativo</p>
+                  <div className="flex items-center gap-4">
+                    <img src="/logo.png" className="w-14 h-14 object-contain bg-white/10 backdrop-blur-md rounded-2xl p-1 shadow-xl border border-white/20" alt="Logo" />
+                    <div>
+                      <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
+                      <p className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest opacity-90 mt-1">Painel Administrativo</p>
+                    </div>
                   </div>
                 </div>
                 
@@ -120,16 +122,16 @@ export default function Chamada() {
 
               <div className="p-6 space-y-4 max-h-[550px] overflow-y-auto custom-scrollbar bg-gray-50/50">
                 {membros.map(m => (
-                  <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl">
+                  <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl hover:scale-[1.01]">
                     <div className="flex items-center gap-4">
-                      <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
+                      <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" alt="" />
                       <div className="truncate">
                         <p className="font-black text-sm md:text-lg uppercase leading-none text-gray-800 tracking-tighter">{m.nome.split(' ')[0]}</p>
                         <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">{m.unidade}</p>
                       </div>
                     </div>
 
-                    <div className="flex bg-gray-100 p-1.5 rounded-[25px] gap-1 shadow-inner border border-gray-200 scale-90 md:scale-100">
+                    <div className="flex bg-gray-100 p-1.5 rounded-[25px] gap-1 shadow-inner border border-gray-200">
                       <button 
                         onClick={() => alternarPresenca(m._id, 'P')}
                         className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'P' ? 'bg-green-600 text-white shadow-lg shadow-green-900/20' : 'text-gray-400 hover:bg-white'}`}
@@ -147,7 +149,7 @@ export default function Chamada() {
                 <button 
                   onClick={salvarChamada}
                   disabled={loading}
-                  className="w-full bg-[#061a0d] hover:bg-black text-white py-6 rounded-[30px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all text-xs"
+                  className="w-full bg-[#061a0d] hover:bg-black text-white py-6 rounded-[30px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all text-xs border-b-4 border-green-800"
                 >
                   {loading ? "PROCESSANDO..." : "CONCLUIR FREQUÊNCIA"}
                 </button>
@@ -159,7 +161,7 @@ export default function Chamada() {
             <div className="bg-white/95 backdrop-blur-xl p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 animate-in zoom-in-95 duration-500 mt-6">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
                 <div>
-                  <h3 className="font-black text-green-900 uppercase italic text-2xl tracking-tighter">Membros Registrados</h3>
+                  <h3 className="font-black text-green-900 uppercase italic text-2xl tracking-tighter">Relatório de Presença</h3>
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{chamadaSelecionada.data}</p>
                 </div>
                 <button onClick={() => setChamadaSelecionada(null)} className="bg-gray-100 hover:bg-red-500 hover:text-white text-gray-400 w-12 h-12 rounded-full font-black flex items-center justify-center transition-all">✕</button>
@@ -179,7 +181,7 @@ export default function Chamada() {
           )}
         </div>
 
-        {/* COLUNA HISTÓRICO - BOTÃO VOLTAR REMOVIDO */}
+        {/* COLUNA HISTÓRICO */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10">
             <h3 className="font-black text-white uppercase italic text-2xl tracking-tighter mb-10">Histórico</h3>
@@ -199,11 +201,9 @@ export default function Chamada() {
                   >
                     <div className="text-left">
                       <p className="text-base font-black text-white mb-1 group-hover:text-yellow-400 transition-colors">{h.data}</p>
-                      <p className="text-[11px] font-bold text-white/50 uppercase tracking-tight">{h.lista.length} Desbravadores</p>
+                      <p className="text-[11px] font-bold text-white/50 uppercase tracking-tight">{h.lista.length} Membros</p>
                     </div>
-                    <div className="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg group-hover:bg-yellow-500 group-hover:text-[#0a2614] transition-all text-white">
-                       <span className="text-xs font-black">VER</span>
-                    </div>
+                    <div className="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg group-hover:bg-yellow-500 group-hover:text-[#0a2614] transition-all text-white font-black text-xs">VER</div>
                   </button>
                 ))
               )}
