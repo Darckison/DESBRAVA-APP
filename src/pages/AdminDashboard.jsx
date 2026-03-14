@@ -105,9 +105,16 @@ export default function AdminDashboard() {
               <div className="w-6 h-1 bg-white rounded-full"></div>
             </div>
           </button>
-          <div>
-              <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic leading-none tracking-tighter">Clube Ágata</h1>
-              <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest">Painel Administrativo</p>
+          
+          {/* HEADER COM LOGO E BARRINHA NO MEIO SEPARANDO O TITULO [Cores Modernas Aplicadas] */}
+          <div className="flex items-center gap-4">
+              <img src="/logo.png" className="w-10 h-10 object-contain" alt="Logo" />
+              <div className="w-[2px] h-8 bg-gray-300"></div> {/* BARRINHA DE SEPARAÇÃO SOLICITADA */}
+              <div className="flex flex-col">
+                  {/* Títulos visíveis em PC e Mobile */}
+                  <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic leading-none tracking-tighter">Clube Ágata</h1>
+                  <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Painel Administrativo</p>
+              </div>
           </div>
       </header>
 
@@ -122,20 +129,19 @@ export default function AdminDashboard() {
             <div className="flex flex-col gap-4">
                 <button 
                   onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }}
-                  className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
+                  className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95 hover:bg-green-700"
                 >
                   + NOVO DESBRAVADOR
                 </button>
                 <button 
                   onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }}
-                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
+                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95 hover:bg-yellow-600"
                 >
                   🛡️ GERENCIAR UNIDADES
                 </button>
-                {/* BOTÃO DA MISSÃO FINAL: CHAMADA */}
                 <button 
                   onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }}
-                  className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
+                  className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95 hover:bg-blue-700"
                 >
                   📅 FREQUÊNCIA "CHAMADA"
                 </button>
@@ -144,7 +150,7 @@ export default function AdminDashboard() {
             <div className="mt-auto pb-6">
                 <button 
                   onClick={() => navigate('/')}
-                  className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
+                  className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95 hover:bg-red-700"
                 >
                   SAIR DO SISTEMA
                 </button>
@@ -159,7 +165,7 @@ export default function AdminDashboard() {
       <div className="p-2 md:p-8 pt-28 max-w-7xl mx-auto">
         {historicoAberto && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800">
+            <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800 animate-in zoom-in-95 duration-200">
               <div className="bg-green-800 p-6 text-white flex justify-between items-center">
                 <div>
                   <h3 className="font-black uppercase italic leading-none text-sm">Histórico de Pontos</h3>
@@ -173,7 +179,7 @@ export default function AdminDashboard() {
                 ) : (
                   <div className="space-y-4">
                     {[...historicoAberto.historico_pontos].reverse().map((h, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-yellow-500 shadow-sm">
+                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-yellow-500 shadow-sm transition-transform hover:scale-[1.02]">
                         <div className="flex-1 pr-4">
                           <p className="text-[10px] font-black uppercase text-green-900 leading-none mb-1">{h.motivo}</p>
                           <p className="text-[8px] text-gray-400 font-bold uppercase">{h.data}</p>
@@ -189,7 +195,7 @@ export default function AdminDashboard() {
         )}
 
         {view === 'tabela' ? (
-          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in duration-500">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
@@ -197,7 +203,7 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {membros.map(m => (
-                    <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
+                    <tr key={m._id} className="border-b last:border-0 hover:bg-green-50/50 transition-colors">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
                           <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
@@ -244,8 +250,8 @@ export default function AdminDashboard() {
                <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
                <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
                <div className="md:col-span-2 flex gap-4 mt-4">
-                  <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
-                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
+                  <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase transition-all hover:bg-green-800 active:scale-95">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
+                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase transition-all hover:bg-gray-500">Cancelar</button>
                </div>
             </form>
           </div>
