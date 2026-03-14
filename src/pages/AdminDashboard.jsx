@@ -94,7 +94,6 @@ export default function AdminDashboard() {
   return (
     <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800">
       
-      {/* CABEÇALHO FIXO */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800">
           <button 
             onClick={() => setMenuLateralAberto(true)}
@@ -106,14 +105,13 @@ export default function AdminDashboard() {
               <div className="w-6 h-1 bg-white rounded-full"></div>
             </div>
           </button>
-
           <div>
               <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic leading-none tracking-tighter">Clube Ágata</h1>
               <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest">Painel Administrativo</p>
           </div>
       </header>
 
-      {/* MENU LATERAL - CLARO E TRANSPARENTE */}
+      {/* SIDEBAR AJUSTADA: CLARA E TRANSPARENTE */}
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 text-center text-green-900 flex flex-col h-full">
             <div className="flex justify-end">
@@ -134,9 +132,15 @@ export default function AdminDashboard() {
                 >
                   🛡️ GERENCIAR UNIDADES
                 </button>
+                {/* BOTÃO DA MISSÃO FINAL: CHAMADA */}
+                <button 
+                  onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }}
+                  className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
+                >
+                  📅 FREQUÊNCIA "CHAMADA"
+                </button>
             </div>
 
-            {/* BOTÃO SAIR SEM ÍCONE OCUPANDO A LARGURA */}
             <div className="mt-auto pb-6">
                 <button 
                   onClick={() => navigate('/')}
@@ -152,15 +156,13 @@ export default function AdminDashboard() {
         <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/20 z-40"></div>
       )}
 
-      {/* CONTEÚDO PRINCIPAL */}
       <div className="p-2 md:p-8 pt-28 max-w-7xl mx-auto">
-        
         {historicoAberto && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800">
               <div className="bg-green-800 p-6 text-white flex justify-between items-center">
                 <div>
-                  <h3 className="font-black uppercase italic leading-none">Histórico de Pontos</h3>
+                  <h3 className="font-black uppercase italic leading-none text-sm">Histórico de Pontos</h3>
                   <p className="text-[10px] opacity-70 mt-1 uppercase font-bold">{historicoAberto.nome}</p>
                 </div>
                 <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm">✕</button>
@@ -200,8 +202,8 @@ export default function AdminDashboard() {
                         <div className="flex items-center gap-4">
                           <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
                           <div>
-                            <p className="font-black text-gray-800 uppercase leading-none mb-1 text-sm md:text-base">{m.nome}</p>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p>
+                            <p className="font-black text-gray-800 uppercase leading-none mb-1 text-sm md:text-base tracking-tight">{m.nome}</p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase italic tracking-wider">{m.funcao}</p>
                           </div>
                         </div>
                       </td>
@@ -235,7 +237,7 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in zoom-in-95 duration-300">
-            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
+            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic tracking-tight">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
             <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={nome} onChange={e => setNome(e.target.value)} required />
                <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={unidade} onChange={e => setUnidade(e.target.value)} required />
