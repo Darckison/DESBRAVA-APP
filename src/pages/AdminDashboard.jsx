@@ -106,19 +106,18 @@ export default function AdminDashboard() {
             </div>
           </button>
           
-          {/* HEADER COM LOGO E BARRINHA NO MEIO SEPARANDO O TITULO [Cores Modernas Aplicadas] */}
+          {/* HEADER COM LOGO E BARRINHA NO MEIO PARA PC E MOBILE */}
           <div className="flex items-center gap-4">
               <img src="/logo.png" className="w-10 h-10 object-contain" alt="Logo" />
               <div className="w-[2px] h-8 bg-gray-300"></div> {/* BARRINHA DE SEPARAÇÃO SOLICITADA */}
               <div className="flex flex-col">
-                  {/* Títulos visíveis em PC e Mobile */}
                   <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic leading-none tracking-tighter">Clube Ágata</h1>
                   <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Painel Administrativo</p>
               </div>
           </div>
       </header>
 
-      {/* SIDEBAR AJUSTADA: CLARA E TRANSPARENTE */}
+      {/* SIDEBAR AJUSTADA */}
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 text-center text-green-900 flex flex-col h-full">
             <div className="flex justify-end">
@@ -195,11 +194,17 @@ export default function AdminDashboard() {
         )}
 
         {view === 'tabela' ? (
-          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in duration-500">
+          /* CONSERTO DA TABELA: REMOVI OVERFLOW-HIDDEN PARA PERMITIR VER OS TITULOS NO PC */
+          <div className="bg-white rounded-[40px] shadow-2xl border border-gray-100 animate-in fade-in duration-500">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
-                  <tr><th className="p-8">Membro / Função</th><th className="p-8 text-center">Unidade</th><th className="p-8 text-center">Pontos</th><th className="p-8 text-center">Ações</th></tr>
+                <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest sticky top-0 z-10">
+                  <tr>
+                    <th className="p-8">Membro / Função</th>
+                    <th className="p-8 text-center">Unidade</th>
+                    <th className="p-8 text-center">Pontos</th>
+                    <th className="p-8 text-center">Ações</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {membros.map(m => (
