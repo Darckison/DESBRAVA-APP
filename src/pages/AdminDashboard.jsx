@@ -113,7 +113,7 @@ export default function AdminDashboard() {
           </div>
       </header>
 
-      {/* MENU LATERAL (SIDEBAR CLARA, OFUSCADA E SEM BORDA VERDE) */}
+      {/* MENU LATERAL - CLARO E TRANSPARENTE */}
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 text-center text-green-900 flex flex-col h-full">
             <div className="flex justify-end">
@@ -122,7 +122,6 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-black uppercase italic mb-8 mt-2 tracking-tighter">Navegação</h2>
             
             <div className="flex flex-col gap-4">
-                {/* BOTÃO DASHBOARD REMOVIDO */}
                 <button 
                   onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }}
                   className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
@@ -130,14 +129,14 @@ export default function AdminDashboard() {
                   + NOVO DESBRAVADOR
                 </button>
                 <button 
-                  onClick={() => navigate('/admin-unidades')}
+                  onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }}
                   className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
                 >
                   🛡️ GERENCIAR UNIDADES
                 </button>
             </div>
 
-            {/* SAIR DO SISTEMA (IGUAL AO PRINT, SEM ÍCONE) */}
+            {/* BOTÃO SAIR SEM ÍCONE OCUPANDO A LARGURA */}
             <div className="mt-auto pb-6">
                 <button 
                   onClick={() => navigate('/')}
@@ -240,7 +239,7 @@ export default function AdminDashboard() {
             <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={nome} onChange={e => setNome(e.target.value)} required />
                <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={unidade} onChange={e => setUnidade(e.target.value)} required />
-               <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={funcao} onChange={e => setFuncao(e.target.value)} required />
+               <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
                <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
                <div className="md:col-span-2 flex gap-4 mt-4">
                   <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
