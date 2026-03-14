@@ -9,6 +9,9 @@ export default function AdminDashboard() {
   const [membroParaEditar, setMembroParaEditar] = useState(null);
   const [loading, setLoading] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState(null);
+  
+  // ESTADO PARA CONTROLAR O MENU LATERAL
+  const [menuLateralAberto, setMenuLateralAberto] = useState(false);
 
   const [nome, setNome] = useState('');
   const [unidade, setUnidade] = useState('');
@@ -28,7 +31,6 @@ export default function AdminDashboard() {
 
   useEffect(() => carregarMembros(), []);
 
-  // --- FUNÇÕES LÓGICAS MANTIDAS ---
   const deletarMembro = async (id) => {
     if (window.confirm("Deseja realmente excluir este desbravador?")) {
       try {
@@ -87,57 +89,101 @@ export default function AdminDashboard() {
 
   const limparFormulario = () => {
     setNome(''); setUnidade(''); setFuncao(''); setArquivo(null); setView('tabela'); setMembroParaEditar(null);
+    setMenuLateralAberto(false);
   };
 
   return (
-    <div className="p-2 md:p-8 max-w-7xl mx-auto bg-gray-50 min-h-screen font-sans text-gray-800">
+    <div className="relative min-h-screen bg-gray-50 font-sans text-gray-800">
       
-      {/* MODAL DE HISTÓRICO */}
-      {historicoAberto && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800">
-            <div className="bg-green-800 p-6 text-white flex justify-between items-center">
-              <div>
-                <h3 className="font-black uppercase italic leading-none">Histórico de Pontos</h3>
-                <p className="text-[10px] opacity-70 mt-1 uppercase font-bold">{historicoAberto.nome}</p>
-              </div>
-              <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm">✕</button>
-            </div>
-            <div className="p-6 max-h-[400px] overflow-y-auto">
-              {(!historicoAberto.historico_pontos || historicoAberto.historico_pontos.length === 0) ? (
-                <p className="text-center text-gray-400 font-bold py-10 uppercase text-xs tracking-widest">Nenhum registro encontrado</p>
-              ) : (
-                <div className="space-y-4">
-                  {[...historicoAberto.historico_pontos].reverse().map((h, i) => (
-                    <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-green-600 shadow-sm">
-                      <div className="flex-1 pr-4">
-                        <p className="text-[10px] font-black uppercase text-green-900 leading-none mb-1">{h.motivo}</p>
-                        <p className="text-[8px] text-gray-400 font-bold uppercase">{h.data}</p>
-                      </div>
-                      <div className="bg-green-800 text-white px-3 py-1 rounded-lg font-black text-xs">+{h.valor}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+      {/* BOTÃO HAMBÚRGUER (TRÊS LINHAS) */}
+      <button 
+        onClick={() => setMenuLateralAberto(true)}
+        className="fixed top-4 left-4 z-40 bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all"
+      >
+        <div className="space-y-1.5">
+          <div className="w-6 h-1 bg-white rounded-full"></div>
+          <div className="w-6 h-1 bg-white rounded-full"></div>
+          <div className="w-6 h-1 bg-white rounded-full"></div>
         </div>
-      )}
+      </button>
 
-      {/* CABEÇALHO */}
-      <div className="bg-white p-6 rounded-[32px] shadow-lg mb-8 text-center border-t-8 border-green-800">
-        <h1 className="text-xl md:text-3xl font-black text-green-800 italic uppercase mb-6 tracking-tighter">Clube de desbravadores Ágata (Admin)</h1>
-        <div className="flex justify-center gap-4 flex-wrap">
-          <button onClick={() => navigate('/admin-unidades')} className="bg-yellow-500 text-green-950 px-6 py-2.5 rounded-2xl font-black shadow-md uppercase text-xs transition-all">🛡️ Gerenciar Unidades</button>
-          <button onClick={() => navigate('/')} className="bg-red-600 text-white px-6 py-2.5 rounded-2xl font-black shadow-md uppercase text-xs transition-all">Sair do Sistema</button>
+      {/* MENU LATERAL (SIDEBAR) */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform transition-transform duration-300 border-r-8 border-green-800 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-6 text-center">
+            <div className="flex justify-end">
+                <button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button>
+            </div>
+            <h2 className="text-xl font-black text-green-800 uppercase italic mb-8 mt-2">Ágata Admin</h2>
+            
+            <div className="flex flex-col gap-4">
+                <button 
+                  onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }}
+                  className="bg-green-700 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-green-800"
+                >
+                  + NOVO DESBRAVADOR
+                </button>
+
+                <button 
+                  onClick={() => navigate('/admin-unidades')}
+                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-yellow-600"
+                >
+                  🛡️ GERENCIAR UNIDADES
+                </button>
+
+                <button 
+                  onClick={() => navigate('/')}
+                  className="bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-red-700"
+                >
+                  SAIR DO SISTEMA
+                </button>
+            </div>
         </div>
       </div>
 
-      {view === 'tabela' ? (
-        <>
-          <button onClick={() => setView('cadastro')} className="mb-8 w-full md:w-auto bg-green-700 text-white px-10 py-5 rounded-[25px] font-black shadow-xl uppercase tracking-widest text-xs">+ Novo Desbravador</button>
+      {/* OVERLAY PARA FECHAR O MENU AO CLICAR FORA */}
+      {menuLateralAberto && (
+        <div 
+          onClick={() => setMenuLateralAberto(false)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+        ></div>
+      )}
 
-          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
+      {/* CONTEÚDO PRINCIPAL (TABELA PERMANECE NORMAL) */}
+      <div className="p-2 md:p-8 pt-20 max-w-7xl mx-auto">
+        
+        {historicoAberto && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800">
+              <div className="bg-green-800 p-6 text-white flex justify-between items-center">
+                <div>
+                  <h3 className="font-black uppercase italic leading-none">Histórico de Pontos</h3>
+                  <p className="text-[10px] opacity-70 mt-1 uppercase font-bold">{historicoAberto.nome}</p>
+                </div>
+                <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm">✕</button>
+              </div>
+              <div className="p-6 max-h-[400px] overflow-y-auto">
+                {(!historicoAberto.historico_pontos || historicoAberto.historico_pontos.length === 0) ? (
+                  <p className="text-center text-gray-400 font-bold py-10 uppercase text-xs tracking-widest">Nenhum registro encontrado</p>
+                ) : (
+                  <div className="space-y-4">
+                    {[...historicoAberto.historico_pontos].reverse().map((h, i) => (
+                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-green-600 shadow-sm">
+                        <div className="flex-1 pr-4">
+                          <p className="text-[10px] font-black uppercase text-green-900 leading-none mb-1">{h.motivo}</p>
+                          <p className="text-[8px] text-gray-400 font-bold uppercase">{h.data}</p>
+                        </div>
+                        <div className="bg-green-800 text-white px-3 py-1 rounded-lg font-black text-xs">+{h.valor}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {view === 'tabela' ? (
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in duration-500">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
@@ -157,7 +203,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
                       <td className="p-6 text-center">
-                        <button onClick={() => setHistoricoAberto(m)} className="bg-green-100 hover:bg-green-200 text-green-800 px-6 py-3 rounded-2xl font-black text-2xl border border-green-200">{m.pontos}</button>
+                        <button onClick={() => setHistoricoAberto(m)} className="bg-green-100 hover:bg-green-200 text-green-800 px-6 py-3 rounded-2xl font-black text-2xl border border-green-200 transition-all active:scale-90">{m.pontos}</button>
                       </td>
                       <td className="p-6 text-center">
                         {pontuandoId === m._id ? (
@@ -172,8 +218,8 @@ export default function AdminDashboard() {
                         ) : (
                           <div className="flex justify-center gap-2">
                             <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-black shadow-md text-[10px] uppercase">⭐ Pontuar</button>
-                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-2.5 rounded-xl shadow-md">✏️</button>
-                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl shadow-md">🗑️</button>
+                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-2.5 rounded-xl">✏️</button>
+                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl">🗑️</button>
                           </div>
                         )}
                       </td>
@@ -183,22 +229,22 @@ export default function AdminDashboard() {
               </table>
             </div>
           </div>
-        </>
-      ) : (
-        <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in fade-in zoom-in duration-300">
-          <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
-          <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={nome} onChange={e => setNome(e.target.value)} required />
-             <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={unidade} onChange={e => setUnidade(e.target.value)} required />
-             <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
-             <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
-             <div className="md:col-span-2 flex gap-4 mt-4">
-                <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
-                <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
-             </div>
-          </form>
-        </div>
-      )}
+        ) : (
+          <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in zoom-in-95 duration-300">
+            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
+            <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={nome} onChange={e => setNome(e.target.value)} required />
+               <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={unidade} onChange={e => setUnidade(e.target.value)} required />
+               <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={funcao} onChange={e => setFuncao(e.target.value)} required />
+               <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
+               <div className="md:col-span-2 flex gap-4 mt-4">
+                  <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
+                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
+               </div>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
