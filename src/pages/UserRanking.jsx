@@ -34,7 +34,7 @@ const UserRanking = () => {
         <div className="flex justify-between items-center mb-16 md:mb-40 px-2 pt-4">
             <button onClick={() => navigate('/')} className="bg-green-500 text-black px-4 py-1.5 rounded-full font-black text-[10px] md:text-sm uppercase italic shadow-[0_0_15px_rgba(34,197,94,0.5)] transition-all active:scale-95">← VOLTAR</button>
             <h1 className="text-xl md:text-5xl font-black uppercase italic flex-1 text-center tracking-tighter text-green-500 drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">
-              RANKING <span className="text-white">ELITE ÁGATA</span>
+              RANKING <span className="text-white">GERAL | ÁGATA</span>
             </h1>
             <div className="w-10 md:w-20"></div>
         </div>
