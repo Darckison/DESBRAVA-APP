@@ -27,24 +27,23 @@ const UserRanking = () => {
   const geral = membros.slice(3);
 
   return (
-    <div className="min-h-screen bg-black bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-950 via-black to-black py-4 md:py-10 px-1 md:px-4 font-sans text-white overflow-x-hidden pb-32">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-black bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-950 via-black to-black py-4 md:py-10 px-1 md:px-4 font-sans text-white overflow-x-hidden">
+      <div className="max-w-5xl mx-auto flex flex-col min-h-screen">
         
         {/* HEADER */}
         <div className="flex justify-between items-center mb-16 md:mb-40 px-2 pt-4">
-            <button onClick={() => navigate('/')} className="bg-green-500 text-black px-4 py-1.5 rounded-full font-black text-[10px] md:text-sm uppercase italic shadow-[0_0_15px_rgba(34,197,94,0.5)]">← VOLTAR</button>
+            <button onClick={() => navigate('/')} className="bg-green-500 text-black px-4 py-1.5 rounded-full font-black text-[10px] md:text-sm uppercase italic shadow-[0_0_15px_rgba(34,197,94,0.5)] transition-all active:scale-95">← VOLTAR</button>
             <h1 className="text-xl md:text-5xl font-black uppercase italic flex-1 text-center tracking-tighter text-green-500 drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">
               RANKING <span className="text-white">ELITE ÁGATA</span>
             </h1>
             <div className="w-10 md:w-20"></div>
         </div>
 
-        {/* PÓDIO (MANTIDO O DESIGN, MUDADO CORES PARA NEON) */}
+        {/* PÓDIO */}
         <div className="flex flex-row justify-center items-end gap-1 md:gap-6 mb-24 relative px-1">
           {podio.map((m, index) => {
             const isFirst = index === 0;
             const rank = index === 0 ? "1º" : index === 1 ? "2º" : "3º";
-            // Cores Neon para o Pódio
             const borderCol = index === 0 ? "border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]" : index === 1 ? "border-white/50" : "border-green-800";
             
             return (
@@ -71,26 +70,24 @@ const UserRanking = () => {
           })}
         </div>
 
-        {/* CLASSIFICAÇÃO GERAL - ESTILO TABELA NEON (A PARTIR DO 4º) */}
-        <div className="max-w-4xl mx-auto">
+        {/* CLASSIFICAÇÃO GERAL */}
+        <div className="max-w-4xl mx-auto flex-1">
           <div className="flex px-4 md:px-8 mb-4 text-[10px] md:text-sm font-black text-green-500 uppercase tracking-widest italic">
             <span className="w-12 text-center text-white/40">POS</span>
             <span className="flex-1 ml-4 text-white/40">DESBRAVADOR</span>
             <span className="w-20 text-center text-white/40">PTS</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 pb-10">
             {geral.map((m, index) => (
               <div 
                 key={m._id} 
                 className="flex items-center bg-white/5 hover:bg-green-500/20 border border-white/10 hover:border-green-500 transition-all rounded-full p-1.5 md:p-2 group shadow-lg"
               >
-                {/* POSIÇÃO CIRCULAR */}
                 <div className="w-10 h-10 md:w-14 md:h-14 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center font-black text-black text-lg md:text-2xl italic">
                   {index + 4}º
                 </div>
 
-                {/* FOTO E INFO */}
                 <div className="flex-1 flex items-center ml-4 min-w-0">
                   <img 
                     src={m.foto_url} 
@@ -107,7 +104,6 @@ const UserRanking = () => {
                   </div>
                 </div>
 
-                {/* PONTUAÇÃO CAPSULA NEON */}
                 <div className="w-20 md:w-32 h-10 md:h-14 bg-green-500 rounded-full flex items-center justify-center font-black text-black text-xl md:text-3xl italic">
                   {m.pontos}
                 </div>
@@ -116,9 +112,9 @@ const UserRanking = () => {
           </div>
         </div>
 
-        {/* RODAPÉ FIXADO */}
-        <div className="fixed bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/90 to-transparent py-8 z-40">
-          <p className="text-center font-black text-green-500 uppercase italic text-sm md:text-2xl tracking-[0.3em] drop-shadow-[0_0_10px_rgba(34,197,94,0.6)] animate-pulse">
+        {/* RODAPÉ INTEGRADO (AO FINAL DA LISTA) */}
+        <div className="py-12 mt-auto">
+          <p className="text-center font-black text-green-500 uppercase italic text-sm md:text-3xl tracking-[0.3em] drop-shadow-[0_0_10px_rgba(34,197,94,0.6)] animate-pulse">
             PARABÉNS A TODOS!
           </p>
         </div>
