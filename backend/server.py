@@ -4,7 +4,7 @@ import cloudinary.uploader
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from bson import ObjectId
+from bson.objectid import ObjectId
 from datetime import datetime
 
 app = FastAPI()
