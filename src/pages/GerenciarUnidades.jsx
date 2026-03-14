@@ -9,10 +9,11 @@ export default function GerenciarUnidades() {
   const [loading, setLoading] = useState(false);
   const [mostrandoForm, setMostrandoForm] = useState(false);
   
-  // Estados para Pontuação de Unidade
+  // ESTADOS PARA PONTUAÇÃO E HISTÓRICO
   const [pontuandoNome, setPontuandoNome] = useState('');
   const [inputPontos, setInputPontos] = useState('');
   const [inputMotivo, setInputMotivo] = useState('');
+  const [historicoAberto, setHistoricoAberto] = useState(null); // Para o modal
 
   const navigate = useNavigate();
   const API_URL = "https://desbrava-app.onrender.com";
@@ -34,26 +35,19 @@ export default function GerenciarUnidades() {
   const handleSalvar = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     const data = new FormData();
     data.append('nome', nome.toUpperCase());
     data.append('pontos_proprios', pontos);
-    if (arquivo) {
-      data.append('logo', arquivo);
-    }
+    if (arquivo) { data.append('logo', arquivo); }
 
     try {
       const response = await fetch(`${API_URL}/unidades`, {
         method: 'POST',
         body: data,
       });
-
       if (response.ok) {
-        alert("✅ Unidade salva com sucesso!");
-        setNome('');
-        setPontos(0);
-        setArquivo(null);
-        setMostrandoForm(false);
+        alert("✅ Unidade salva!");
+        setNome(''); setPontos(0); setArquivo(null); setMostrandoForm(false);
         carregarUnidades();
       }
     } catch (error) {
@@ -68,22 +62,17 @@ export default function GerenciarUnidades() {
       alert("Preencha quantidade e motivo!");
       return;
     }
-
     const data = new FormData();
     data.append('valor', inputPontos);
     data.append('motivo', inputMotivo);
 
     try {
-      // Usando a rota de pontos própria da unidade (certifique-se que existe no server.py)
       const res = await fetch(`${API_URL}/unidades/${nomeUnidade}/pontos`, {
         method: 'PATCH',
         body: data
       });
-
       if (res.ok) {
-        setPontuandoNome('');
-        setInputPontos('');
-        setInputMotivo('');
+        setPontuandoNome(''); setInputPontos(''); setInputMotivo('');
         carregarUnidades();
       }
     } catch (err) {
@@ -103,26 +92,50 @@ export default function GerenciarUnidades() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-2xl mx-auto bg-gray-50 min-h-screen font-sans">
+    <div className="p-4 md:p-8 max-w-2xl mx-auto bg-gray-50 min-h-screen font-sans text-gray-800">
       
+      {/* MODAL DE HISTÓRICO DA UNIDADE */}
+      {historicoAberto && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden border-4 border-green-800 animate-in fade-in zoom-in duration-200">
+            <div className="bg-green-800 p-6 text-white flex justify-between items-center">
+              <div>
+                <h3 className="font-black uppercase italic leading-none text-lg tracking-tighter">Histórico da Unidade</h3>
+                <p className="text-[10px] opacity-70 mt-1 uppercase font-bold tracking-widest">{historicoAberto.nome}</p>
+              </div>
+              <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm transition-all">X</button>
+            </div>
+            <div className="p-6 max-h-[400px] overflow-y-auto bg-gray-50">
+              {!historicoAberto.historico_pontos || historicoAberto.historico_pontos.length === 0 ? (
+                <p className="text-center text-gray-400 font-bold py-10 uppercase text-[10px] tracking-[0.2em]">Nenhum ponto registrado diretamente</p>
+              ) : (
+                <div className="space-y-3">
+                  {[...historicoAberto.historico_pontos].reverse().map((h, i) => (
+                    <div key={i} className="flex justify-between items-center p-4 bg-white rounded-2xl border-l-4 border-yellow-500 shadow-sm">
+                      <div className="flex-1 pr-4">
+                        <p className="text-[10px] font-black uppercase text-green-900 leading-tight mb-1">{h.motivo}</p>
+                        <p className="text-[8px] text-gray-400 font-bold uppercase tracking-tighter italic">{h.data}</p>
+                      </div>
+                      <div className="bg-green-800 text-white px-3 py-1 rounded-lg font-black text-xs shadow-md">
+                        +{h.valor}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* CABEÇALHO */}
       <div className="bg-white p-6 rounded-[40px] shadow-lg border-t-8 border-green-800 text-center mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
-        <h1 className="text-2xl font-black text-green-800 italic uppercase tracking-tighter">
-          Gerenciar Unidades
-        </h1>
-        <button 
-          onClick={() => navigate('/dashboard')} 
-          className="bg-gray-200 text-gray-700 px-6 py-2 rounded-2xl font-black uppercase text-xs hover:bg-gray-300 transition-all"
-        >
-          VOLTAR
-        </button>
+        <h1 className="text-2xl font-black text-green-800 italic uppercase tracking-tighter">Gerenciar Unidades</h1>
+        <button onClick={() => navigate('/dashboard')} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-2xl font-black uppercase text-xs hover:bg-gray-300">VOLTAR</button>
       </div>
 
       {!mostrandoForm && (
-        <button 
-          onClick={() => setMostrandoForm(true)}
-          className="w-full mb-8 bg-green-700 text-white py-5 rounded-[30px] font-black uppercase shadow-xl hover:bg-green-800 transition-all active:scale-95"
-        >
+        <button onClick={() => setMostrandoForm(true)} className="w-full mb-8 bg-green-700 text-white py-5 rounded-[30px] font-black uppercase shadow-xl hover:bg-green-800 active:scale-95 transition-all">
           + NOVA UNIDADE
         </button>
       )}
@@ -144,7 +157,7 @@ export default function GerenciarUnidades() {
         </form>
       )}
 
-      {/* LISTA DE UNIDADES COM AÇÕES */}
+      {/* LISTA DE UNIDADES */}
       <div className="space-y-4">
         <h2 className="text-center font-black text-gray-400 uppercase text-xs tracking-widest mb-2">Unidades no Banco</h2>
         {unidades.map((u, i) => (
@@ -153,4 +166,41 @@ export default function GerenciarUnidades() {
               <div className="flex items-center gap-4">
                 <img 
                   src={u.logo_url} 
-                  className="w-14 h-14 rounded
+                  className="w-14 h-14 rounded-full object-cover border-4 border-green-100 shadow-sm" 
+                  alt="logo"
+                  onError={(e) => { e.target.src = "https://via.placeholder.com/100?text=LOGO"; }}
+                />
+                <div>
+                    <span className="font-black uppercase text-lg text-gray-800 italic leading-none">{u.nome}</span>
+                    {/* CLIQUE NO TEXTO DE PONTOS PARA ABRIR O HISTÓRICO */}
+                    <p 
+                      onClick={() => setHistoricoAberto(u)} 
+                      className="text-[10px] font-bold text-green-700 uppercase cursor-pointer hover:underline"
+                    >
+                      Pontos: {u.total} 🔍
+                    </p>
+                </div>
+              </div>
+
+              {pontuandoNome === u.nome ? (
+                  <div className="flex flex-col gap-2 bg-yellow-50 p-3 rounded-2xl border-2 border-yellow-400 w-full max-w-[200px]">
+                      <input type="number" placeholder="Qtd" className="p-2 border rounded-lg font-bold text-xs" value={inputPontos} onChange={e => setInputPontos(e.target.value)} />
+                      <input type="text" placeholder="Motivo" className="p-2 border rounded-lg text-[10px]" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
+                      <div className="flex gap-2">
+                          <button onClick={() => salvarPontosUnidade(u.nome)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black uppercase text-[9px]">OK</button>
+                          <button onClick={() => setPontuandoNome('')} className="bg-red-500 text-white px-2 rounded-lg font-black text-xs">X</button>
+                      </div>
+                  </div>
+              ) : (
+                  <div className="flex gap-2">
+                    <button onClick={() => setPontuandoNome(u.nome)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl font-black shadow-md text-[9px] uppercase">⭐ PONTUAR</button>
+                    <button onClick={() => deletarUnidade(u.nome)} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-xl shadow-md text-xs">🗑️</button>
+                  </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
