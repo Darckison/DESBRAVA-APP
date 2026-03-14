@@ -70,7 +70,6 @@ export default function Chamada() {
           {!mostrarLista ? (
             <div className="bg-white/10 backdrop-blur-2xl p-12 rounded-[50px] shadow-2xl text-center border-2 border-white/10 flex flex-col items-center justify-center min-h-[450px] animate-in fade-in zoom-in duration-500 relative">
                
-               {/* BOTÃO VOLTAR FIXADO NA BORDA ESQUERDA DO CONTEINER */}
                <button 
                   onClick={() => navigate('/dashboard')} 
                   className="absolute top-8 left-8 bg-white/10 hover:bg-white/20 text-white w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg border border-white/10 text-2xl active:scale-90"
@@ -78,11 +77,10 @@ export default function Chamada() {
                   ←
                </button>
 
-               {/* HEADER REORGANIZADO COM BARRINHA DE SEPARAÇÃO */}
-               <div className="flex items-center gap-6 mb-10 border-l-2 border-white pl-6">
-                  <img src="/logo.png" className="w-24 h-24 mb-6 drop-shadow-2xl" alt="Logo" />
-                  
-                  <div className="text-left">
+               {/* BARRINHA ADICIONADA AQUI ENTRE LOGO E TEXTO */}
+               <div className="flex items-center gap-6 mb-8">
+                  <img src="/logo.png" className="w-20 h-20 drop-shadow-2xl" alt="Logo" />
+                  <div className="text-left border-l-2 border-white pl-6">
                     <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
                     <p className="text-[10px] md:text-xs font-bold text-green-400 uppercase tracking-[0.2em] mt-2 opacity-80">Painel Administrativo</p>
                   </div>
@@ -100,7 +98,7 @@ export default function Chamada() {
             <div className="bg-white rounded-[50px] shadow-2xl overflow-hidden border border-white/20 animate-in slide-in-from-bottom-6 duration-500">
               
               <div className="bg-gradient-to-br from-green-800 to-[#061a0d] p-8 text-white relative">
-                <div className="flex items-center gap-5 mb-8">
+                <div className="flex items-center">
                   <button 
                     onClick={() => setMostrarLista(false)} 
                     className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border border-white/10 flex-shrink-0"
@@ -108,7 +106,7 @@ export default function Chamada() {
                     <span className="text-2xl">←</span>
                   </button>
 
-                  <div className="flex items-center gap-4 border-l-2 border-white pl-4">
+                  <div className="flex items-center gap-4 border-l-2 border-white pl-4 ml-auto mr-auto">
                     <img src="/logo.png" className="w-14 h-14 object-contain bg-white/10 backdrop-blur-md rounded-2xl p-1 shadow-xl border border-white/20" alt="Logo" />
                     <div>
                       <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
@@ -117,23 +115,23 @@ export default function Chamada() {
                   </div>
                 </div>
                 
-                <div className="bg-black/20 p-4 rounded-[25px] border border-white/5 text-center">
+                <div className="bg-black/20 p-4 rounded-[25px] border border-white/5 text-center mt-8">
                    <p className="text-[11px] font-black text-white uppercase tracking-widest underline decoration-yellow-500 decoration-2 underline-offset-8">Lista de Frequência • {hoje}</p>
                 </div>
               </div>
 
               <div className="p-6 space-y-4 max-h-[550px] overflow-y-auto custom-scrollbar bg-gray-50/50">
                 {membros.map(m => (
-                  <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl hover:scale-[1.01]">
+                  <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl">
                     <div className="flex items-center gap-4">
-                      <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
+                      <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" alt="" />
                       <div className="truncate">
                         <p className="font-black text-sm md:text-lg uppercase leading-none text-gray-800 tracking-tighter">{m.nome.split(' ')[0]}</p>
                         <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">{m.unidade}</p>
                       </div>
                     </div>
 
-                    <div className="flex bg-gray-100 p-1.5 rounded-[25px] gap-1 shadow-inner border border-gray-200 scale-90 md:scale-100">
+                    <div className="flex bg-gray-100 p-1.5 rounded-[25px] gap-1 shadow-inner border border-gray-200">
                       <button 
                         onClick={() => alternarPresenca(m._id, 'P')}
                         className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'P' ? 'bg-green-600 text-white shadow-lg shadow-green-900/20' : 'text-gray-400 hover:bg-white'}`}
@@ -147,7 +145,7 @@ export default function Chamada() {
                 ))}
               </div>
 
-              <div className="p-8 bg-white border-t border-gray-100">
+              <div className="p-8 bg-white border-t border-gray-100 text-center">
                 <button 
                   onClick={salvarChamada}
                   disabled={loading}
@@ -185,11 +183,10 @@ export default function Chamada() {
           )}
         </div>
 
-        {/* COLUNA HISTÓRICO - LOGO REMOVIDA */}
+        {/* COLUNA HISTÓRICO */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10 relative">
             
-            {/* CABEÇALHO DO HISTÓRICO SEM A LOGO E COM BARRINHA */}
             <div className="flex items-center gap-4 mb-10 border-l-2 border-yellow-500 pl-4">
               <h3 className="font-black text-white uppercase italic text-xl tracking-tighter">Histórico</h3>
             </div>
@@ -198,14 +195,14 @@ export default function Chamada() {
               {historico.length === 0 ? (
                 <div className="text-center py-20 opacity-30 text-white">
                    <div className="text-6xl mb-4">📂</div>
-                   <p className="text-[10px] font-black uppercase tracking-widest">Nenhum registro</p>
+                   <p className="text-[10px] font-black uppercase tracking-widest">Vazio</p>
                 </div>
               ) : (
                 historico.map((h, i) => (
                   <button 
                     key={i} 
                     onClick={() => setChamadaSelecionada(h)}
-                    className="w-full p-6 bg-white/5 hover:bg-white/20 rounded-[35px] border-l-8 border-yellow-500 flex justify-between items-center transition-all group active:scale-95 shadow-lg border border-white/5"
+                    className="w-full p-6 bg-white/5 hover:bg-white/20 rounded-[35px] border-l-8 border-green-800 flex justify-between items-center transition-all group active:scale-95 shadow-lg border border-white/5"
                   >
                     <div className="text-left">
                       <p className="text-base font-black text-white mb-1 group-hover:text-yellow-400 transition-colors">{h.data}</p>
