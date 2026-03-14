@@ -34,7 +34,7 @@ colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
 
-# --- ROTA DE CRIAR UNIDADE (MANTIDA) ---
+# --- ROTA DE CRIAR UNIDADE ---
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -57,13 +57,13 @@ async def criar_unidade(
             "nome": nome_formatado, 
             "pontos_proprios": int(pontos_proprios), 
             "logo_url": url_logo,
-            "historico_pontos": [] # Garante que a lista de histórico existe
+            "historico_pontos": [] 
         }},
         upsert=True
     )
     return {"status": "sucesso", "url": url_logo}
 
-# --- ROTA DE PONTUAR UNIDADE (NOVA - SOLICITADA) ---
+# --- ROTA DE PONTUAR UNIDADE ---
 @app.patch("/unidades/{nome}/pontos")
 async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: str = Form(...)):
     nome_formatado = nome.upper().strip()
@@ -74,7 +74,6 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: st
         "data": datetime.now().strftime("%d/%m/%Y %H:%M")
     }
 
-    # Atualiza os pontos_proprios da unidade e guarda o motivo
     await colecao_unidades.update_one(
         {"nome": nome_formatado},
         {
@@ -84,7 +83,7 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: st
     )
     return {"message": "ok", "registro": novo_ponto}
 
-# --- ROTA DE CRIAR MEMBRO (MANTIDA) ---
+# --- ROTA DE CRIAR MEMBRO ---
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -111,7 +110,7 @@ async def criar_membro(
     })
     return {"status": "sucesso", "url": url_foto}
 
-# --- ROTA DE PONTUAR MEMBRO (MANTIDA) ---
+# --- ROTA DE PONTUAR MEMBRO ---
 @app.patch("/membros/{id}/pontos")
 async def adicionar_pontos_membro(id: str, valor: int = Form(...), motivo: str = Form(...)):
     novo_ponto = {
@@ -128,7 +127,7 @@ async def adicionar_pontos_membro(id: str, valor: int = Form(...), motivo: str =
     )
     return {"message": "ok", "registro": novo_ponto}
 
-# --- ROTAS DE LISTAGEM E DELETE (MANTIDAS) ---
+# --- ROTAS DE LISTAGEM ---
 @app.get("/ranking-unidades")
 async def obter_ranking():
     unidades = await colecao_unidades.find().to_list(100)
@@ -142,7 +141,7 @@ async def obter_ranking():
             "logo_url": uni.get("logo_url", "https://via.placeholder.com/150"),
             "pontos_unidade": uni.get("pontos_proprios", 0),
             "total": uni.get("pontos_proprios", 0) + soma,
-            "historico_pontos": uni.get("historico_pontos", []) # Incluído para visualização futura
+            "historico_pontos": uni.get("historico_pontos", []) 
         })
     return ranking
 
@@ -152,10 +151,22 @@ async def listar_membros():
     for m in membros: m["_id"] = str(m["_id"])
     return membros
 
+# --- ROTAS DE DELETE ---
+
 @app.delete("/unidades/{nome}")
 async def deletar_unidade(nome: str):
     await colecao_unidades.delete_one({"nome": nome.upper().strip()})
     return {"message": "Removido"}
+
+@app.delete("/membros/{id}")
+async def deletar_membro(id: str):
+    try:
+        resultado = await colecao_membros.delete_one({"_id": ObjectId(id)})
+        if resultado.deleted_count == 1:
+            return {"status": "sucesso", "message": "Membro removido"}
+        return {"status": "erro", "message": "Membro não encontrado"}
+    except Exception as e:
+        return {"status": "erro", "message": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
