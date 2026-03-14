@@ -10,7 +10,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState(null);
   
-  // ESTADO PARA CONTROLAR O MENU LATERAL
   const [menuLateralAberto, setMenuLateralAberto] = useState(false);
 
   const [nome, setNome] = useState('');
@@ -93,46 +92,58 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-50 font-sans text-gray-800">
+    // COR DE FUNDO AJUSTADA PARA VERDE QUE COMBINA
+    <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800">
       
-      {/* BOTÃO HAMBÚRGUER (TRÊS LINHAS) */}
-      <button 
-        onClick={() => setMenuLateralAberto(true)}
-        className="fixed top-4 left-4 z-40 bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all"
-      >
-        <div className="space-y-1.5">
-          <div className="w-6 h-1 bg-white rounded-full"></div>
-          <div className="w-6 h-1 bg-white rounded-full"></div>
-          <div className="w-6 h-1 bg-white rounded-full"></div>
-        </div>
-      </button>
+      {/* CABEÇALHO COM TÍTULO E SUBTÍTULO AO LADO DO BOTÃO */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800">
+          <button 
+            onClick={() => setMenuLateralAberto(true)}
+            className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all flex-shrink-0"
+          >
+            <div className="space-y-1.5">
+              <div className="w-6 h-1 bg-white rounded-full"></div>
+              <div className="w-6 h-1 bg-white rounded-full"></div>
+              <div className="w-6 h-1 bg-white rounded-full"></div>
+            </div>
+          </button>
 
-      {/* MENU LATERAL (SIDEBAR) */}
+          <div>
+              <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic leading-none tracking-tighter">Clube Ágata</h1>
+              <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest">Painel Administrativo</p>
+          </div>
+      </header>
+
+      {/* MENU LATERAL */}
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform transition-transform duration-300 border-r-8 border-green-800 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 text-center">
             <div className="flex justify-end">
                 <button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button>
             </div>
-            <h2 className="text-xl font-black text-green-800 uppercase italic mb-8 mt-2">Ágata Admin</h2>
+            <h2 className="text-xl font-black text-green-800 uppercase italic mb-8 mt-2">Navegação</h2>
             
             <div className="flex flex-col gap-4">
                 <button 
+                  onClick={() => { setView('tabela'); setMenuLateralAberto(false); }}
+                  className="bg-green-700 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md"
+                >
+                  DASHBOARD
+                </button>
+                <button 
                   onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }}
-                  className="bg-green-700 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-green-800"
+                  className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md"
                 >
                   + NOVO DESBRAVADOR
                 </button>
-
                 <button 
                   onClick={() => navigate('/admin-unidades')}
-                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-yellow-600"
+                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md"
                 >
                   🛡️ GERENCIAR UNIDADES
                 </button>
-
                 <button 
                   onClick={() => navigate('/')}
-                  className="bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md hover:bg-red-700"
+                  className="bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md"
                 >
                   SAIR DO SISTEMA
                 </button>
@@ -140,16 +151,12 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* OVERLAY PARA FECHAR O MENU AO CLICAR FORA */}
       {menuLateralAberto && (
-        <div 
-          onClick={() => setMenuLateralAberto(false)}
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
-        ></div>
+        <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
       )}
 
-      {/* CONTEÚDO PRINCIPAL (TABELA PERMANECE NORMAL) */}
-      <div className="p-2 md:p-8 pt-20 max-w-7xl mx-auto">
+      {/* CONTEÚDO PRINCIPAL COM AJUSTE DE MARGEM PARA O HEADER FIXO */}
+      <div className="p-2 md:p-8 pt-28 max-w-7xl mx-auto">
         
         {historicoAberto && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -183,7 +190,7 @@ export default function AdminDashboard() {
         )}
 
         {view === 'tabela' ? (
-          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in duration-500">
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
@@ -212,14 +219,14 @@ export default function AdminDashboard() {
                             <input type="text" placeholder="Motivo" className="p-2 border rounded-lg text-xs" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
                             <div className="flex gap-2">
                               <button onClick={() => salvarPontos(m._id)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black uppercase text-[10px]">OK</button>
-                              <button onClick={() => setPontuandoId('')} className="bg-red-500 text-white px-2 rounded-lg font-black">✕</button>
+                              <button onClick={() => setPointuandoId('')} className="bg-red-500 text-white px-2 rounded-lg font-black">✕</button>
                             </div>
                           </div>
                         ) : (
                           <div className="flex justify-center gap-2">
                             <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-black shadow-md text-[10px] uppercase">⭐ Pontuar</button>
-                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-2.5 rounded-xl">✏️</button>
-                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl">🗑️</button>
+                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 hover:bg-amber-500 text-white p-2.5 rounded-xl shadow-md">✏️</button>
+                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl shadow-md">🗑️</button>
                           </div>
                         )}
                       </td>
@@ -230,12 +237,12 @@ export default function AdminDashboard() {
             </div>
           </div>
         ) : (
-          <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in zoom-in-95 duration-300">
+          <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10">
             <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
             <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={nome} onChange={e => setNome(e.target.value)} required />
                <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={unidade} onChange={e => setUnidade(e.target.value)} required />
-               <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600 uppercase" value={funcao} onChange={e => setFuncao(e.target.value)} required />
+               <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
                <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
                <div className="md:col-span-2 flex gap-4 mt-4">
                   <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
