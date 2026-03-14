@@ -8,6 +8,9 @@ export default function AdminDashboard() {
   const [pontuandoId, setPontuandoId] = useState('');
   const [membroParaEditar, setMembroParaEditar] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // Novo estado para controlar o histórico flutuante
+  const [historicoAberto, setHistoricoAberto] = useState(null);
 
   const [nome, setNome] = useState('');
   const [unidade, setUnidade] = useState('');
@@ -66,7 +69,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // --- FUNÇÃO ATUALIZADA COM MOTIVO E DATA ---
   const salvarPontos = async (id) => {
     if (!inputPontos || !inputMotivo) {
       alert("Preencha a quantidade e o motivo!");
@@ -76,8 +78,6 @@ export default function AdminDashboard() {
     const data = new FormData();
     data.append('valor', inputPontos);
     data.append('motivo', inputMotivo);
-    // A data é gerada automaticamente no servidor (new Date()), 
-    // mas enviamos os campos que o banco de dados vai registrar.
     
     try {
       const res = await fetch(`${API_URL}/membros/${id}/pontos`, { 
@@ -118,6 +118,40 @@ export default function AdminDashboard() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto bg-gray-50 min-h-screen font-sans text-gray-800">
       
+      {/* MODAL DE HISTÓRICO (FLUTUANTE) */}
+      {historicoAberto && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden border-4 border-green-800">
+            <div className="bg-green-800 p-6 text-white flex justify-between items-center">
+              <div>
+                <h3 className="font-black uppercase italic leading-none">Histórico de Pontos</h3>
+                <p className="text-[10px] opacity-70 mt-1 uppercase font-bold">{historicoAberto.nome}</p>
+              </div>
+              <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm">X</button>
+            </div>
+            <div className="p-6 max-h-[400px] overflow-y-auto">
+              {!historicoAberto.historico_pontos || historicoAberto.historico_pontos.length === 0 ? (
+                <p className="text-center text-gray-400 font-bold py-10 uppercase text-xs tracking-widest">Nenhum registro encontrado</p>
+              ) : (
+                <div className="space-y-4">
+                  {[...historicoAberto.historico_pontos].reverse().map((h, i) => (
+                    <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-green-600 shadow-sm">
+                      <div className="flex-1 pr-4">
+                        <p className="text-[10px] font-black uppercase text-green-900 leading-none mb-1">{h.motivo}</p>
+                        <p className="text-[8px] text-gray-400 font-bold uppercase">{h.data}</p>
+                      </div>
+                      <div className="bg-green-800 text-white px-3 py-1 rounded-lg font-black text-xs">
+                        +{h.valor}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* CABEÇALHO */}
       <div className="bg-white p-6 rounded-[32px] shadow-lg mb-8 text-center border-t-8 border-green-800">
         <h1 className="text-3xl font-black text-green-800 italic uppercase mb-6 tracking-tighter">Clube de desbravadores Ágata (Admin)</h1>
@@ -177,9 +211,14 @@ export default function AdminDashboard() {
                       </td>
                       <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
                       <td className="p-6 text-center">
-                        <span className="bg-green-100 text-green-800 px-4 py-2 rounded-xl font-black text-xl border border-green-200">
+                        {/* AGORA O BOTÃO DE PONTOS ABRE O HISTÓRICO AO CLICAR */}
+                        <button 
+                          onClick={() => setHistoricoAberto(m)}
+                          title="Clique para ver o extrato"
+                          className="bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2 rounded-xl font-black text-xl border border-green-200 active:scale-90 transition-all cursor-pointer"
+                        >
                           {m.pontos}
-                        </span>
+                        </button>
                       </td>
                       <td className="p-6 text-center">
                         {pontuandoId === m._id ? (
