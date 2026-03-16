@@ -10,7 +10,7 @@ const AdminLogin = () => {
     e.preventDefault();
     
     // Aqui você define a sua senha de administrador
-    if (usuario === 'admin' && senha === '1234') {
+    if (usuario === 'ClubeAgata@Ofiical' && senha === 'Clube2026') {
       alert('Acesso Autorizado!');
       navigate('/dashboard'); // Te leva para o Painel Master
     } else {
