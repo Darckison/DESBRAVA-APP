@@ -10,7 +10,7 @@ const AdminLogin = () => {
     e.preventDefault();
     
     // Suas credenciais definidas
-    if (usuario === 'admin' && senha === '1234') {
+    if (usuario === 'ClubeAgata@Oficial' && senha === 'Clube2026') {
       navigate('/dashboard');
     } else {
       alert('❌ Usuário ou senha incorretos!');
@@ -37,7 +37,7 @@ const AdminLogin = () => {
           <div>
             <input 
               type="text" 
-              className="w-full bg-white/5 border-2 border-white/10 p-5 rounded-[25px] text-white font-black text-center outline-none focus:border-green-500 focus:bg-white/10 transition-all placeholder:text-white/20 uppercase tracking-widest text-sm"
+              className="w-full bg-white/5 border-2 border-white/10 p-5 rounded-[25px] text-white font-black text-center outline-none focus:border-green-500 focus:bg-white/10 transition-all placeholder:text-white/20 tracking-widest text-sm"
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
               placeholder="USUÁRIO"
