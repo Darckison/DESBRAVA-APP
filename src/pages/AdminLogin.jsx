@@ -10,7 +10,7 @@ const AdminLogin = () => {
     e.preventDefault();
     
     // Suas credenciais definidas
-    if (usuario === 'ClubeAgata@Oficial' && senha === 'Clube2026') {
+    if (usuario === 'admin' && senha === '1234') {
       navigate('/dashboard');
     } else {
       alert('❌ Usuário ou senha incorretos!');
@@ -48,7 +48,8 @@ const AdminLogin = () => {
           <div>
             <input 
               type="password" 
-              className="w-full bg-white/5 border-2 border-white/10 p-5 rounded-[25px] text-white font-black text-center outline-none focus:border-green-500 focus:bg-white/10 transition-all placeholder:text-white/20 uppercase tracking-widest text-sm"
+              {/* REMOVIDO 'uppercase' PARA A SENHA FUNCIONAR NORMALMENTE */}
+              className="w-full bg-white/5 border-2 border-white/10 p-5 rounded-[25px] text-white font-black text-center outline-none focus:border-green-500 focus:bg-white/10 transition-all placeholder:text-white/20 tracking-widest text-sm"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               placeholder="SENHA"
