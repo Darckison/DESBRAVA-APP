@@ -126,7 +126,7 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-black uppercase italic mb-8 mt-2">Navegação</h2>
             <div className="flex flex-col gap-4">
                 <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95 shadow-md">+ NOVO DESBRAVADOR</button>
-                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md">🛡️ UNIDADES</button>
+                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md">🛡️GERENCIAR UNIDADES</button>
                 <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md">📅 CHAMADA</button>
             </div>
             <div className="mt-auto pb-6"><button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md">SAIR</button></div>
