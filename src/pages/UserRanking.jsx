@@ -5,6 +5,9 @@ const UserRanking = () => {
   const [membros, setMembros] = useState([]);
   const navigate = useNavigate();
 
+  // Avatar padrão para quem não tem foto ou link quebrado
+  const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
+
   useEffect(() => {
     fetch('https://desbrava-app.onrender.com/membros')
       .then(res => res.json())
@@ -53,7 +56,12 @@ const UserRanking = () => {
               }`}>
                 <div className="relative mb-0 flex justify-center w-full z-30">
                   {isFirst && <div className="absolute -top-10 md:-top-16 text-3xl md:text-6xl drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">👑</div>}
-                  <img src={m.foto_url} className={`w-14 h-14 md:w-36 md:h-36 rounded-full border-2 md:border-4 ${borderCol} object-cover shadow-2xl`} alt="" />
+                  <img 
+                    src={m.foto_url || FOTO_PADRAO} 
+                    onError={(e) => { e.target.src = FOTO_PADRAO; }}
+                    className={`w-14 h-14 md:w-36 md:h-36 rounded-full border-2 md:border-4 ${borderCol} object-cover shadow-2xl`} 
+                    alt="" 
+                  />
                   <span className={`absolute -bottom-2 bg-green-500 text-black font-black px-2 py-0.5 rounded-full text-[9px] md:text-sm shadow-md`}>{rank}</span>
                 </div>
 
@@ -90,7 +98,8 @@ const UserRanking = () => {
 
                 <div className="flex-1 flex items-center ml-4 min-w-0">
                   <img 
-                    src={m.foto_url} 
+                    src={m.foto_url || FOTO_PADRAO} 
+                    onError={(e) => { e.target.src = FOTO_PADRAO; }}
                     className="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border-2 border-white/20 group-hover:border-white transition-colors" 
                     alt="" 
                   />
