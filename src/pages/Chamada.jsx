@@ -13,6 +13,9 @@ export default function Chamada() {
   const API_URL = "https://desbrava-app.onrender.com";
   const hoje = new Date().toLocaleDateString('pt-BR');
 
+  // URL da imagem padrão para quem não tem foto
+  const FOTO_PADRAO = "https://via.placeholder.com/150?text=DBV";
+
   const carregarDados = () => {
     fetch(`${API_URL}/membros`)
       .then(res => res.json())
@@ -65,7 +68,6 @@ export default function Chamada() {
     <div className="min-h-screen bg-[#061a0d] font-sans text-gray-800 p-3 md:p-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* COLUNA PRINCIPAL */}
         <div className="lg:col-span-8 space-y-6">
           {!mostrarLista ? (
             <div className="bg-white/10 backdrop-blur-2xl p-12 rounded-[50px] shadow-2xl text-center border-2 border-white/10 flex flex-col items-center justify-center min-h-[450px] animate-in fade-in zoom-in duration-500 relative">
@@ -77,7 +79,6 @@ export default function Chamada() {
                   ←
                </button>
 
-               {/* BARRINHA ADICIONADA AQUI ENTRE LOGO E TEXTO */}
                <div className="flex items-center gap-6 mb-8">
                   <img src="/logo.png" className="w-20 h-20 drop-shadow-2xl" alt="Logo" />
                   <div className="text-left border-l-2 border-white pl-6">
@@ -124,7 +125,13 @@ export default function Chamada() {
                 {membros.map(m => (
                   <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl">
                     <div className="flex items-center gap-4">
-                      <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" alt="" />
+                      {/* CORREÇÃO AQUI: onError substitui a foto se ela falhar para parar de piscar */}
+                      <img 
+                        src={m.foto_url || FOTO_PADRAO} 
+                        className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" 
+                        alt="" 
+                        onError={(e) => { e.target.onerror = null; e.target.src = FOTO_PADRAO; }}
+                      />
                       <div className="truncate">
                         <p className="font-black text-sm md:text-lg uppercase leading-none text-gray-800 tracking-tighter">{m.nome.split(' ')[0]}</p>
                         <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">{m.unidade}</p>
@@ -169,7 +176,13 @@ export default function Chamada() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {chamadaSelecionada.lista.map((item, idx) => (
                   <div key={idx} className={`p-4 rounded-[30px] border-2 flex items-center gap-3 ${item.status === 'P' ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100'}`}>
-                    <img src={item.foto} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" alt="" />
+                    {/* CORREÇÃO TAMBÉM NO RELATÓRIO */}
+                    <img 
+                      src={item.foto || FOTO_PADRAO} 
+                      className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" 
+                      alt="" 
+                      onError={(e) => { e.target.onerror = null; e.target.src = FOTO_PADRAO; }}
+                    />
                     <div className="min-w-0">
                        <p className="text-[10px] font-black uppercase truncate text-gray-800">{item.nome.split(' ')[0]}</p>
                        <p className={`text-[8px] font-black ${item.status === 'P' ? 'text-green-600' : 'text-red-600'}`}>
@@ -183,14 +196,11 @@ export default function Chamada() {
           )}
         </div>
 
-        {/* COLUNA HISTÓRICO */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10 relative">
-            
             <div className="flex items-center gap-4 mb-10 border-l-2 border-yellow-500 pl-4">
               <h3 className="font-black text-white uppercase italic text-xl tracking-tighter">Histórico</h3>
             </div>
-            
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {historico.length === 0 ? (
                 <div className="text-center py-20 opacity-30 text-white">
@@ -202,7 +212,7 @@ export default function Chamada() {
                   <button 
                     key={i} 
                     onClick={() => setChamadaSelecionada(h)}
-                    className="w-full p-6 bg-white/5 hover:bg-white/20 rounded-[35px] border-l-8 border-green-800 flex justify-between items-center transition-all group active:scale-95 shadow-lg border border-white/5"
+                    className="w-full p-6 bg-white/5 hover:bg-white/20 rounded-[35px] border-l-8 border-yellow-500 flex justify-between items-center transition-all group active:scale-95 shadow-lg border border-white/5"
                   >
                     <div className="text-left">
                       <p className="text-base font-black text-white mb-1 group-hover:text-yellow-400 transition-colors">{h.data}</p>
