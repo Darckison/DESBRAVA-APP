@@ -6,6 +6,9 @@ export default function UnitRanking() {
   const [membros, setMembros] = useState([]);
   const API_URL = "https://desbrava-app.onrender.com";
 
+  // Avatar padrão estável
+  const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
+
   useEffect(() => {
     fetch(`${API_URL}/ranking-unidades`)
       .then((res) => res.json())
@@ -38,7 +41,7 @@ export default function UnitRanking() {
           RANKING
         </h1>
         <p className="text-xl md:text-3xl font-black uppercase italic text-white -mt-4 drop-shadow-md">
-           das Unidades
+            das Unidades
         </p>
       </div>
 
@@ -62,10 +65,10 @@ export default function UnitRanking() {
 
               <div className="flex-1 flex items-center ml-4 min-w-0">
                 <img
-                  src={uni.logo_url}
+                  src={uni.logo_url || FOTO_PADRAO}
                   className="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border-2 border-white/20 group-hover:border-white"
                   alt="Logo"
-                  onError={(e) => { e.target.src = "https://via.placeholder.com/150"; }}
+                  onError={(e) => { e.target.src = FOTO_PADRAO; }}
                 />
                 <span className="ml-3 font-black uppercase italic text-sm md:text-2xl truncate tracking-tight text-white group-hover:text-green-400">
                   {uni.nome}
@@ -99,9 +102,10 @@ export default function UnitRanking() {
                 ✕
               </button>
               <img
-                src={unidadeAberta.logo_url}
+                src={unidadeAberta.logo_url || FOTO_PADRAO}
                 className="w-24 h-24 mx-auto mb-4 rounded-full object-cover border-4 border-green-500 shadow-2xl"
                 alt="Logo"
+                onError={(e) => { e.target.src = FOTO_PADRAO; }}
               />
               <h3 className="text-2xl font-black uppercase italic text-green-500 tracking-tighter">
                 UNIDADE {unidadeAberta.nome}
@@ -120,10 +124,10 @@ export default function UnitRanking() {
                 >
                   <div className="flex items-center gap-3">
                     <img 
-                      src={m.foto_url} 
+                      src={m.foto_url || FOTO_PADRAO} 
                       className="w-10 h-10 rounded-full object-cover border-2 border-green-500/50 shadow-md"
                       alt="Foto Membro"
-                      onError={(e) => { e.target.src = "https://via.placeholder.com/150"; }}
+                      onError={(e) => { e.target.src = FOTO_PADRAO; }}
                     />
                     <span className="font-black uppercase text-xs italic tracking-tight">{m.nome}</span>
                   </div>
