@@ -42,52 +42,35 @@ export default function AdminDashboard() {
   const handleSalvar = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    const data = new FormData();
+    data.append('nome', nome);
+    data.append('unidade', unidade);
+    data.append('funcao', funcao);
+    if (arquivo) data.append('foto', arquivo);
 
     const isEdicao = view === 'edicao' && membroParaEditar;
     const url = isEdicao ? `${API_URL}/membros/${membroParaEditar._id}` : `${API_URL}/membros`;
     
-    // Se tiver arquivo novo, enviamos como FormData. Se não tiver, enviamos JSON simples para evitar o erro 405.
-    let corpo;
-    let headers = {};
-
-    if (arquivo) {
-      corpo = new FormData();
-      corpo.append('nome', nome);
-      corpo.append('unidade', unidade);
-      corpo.append('funcao', funcao);
-      corpo.append('foto', arquivo);
-    } else {
-      corpo = JSON.stringify({ nome, unidade, funcao });
-      headers = { 'Content-Type': 'application/json' };
-    }
-
+    // Tenta primeiro o método padrão (POST para novo, PUT para editar)
     try {
-      const res = await fetch(url, { 
+      let res = await fetch(url, { 
         method: isEdicao ? 'PUT' : 'POST', 
-        headers: headers,
-        body: corpo 
+        body: data 
       });
+
+      // Se o servidor der "Method Not Allowed" (405) no PUT, tenta automaticamente com PATCH
+      if (res.status === 405 && isEdicao) {
+        res = await fetch(url, { method: 'PATCH', body: data });
+      }
 
       if (res.ok) {
         alert(isEdicao ? "✅ Cadastro atualizado!" : "✅ Novo desbravador salvo!");
         limparFormulario();
         carregarMembros();
       } else {
-        // Tenta um método alternativo (PATCH) caso o servidor mude de ideia
-        if (res.status === 405 && isEdicao) {
-            const resPatch = await fetch(url, { 
-                method: 'PATCH', 
-                headers: headers,
-                body: corpo 
-            });
-            if (resPatch.ok) {
-                alert("✅ Cadastro atualizado!");
-                limparFormulario();
-                carregarMembros();
-                return;
-            }
-        }
-        alert("❌ Erro ao salvar. Verifique se os campos estão preenchidos.");
+        const erroMsg = await res.text();
+        alert(`❌ Erro no servidor: ${res.status}`);
       }
     } catch (err) { 
       alert("❌ ERRO DE CONEXÃO."); 
@@ -117,6 +100,7 @@ export default function AdminDashboard() {
   const abrirEdicao = (m) => {
     setMembroParaEditar(m); setNome(m.nome); setUnidade(m.unidade); setFuncao(m.funcao);
     setView('edicao');
+    setMenuLateralAberto(false);
   };
 
   const limparFormulario = () => {
@@ -127,7 +111,7 @@ export default function AdminDashboard() {
   return (
     <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800 flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800 h-20">
-          <button onClick={() => setMenuLateralAberto(true)} className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all">
+          <button onClick={() => setMenuLateralAberto(true)} className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all flex-shrink-0">
             <div className="space-y-1.5"><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div></div>
           </button>
           <div className="flex items-center gap-4">
@@ -140,14 +124,15 @@ export default function AdminDashboard() {
           </div>
       </header>
 
+      {/* SIDEBAR */}
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 text-center text-green-900 flex flex-col h-full">
             <div className="flex justify-end"><button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button></div>
             <h2 className="text-xl font-black uppercase italic mb-8 mt-2 tracking-tighter">Navegação</h2>
             <div className="flex flex-col gap-4">
-                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">+ NOVO DESBRAVADOR</button>
-                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs active:scale-95">🛡️ GERENCIAR UNIDADES</button>
-                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">📅 FREQUÊNCIA "CHAMADA"</button>
+                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">+ NOVO DESBRAVADOR</button>
+                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">🛡️ GERENCIAR UNIDADES</button>
+                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">📅 FREQUÊNCIA "CHAMADA"</button>
             </div>
             <div className="mt-auto pb-6"><button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">SAIR DO SISTEMA</button></div>
         </div>
@@ -168,7 +153,7 @@ export default function AdminDashboard() {
                   <p className="text-center text-gray-400 py-10">Nenhum registro</p>
                 ) : (
                   historicoAberto.historico_pontos.map((h, i) => (
-                    <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-yellow-500">
+                    <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-yellow-500 shadow-sm">
                       <div className="flex-1"><p className="text-[10px] font-black uppercase text-green-900 leading-none">{h.motivo}</p><p className="text-[8px] text-gray-400">{h.data}</p></div>
                       <div className="bg-green-800 text-white px-3 py-1 rounded-lg font-black text-xs">+{h.valor}</div>
                     </div>
@@ -183,7 +168,7 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-green-800 text-white uppercase text-[10px] font-black tracking-widest">
+                <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
                   <tr><th className="p-8">Membro / Função</th><th className="p-8 text-center">Unidade</th><th className="p-8 text-center">Pontos</th><th className="p-8 text-center">Ações</th></tr>
                 </thead>
                 <tbody>
@@ -191,8 +176,13 @@ export default function AdminDashboard() {
                     <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
-                          <img src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => { e.target.src = FOTO_PADRAO; }} />
-                          <div><p className="font-black text-gray-800 uppercase text-sm">{m.nome}</p><p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p></div>
+                          <img 
+                            src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} 
+                            className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" 
+                            alt="" 
+                            onError={(e) => { e.target.src = FOTO_PADRAO; }} 
+                          />
+                          <div><p className="font-black text-gray-800 uppercase text-sm md:text-base tracking-tight">{m.nome}</p><p className="text-[10px] font-bold text-gray-400 uppercase italic tracking-wider">{m.funcao}</p></div>
                         </div>
                       </td>
                       <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
@@ -219,7 +209,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         ) : (
-          <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in zoom-in-95">
+          <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10">
             <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
             <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={nome} onChange={e => setNome(e.target.value)} required />
