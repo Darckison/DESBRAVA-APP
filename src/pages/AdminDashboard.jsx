@@ -9,7 +9,6 @@ export default function AdminDashboard() {
   const [membroParaEditar, setMembroParaEditar] = useState(null);
   const [loading, setLoading] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState(null);
-  
   const [menuLateralAberto, setMenuLateralAberto] = useState(false);
 
   const [nome, setNome] = useState('');
@@ -20,7 +19,6 @@ export default function AdminDashboard() {
   const [inputMotivo, setInputMotivo] = useState('');
 
   const API_URL = "https://desbrava-app.onrender.com";
-  // FOTO PADRÃO ANTI-PISCA
   const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   const carregarMembros = () => {
@@ -44,16 +42,19 @@ export default function AdminDashboard() {
   const handleSalvar = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     const data = new FormData();
     data.append('nome', nome);
     data.append('unidade', unidade);
     data.append('funcao', funcao);
     if (arquivo) data.append('foto', arquivo);
 
-    // CORREÇÃO DO BOTÃO SALVAR (EDIÇÃO VS CADASTRO)
-    const isEdicao = view === 'edicao';
+    // LÓGICA CORRIGIDA: Verifica se estamos editando ou criando um novo
+    const isEdicao = view === 'edicao' && membroParaEditar;
     const method = isEdicao ? 'PUT' : 'POST';
-    const url = isEdicao ? `${API_URL}/membros/${membroParaEditar._id}` : `${API_URL}/membros`;
+    const url = isEdicao 
+      ? `${API_URL}/membros/${membroParaEditar._id}` 
+      : `${API_URL}/membros`;
     
     try {
       const res = await fetch(url, { method: method, body: data });
@@ -62,10 +63,14 @@ export default function AdminDashboard() {
         limparFormulario();
         carregarMembros();
       } else {
-        alert("Erro ao salvar. Verifique os dados.");
+        const erroTexto = await res.text();
+        alert(`❌ Erro ao salvar: ${erroTexto}`);
       }
-    } catch (err) { alert("❌ ERRO DE CONEXÃO."); }
-    finally { setLoading(false); }
+    } catch (err) { 
+      alert("❌ ERRO DE CONEXÃO COM O SERVIDOR."); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const salvarPontos = async (id) => {
@@ -87,12 +92,16 @@ export default function AdminDashboard() {
   };
 
   const abrirEdicao = (m) => {
-    setMembroParaEditar(m); setNome(m.nome); setUnidade(m.unidade); setFuncao(m.funcao);
+    setMembroParaEditar(m); 
+    setNome(m.nome); 
+    setUnidade(m.unidade); 
+    setFuncao(m.funcao);
     setView('edicao');
   };
 
   const limparFormulario = () => {
-    setNome(''); setUnidade(''); setFuncao(''); setArquivo(null); setView('tabela'); setMembroParaEditar(null);
+    setNome(''); setUnidade(''); setFuncao(''); setArquivo(null); 
+    setView('tabela'); setMembroParaEditar(null);
     setMenuLateralAberto(false);
   };
 
@@ -100,10 +109,7 @@ export default function AdminDashboard() {
     <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800 flex flex-col">
       
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800 h-20">
-          <button 
-            onClick={() => setMenuLateralAberto(true)}
-            className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all flex-shrink-0"
-          >
+          <button onClick={() => setMenuLateralAberto(true)} className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all">
             <div className="space-y-1.5">
               <div className="w-6 h-1 bg-white rounded-full"></div>
               <div className="w-6 h-1 bg-white rounded-full"></div>
@@ -147,7 +153,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800">
               <div className="bg-green-800 p-6 text-white flex justify-between items-center">
                 <div>
-                  <h3 className="font-black uppercase italic leading-none text-sm">Histórico de Pontos</h3>
+                  <h3 className="font-black uppercase italic text-sm">Histórico de Pontos</h3>
                   <p className="text-[10px] opacity-70 mt-1 uppercase font-bold">{historicoAberto.nome}</p>
                 </div>
                 <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm">✕</button>
@@ -190,7 +196,6 @@ export default function AdminDashboard() {
                     <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
-                          {/* CORREÇÃO ANTI-PISCA NA TABELA */}
                           <img 
                             src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} 
                             className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" 
