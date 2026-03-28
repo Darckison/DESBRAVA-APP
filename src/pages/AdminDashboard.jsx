@@ -20,6 +20,8 @@ export default function AdminDashboard() {
   const [inputMotivo, setInputMotivo] = useState('');
 
   const API_URL = "https://desbrava-app.onrender.com";
+  // FOTO PADRÃO ANTI-PISCA
+  const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   const carregarMembros = () => {
     fetch(`${API_URL}/membros`)
@@ -48,6 +50,7 @@ export default function AdminDashboard() {
     data.append('funcao', funcao);
     if (arquivo) data.append('foto', arquivo);
 
+    // CORREÇÃO DO BOTÃO SALVAR (EDIÇÃO VS CADASTRO)
     const isEdicao = view === 'edicao';
     const method = isEdicao ? 'PUT' : 'POST';
     const url = isEdicao ? `${API_URL}/membros/${membroParaEditar._id}` : `${API_URL}/membros`;
@@ -58,6 +61,8 @@ export default function AdminDashboard() {
         alert(isEdicao ? "✅ Cadastro atualizado!" : "✅ Novo desbravador salvo!");
         limparFormulario();
         carregarMembros();
+      } else {
+        alert("Erro ao salvar. Verifique os dados.");
       }
     } catch (err) { alert("❌ ERRO DE CONEXÃO."); }
     finally { setLoading(false); }
@@ -108,10 +113,7 @@ export default function AdminDashboard() {
           
           <div className="flex items-center gap-4">
               <img src="/logo.png" className="w-10 h-10 object-contain" alt="Logo" />
-              
-              {/* BARRINHA DE SEPARAÇÃO BEM NO MEIO */}
               <div className="w-[2px] h-10 bg-gray-300 mx-1"></div> 
-              
               <div className="flex flex-col">
                   <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic leading-none tracking-tighter">Clube Ágata</h1>
                   <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Painel Administrativo</p>
@@ -126,44 +128,19 @@ export default function AdminDashboard() {
                 <button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button>
             </div>
             <h2 className="text-xl font-black uppercase italic mb-8 mt-2 tracking-tighter">Navegação</h2>
-            
             <div className="flex flex-col gap-4">
-                <button 
-                  onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }}
-                  className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
-                >
-                  + NOVO DESBRAVADOR
-                </button>
-                <button 
-                  onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }}
-                  className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
-                >
-                  🛡️ GERENCIAR UNIDADES
-                </button>
-                <button 
-                  onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }}
-                  className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
-                >
-                  📅 FREQUÊNCIA "CHAMADA"
-                </button>
+                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">+ NOVO DESBRAVADOR</button>
+                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-500 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">🛡️ GERENCIAR UNIDADES</button>
+                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">📅 FREQUÊNCIA "CHAMADA"</button>
             </div>
-
             <div className="mt-auto pb-6">
-                <button 
-                  onClick={() => navigate('/')}
-                  className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md transition-all active:scale-95"
-                >
-                  SAIR DO SISTEMA
-                </button>
+                <button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">SAIR DO SISTEMA</button>
             </div>
         </div>
       </div>
 
-      {menuLateralAberto && (
-        <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/20 z-40"></div>
-      )}
+      {menuLateralAberto && <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/20 z-40"></div>}
 
-      {/* CONTEINER COM MARGIN TOP PARA NÃO TRAVAR OS TITULOS ATRÁS DO HEADER */}
       <main className="flex-1 p-2 md:p-8 mt-24 max-w-7xl mx-auto w-full overflow-y-auto">
         {historicoAberto && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
@@ -213,7 +190,13 @@ export default function AdminDashboard() {
                     <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
-                          <img src={m.foto_url} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => e.target.src = "https://via.placeholder.com/150"} />
+                          {/* CORREÇÃO ANTI-PISCA NA TABELA */}
+                          <img 
+                            src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} 
+                            className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" 
+                            alt="" 
+                            onError={(e) => { e.target.src = FOTO_PADRAO; }} 
+                          />
                           <div>
                             <p className="font-black text-gray-800 uppercase leading-none mb-1 text-sm md:text-base tracking-tight">{m.nome}</p>
                             <p className="text-[10px] font-bold text-gray-400 uppercase italic tracking-wider">{m.funcao}</p>
@@ -257,7 +240,7 @@ export default function AdminDashboard() {
                <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
                <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 ml-4 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
                <div className="md:col-span-2 flex gap-4 mt-4">
-                  <button disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
+                  <button type="submit" disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
                   <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
                </div>
             </form>
