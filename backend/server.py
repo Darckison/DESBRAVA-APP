@@ -33,10 +33,12 @@ db_principal = client["desbravadores"]
 colecao_membros = db_principal["membros"]
 db_unidades_banco = client["unidades"]
 colecao_unidades = db_unidades_banco["unidades"]
-# NOVA COLEÇÃO PARA CHAMADAS
 colecao_presenca = db_principal["presencas"]
 
-# --- ROTA DE CRIAR UNIDADE ---
+# ==========================================
+#         ROTAS DE UNIDADES
+# ==========================================
+
 @app.post("/unidades")
 async def criar_unidade(
     nome: str = Form(...),
@@ -49,7 +51,6 @@ async def criar_unidade(
             res = cloudinary.uploader.upload(logo.file)
             url_logo = res["secure_url"]
         except Exception as e:
-            print(f"ERRO CLOUDINARY UNIDADES: {e}")
             url_logo = "https://via.placeholder.com/150?text=ERRO+FOTO"
 
     nome_formatated = nome.upper().strip()
@@ -65,17 +66,34 @@ async def criar_unidade(
     )
     return {"status": "sucesso", "url": url_logo}
 
-# --- ROTA DE PONTUAR UNIDADE ---
+# NOVA ROTA: EDITAR UNIDADE (PARA FUNCIONAR O SALVAR DA EDIÇÃO)
+@app.put("/unidades/{id}")
+async def editar_unidade(
+    id: str,
+    nome: str = Form(...),
+    pontos_proprios: int = Form(0),
+    logo: UploadFile = File(None)
+):
+    dados_update = {
+        "nome": nome.upper().strip(),
+        "pontos_proprios": int(pontos_proprios)
+    }
+    
+    if logo:
+        res = cloudinary.uploader.upload(logo.file)
+        dados_update["logo_url"] = res["secure_url"]
+
+    await colecao_unidades.update_one({"_id": ObjectId(id)}, {"$set": dados_update})
+    return {"status": "sucesso"}
+
 @app.patch("/unidades/{nome}/pontos")
 async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: str = Form(...)):
     nome_formatated = nome.upper().strip()
-    
     novo_ponto = {
         "valor": valor,
         "motivo": motivo,
         "data": datetime.now().strftime("%d/%m/%Y %H:%M")
     }
-
     await colecao_unidades.update_one(
         {"nome": nome_formatated},
         {
@@ -83,9 +101,12 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: st
             "$push": {"historico_pontos": novo_ponto}
         }
     )
-    return {"message": "ok", "registro": novo_ponto}
+    return {"message": "ok"}
 
-# --- ROTA DE CRIAR MEMBRO ---
+# ==========================================
+#         ROTAS DE MEMBROS
+# ==========================================
+
 @app.post("/membros")
 async def criar_membro(
     nome: str = Form(...),
@@ -93,26 +114,49 @@ async def criar_membro(
     funcao: str = Form(...),
     foto: UploadFile = File(None)
 ):
-    url_foto = "https://via.placeholder.com/150"
+    url_foto = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
     if foto:
         try:
             res = cloudinary.uploader.upload(foto.file)
             url_foto = res["secure_url"]
-        except Exception as e:
-            print(f"ERRO CLOUDINARY MEMBROS: {e}")
-            url_foto = "https://via.placeholder.com/150?text=ERRO+FOTO"
+        except:
+            pass
 
     await colecao_membros.insert_one({
-        "nome": nome, 
-        "unidade": unidade, 
-        "funcao": funcao,
+        "nome": nome.upper(), 
+        "unidade": unidade.upper(), 
+        "funcao": funcao.upper(),
         "foto_url": url_foto, 
         "pontos": 0, 
         "historico_pontos": []
     })
-    return {"status": "sucesso", "url": url_foto}
+    return {"status": "sucesso"}
 
-# --- ROTA DE PONTUAR MEMBRO ---
+# ROTA QUE FALTAVA: EDITAR MEMBRO (O MOTIVO DO ERRO 405)
+@app.put("/membros/{id}")
+async def editar_membro(
+    id: str,
+    nome: str = Form(...),
+    unidade: str = Form(...),
+    funcao: str = Form(...),
+    foto: UploadFile = File(None)
+):
+    dados_update = {
+        "nome": nome.upper(),
+        "unidade": unidade.upper(),
+        "funcao": funcao.upper()
+    }
+    
+    if foto:
+        try:
+            res = cloudinary.uploader.upload(foto.file)
+            dados_update["foto_url"] = res["secure_url"]
+        except:
+            pass
+
+    await colecao_membros.update_one({"_id": ObjectId(id)}, {"$set": dados_update})
+    return {"status": "sucesso"}
+
 @app.patch("/membros/{id}/pontos")
 async def adicionar_pontos_membro(id: str, valor: int = Form(...), motivo: str = Form(...)):
     novo_ponto = {
@@ -127,7 +171,7 @@ async def adicionar_pontos_membro(id: str, valor: int = Form(...), motivo: str =
             "$push": {"historico_pontos": novo_ponto}
         }
     )
-    return {"message": "ok", "registro": novo_ponto}
+    return {"message": "ok"}
 
 # --- ROTAS DE LISTAGEM ---
 @app.get("/ranking-unidades")
@@ -138,9 +182,11 @@ async def obter_ranking():
         nome_uni = uni["nome"]
         membros_m = await colecao_membros.find({"unidade": {"$regex": f"^{nome_uni}$", "$options": "i"}}).to_list(100)
         soma = sum(m.get("pontos", 0) for m in membros_m)
+        uni_id = str(uni["_id"])
         ranking.append({
+            "_id": uni_id,
             "nome": nome_uni,
-            "logo_url": uni.get("logo_url", "https://via.placeholder.com/150"),
+            "logo_url": uni.get("logo_url", ""),
             "pontos_unidade": uni.get("pontos_proprios", 0),
             "total": uni.get("pontos_proprios", 0) + soma,
             "historico_pontos": uni.get("historico_pontos", []) 
@@ -162,32 +208,22 @@ async def deletar_unidade(nome: str):
 
 @app.delete("/membros/{id}")
 async def deletar_membro(id: str):
-    try:
-        resultado = await colecao_membros.delete_one({"_id": ObjectId(id)})
-        if resultado.deleted_count == 1:
-            return {"status": "sucesso", "message": "Membro removido"}
-        return {"status": "erro", "message": "Membro não encontrado"}
-    except Exception as e:
-        return {"status": "erro", "message": str(e)}
+    await colecao_membros.delete_one({"_id": ObjectId(id)})
+    return {"status": "sucesso"}
 
-# --- NOVAS ROTAS PARA CHAMADA ---
+# --- CHAMADA ---
 
 @app.post("/chamada")
 async def salvar_chamada(dados: dict):
-    try:
-        # Salva ou atualiza a chamada daquela data específica
-        await colecao_presenca.update_one(
-            {"data": dados["data"]},
-            {"$set": dados},
-            upsert=True
-        )
-        return {"status": "sucesso"}
-    except Exception as e:
-        return {"status": "erro", "message": str(e)}
+    await colecao_presenca.update_one(
+        {"data": dados["data"]},
+        {"$set": dados},
+        upsert=True
+    )
+    return {"status": "sucesso"}
 
 @app.get("/chamada-historico")
 async def historico_chamada():
-    # Retorna todas as chamadas feitas, da mais recente para a mais antiga
     historico = await colecao_presenca.find().sort("data", -1).to_list(100)
     for h in historico: h["_id"] = str(h["_id"])
     return historico
