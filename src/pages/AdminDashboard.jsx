@@ -19,7 +19,6 @@ export default function AdminDashboard() {
   const [inputMotivo, setInputMotivo] = useState('');
 
   const API_URL = "https://desbrava-app.onrender.com";
-  // Avatar reserva que não dá erro de link
   const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   const carregarMembros = () => {
@@ -51,16 +50,12 @@ export default function AdminDashboard() {
     if (arquivo) data.append('foto', arquivo);
 
     const isEdicao = view === 'edicao' && membroParaEditar;
-    
-    // CORREÇÃO DO ERRO 405: 
-    // Se for edição, tentamos PATCH. Se der 405 de novo, o código tenta PUT automaticamente.
     const url = isEdicao ? `${API_URL}/membros/${membroParaEditar._id}` : `${API_URL}/membros`;
     const method = isEdicao ? 'PATCH' : 'POST'; 
     
     try {
       let res = await fetch(url, { method: method, body: data });
 
-      // Se o servidor disser que não aceita PATCH, tentamos o PUT na hora
       if (res.status === 405 && isEdicao) {
         res = await fetch(url, { method: 'PUT', body: data });
       }
@@ -70,7 +65,7 @@ export default function AdminDashboard() {
         limparFormulario();
         carregarMembros();
       } else {
-        alert(`❌ Servidor recusou: Código ${res.status}`);
+        alert(`❌ Erro ao salvar.`);
       }
     } catch (err) { 
         alert("❌ ERRO DE CONEXÃO."); 
@@ -114,29 +109,32 @@ export default function AdminDashboard() {
               <div className="w-[2px] h-10 bg-gray-300 mx-1"></div> 
               <div className="flex flex-col">
                   <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic">Clube Ágata</h1>
-                  <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Painel Administrativo</p>
+                  <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase mt-1">Painel Administrativo</p>
               </div>
           </div>
       </header>
 
-      {/* SIDEBAR */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-6 text-center h-full overflow-y-auto">
+      {/* SIDEBAR COM BOTÃO SAIR LÁ EMBAIXO */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-6 text-center h-full flex flex-col">
             <div className="flex justify-end"><button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button></div>
             <h2 className="text-xl font-black uppercase italic mb-8 mt-2">Navegação</h2>
             <div className="flex flex-col gap-4">
                 <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95 shadow-md">+ NOVO DESBRAVADOR</button>
-                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md">🛡️GERENCIAR UNIDADES</button>
+                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md">🛡️ GERENCIAR UNIDADES</button>
                 <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md">📅 CHAMADA</button>
             </div>
-            <div className="mt-auto pb-6"><button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md">SAIR</button></div>
+            
+            {/* BOTÃO SAIR NO FINAL DO MENU */}
+            <div className="mt-auto pb-6">
+                <button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">SAIR</button>
+            </div>
         </div>
       </div>
 
       {menuLateralAberto && <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/20 z-40"></div>}
 
       <main className="flex-1 p-2 md:p-8 mt-24 max-w-7xl mx-auto w-full overflow-y-auto">
-        {/* TABELA */}
         {view === 'tabela' ? (
           <div className="bg-white rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
@@ -150,14 +148,14 @@ export default function AdminDashboard() {
                       <td className="p-6">
                         <div className="flex items-center gap-4">
                           <img src={m.foto_url || FOTO_PADRAO} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => { e.target.src = FOTO_PADRAO; }} />
-                          <div><p className="font-black text-gray-800 uppercase text-sm">{m.nome}</p><p className="text-[10px] font-bold text-gray-400 uppercase">{m.funcao}</p></div>
+                          <div><p className="font-black text-gray-800 uppercase text-sm">{m.nome}</p><p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p></div>
                         </div>
                       </td>
                       <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
                       <td className="p-6 text-center">
                         <div className="flex justify-center gap-2">
-                          <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase">⭐ Pontuar</button>
-                          <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl shadow-md">✏️</button>
+                          <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase shadow-md">⭐ Pontuar</button>
+                          <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl shadow-md transition-all active:scale-95">✏️</button>
                           <button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white p-2.5 rounded-xl shadow-md">🗑️</button>
                         </div>
                         {pontuandoId === m._id && (
@@ -184,7 +182,7 @@ export default function AdminDashboard() {
                <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 text-xs font-bold" onChange={e => setArquivo(e.target.files[0])} /></div>
                <div className="md:col-span-2 flex gap-4 mt-4">
                   <button type="submit" disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase active:scale-95 transition-all">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
-                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
+                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase transition-all">Cancelar</button>
                </div>
             </form>
           </div>
