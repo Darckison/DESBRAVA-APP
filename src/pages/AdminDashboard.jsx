@@ -19,7 +19,6 @@ export default function AdminDashboard() {
   const [inputMotivo, setInputMotivo] = useState('');
 
   const API_URL = "https://desbrava-app.onrender.com";
-  // Bonequinho padrão que não dá erro
   const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   const carregarMembros = () => {
@@ -40,7 +39,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // RESTAURAÇÃO DA LÓGICA DE SALVAMENTO ORIGINAL
   const handleSalvar = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -52,7 +50,9 @@ export default function AdminDashboard() {
     if (arquivo) data.append('foto', arquivo);
 
     const isEdicao = view === 'edicao';
-    const method = isEdicao ? 'PUT' : 'POST';
+    
+    // CORREÇÃO AQUI: Trocamos PUT por PATCH para resolver o erro 405 (Method Not Allowed)
+    const method = isEdicao ? 'PATCH' : 'POST'; 
     const url = isEdicao ? `${API_URL}/membros/${membroParaEditar._id}` : `${API_URL}/membros`;
     
     try {
@@ -66,7 +66,17 @@ export default function AdminDashboard() {
         limparFormulario();
         carregarMembros();
       } else {
-        alert("❌ Erro ao salvar. Verifique os dados.");
+        // Se o servidor ainda reclamar de PATCH, tentamos o PUT uma última vez por segurança
+        if (res.status === 405 && isEdicao) {
+          const retryRes = await fetch(url, { method: 'PUT', body: data });
+          if (retryRes.ok) {
+            alert("✅ Cadastro atualizado!");
+            limparFormulario();
+            carregarMembros();
+            return;
+          }
+        }
+        alert(`❌ Erro ao salvar: código ${res.status}`);
       }
     } catch (err) { 
         alert("❌ ERRO DE CONEXÃO COM O SERVIDOR."); 
@@ -106,7 +116,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800 flex flex-col overflow-x-hidden">
-      
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800 h-20">
           <button onClick={() => setMenuLateralAberto(true)} className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all flex-shrink-0">
             <div className="space-y-1.5"><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div></div>
@@ -126,9 +135,9 @@ export default function AdminDashboard() {
             <div className="flex justify-end"><button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button></div>
             <h2 className="text-xl font-black uppercase italic mb-8 mt-2 tracking-tighter">Navegação</h2>
             <div className="flex flex-col gap-4">
-                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">+ NOVO DESBRAVADOR</button>
-                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs active:scale-95">🛡️ GERENCIAR UNIDADES</button>
-                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">📅 FREQUÊNCIA "CHAMADA"</button>
+                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">+ NOVO DESBRAVADOR</button>
+                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">🛡️ GERENCIAR UNIDADES</button>
+                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">📅 FREQUÊNCIA "CHAMADA"</button>
             </div>
             <div className="mt-auto pb-6"><button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">SAIR DO SISTEMA</button></div>
         </div>
@@ -139,7 +148,7 @@ export default function AdminDashboard() {
       <main className="flex-1 p-2 md:p-8 mt-24 max-w-7xl mx-auto w-full overflow-y-auto">
         {historicoAberto && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800 p-6 animate-in zoom-in-95">
+            <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800 p-6">
               <div className="flex justify-between items-center mb-4">
                 <div><h3 className="font-black uppercase italic text-sm text-green-900">Histórico de Pontos</h3><p className="text-[10px] opacity-70 uppercase font-bold">{historicoAberto.nome}</p></div>
                 <button onClick={() => setHistoricoAberto(null)} className="text-gray-400 font-black">✕</button>
@@ -170,17 +179,12 @@ export default function AdminDashboard() {
                     <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
-                          <img 
-                            src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} 
-                            className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" 
-                            alt="" 
-                            onError={(e) => { e.target.src = FOTO_PADRAO; }} 
-                          />
+                          <img src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => { e.target.src = FOTO_PADRAO; }} />
                           <div><p className="font-black text-gray-800 uppercase text-sm md:text-base">{m.nome}</p><p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p></div>
                         </div>
                       </td>
                       <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
-                      <td className="p-6 text-center"><button onClick={() => setHistoricoAberto(m)} className="bg-green-100 hover:bg-green-200 text-green-800 px-6 py-3 rounded-2xl font-black text-2xl active:scale-90 border border-green-200">{m.pontos}</button></td>
+                      <td className="p-6 text-center"><button onClick={() => setHistoricoAberto(m)} className="bg-green-100 hover:bg-green-200 text-green-800 px-6 py-3 rounded-2xl font-black text-2xl border border-green-200 active:scale-90">{m.pontos}</button></td>
                       <td className="p-6 text-center">
                         {pontuandoId === m._id ? (
                           <div className="flex flex-col gap-2 bg-yellow-50 p-4 rounded-2xl border-2 border-yellow-400 min-w-[200px]">
@@ -190,9 +194,9 @@ export default function AdminDashboard() {
                           </div>
                         ) : (
                           <div className="flex justify-center gap-2">
-                            <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase">⭐ Pontuar</button>
-                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl">✏️</button>
-                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white p-2.5 rounded-xl">🗑️</button>
+                            <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase active:scale-95">⭐ Pontuar</button>
+                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl shadow-md active:scale-95">✏️</button>
+                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white p-2.5 rounded-xl shadow-md active:scale-95">🗑️</button>
                           </div>
                         )}
                       </td>
