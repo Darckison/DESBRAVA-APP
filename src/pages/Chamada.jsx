@@ -13,8 +13,8 @@ export default function Chamada() {
   const API_URL = "https://desbrava-app.onrender.com";
   const hoje = new Date().toLocaleDateString('pt-BR');
 
-  // URL estável para quem não tem foto
-  const FOTO_PADRAO = "https://ui-avatars.com/api/?name=DBV&background=e5e7eb&color=a3a3a3";
+  // NOVO LINK: Agora com ícone de bonequinho cinza
+  const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   const carregarDados = () => {
     fetch(`${API_URL}/membros`)
@@ -71,38 +71,38 @@ export default function Chamada() {
         <div className="lg:col-span-8 space-y-6">
           {!mostrarLista ? (
             <div className="bg-white/10 backdrop-blur-2xl p-12 rounded-[50px] shadow-2xl text-center border-2 border-white/10 flex flex-col items-center justify-center min-h-[450px] animate-in fade-in zoom-in duration-500 relative">
-               <button onClick={() => navigate('/dashboard')} className="absolute top-8 left-8 bg-white/10 hover:bg-white/20 text-white w-14 h-14 rounded-2xl flex items-center justify-center transition-all border border-white/10 text-2xl">←</button>
+               <button onClick={() => navigate('/dashboard')} className="absolute top-8 left-8 bg-white/10 hover:bg-white/20 text-white w-14 h-14 rounded-2xl flex items-center justify-center transition-all border border-white/10 text-2xl active:scale-90">←</button>
                <div className="flex items-center gap-6 mb-8">
-                  <img src="/logo.png" className="w-20 h-20" alt="Logo" />
+                  <img src="/logo.png" className="w-20 h-20 drop-shadow-2xl" alt="Logo" />
                   <div className="text-left border-l-2 border-white pl-6">
-                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic tracking-tighter">Clube Ágata</h2>
-                    <p className="text-[10px] md:text-xs font-bold text-green-400 uppercase tracking-[0.2em] opacity-80">Painel Administrativo</p>
+                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
+                    <p className="text-[10px] md:text-xs font-bold text-green-400 uppercase tracking-[0.2em] mt-2 opacity-80">Painel Administrativo</p>
                   </div>
                </div>
                <h2 className="text-2xl md:text-4xl font-black text-white/40 uppercase italic tracking-tighter mb-4">Frequência</h2>
-               <button onClick={() => setMostrarLista(true)} className="bg-green-500 hover:bg-green-400 text-[#0a2614] px-16 py-6 rounded-[30px] font-black uppercase text-sm shadow-xl transition-all">📝 Realizar Chamada</button>
+               <button onClick={() => setMostrarLista(true)} className="bg-green-500 hover:bg-green-400 text-[#0a2614] px-16 py-6 rounded-[30px] font-black uppercase tracking-widest shadow-[0_15px_40px_rgba(34,197,94,0.3)] transition-all active:scale-95 text-sm">📝 Realizar Chamada de Hoje</button>
             </div>
           ) : (
             <div className="bg-white rounded-[50px] shadow-2xl overflow-hidden border border-white/20 animate-in slide-in-from-bottom-6 duration-500">
               <div className="bg-gradient-to-br from-green-800 to-[#061a0d] p-8 text-white relative">
-                <div className="flex items-center gap-5 mb-8">
-                  <button onClick={() => setMostrarLista(false)} className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10">←</button>
+                <div className="flex items-center">
+                  <button onClick={() => setMostrarLista(false)} className="bg-white/10 hover:bg-white/20 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border border-white/10 flex-shrink-0">←</button>
                   <div className="flex items-center gap-4 border-l-2 border-white pl-4 ml-auto mr-auto">
-                    <img src="/logo.png" className="w-14 h-14 object-contain" alt="Logo" />
+                    <img src="/logo.png" className="w-14 h-14 object-contain bg-white/10 backdrop-blur-md rounded-2xl p-1 shadow-xl border border-white/20" alt="Logo" />
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Clube Ágata</h2>
+                      <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic leading-none tracking-tighter">Clube Ágata</h2>
                       <p className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest opacity-90 mt-1">Painel Administrativo</p>
                     </div>
                   </div>
                 </div>
-                <div className="bg-black/20 p-4 rounded-[25px] text-center mt-8"><p className="text-[11px] font-black text-white uppercase">Lista de Frequência • {hoje}</p></div>
+                <div className="bg-black/20 p-4 rounded-[25px] border border-white/5 text-center mt-8"><p className="text-[11px] font-black text-white uppercase tracking-widest underline decoration-yellow-500 decoration-2 underline-offset-8">Lista de Frequência • {hoje}</p></div>
               </div>
 
               <div className="p-6 space-y-4 max-h-[550px] overflow-y-auto custom-scrollbar bg-gray-50/50">
                 {membros.map(m => (
                   <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl">
                     <div className="flex items-center gap-4">
-                      {/* LÓGICA ANTI-PISCAR: Só tenta carregar se a URL existir, senão vai direto pro padrão */}
+                      {/* LÓGICA ATUALIZADA AQUI */}
                       <img 
                         src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} 
                         className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" 
@@ -110,21 +110,21 @@ export default function Chamada() {
                         onError={(e) => { e.target.src = FOTO_PADRAO; }}
                       />
                       <div className="truncate">
-                        <p className="font-black text-sm md:text-lg uppercase text-gray-800">{m.nome.split(' ')[0]}</p>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase mt-1.5">{m.unidade}</p>
+                        <p className="font-black text-sm md:text-lg uppercase leading-none text-gray-800 tracking-tighter">{m.nome.split(' ')[0]}</p>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">{m.unidade}</p>
                       </div>
                     </div>
 
                     <div className="flex bg-gray-100 p-1.5 rounded-[25px] gap-1 shadow-inner border border-gray-200">
-                      <button onClick={() => alternarPresenca(m._id, 'P')} className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'P' ? 'bg-green-600 text-white shadow-lg' : 'text-gray-400 hover:bg-white'}`}>PRESENTE</button>
-                      <button onClick={() => alternarPresenca(m._id, 'F')} className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'F' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400 hover:bg-white'}`}>FALTA</button>
+                      <button onClick={() => alternarPresenca(m._id, 'P')} className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'P' ? 'bg-green-600 text-white shadow-lg shadow-green-900/20' : 'text-gray-400 hover:bg-white'}`}>PRESENTE</button>
+                      <button onClick={() => alternarPresenca(m._id, 'F')} className={`px-4 md:px-7 py-3 rounded-[20px] text-[10px] font-black transition-all ${presencas[m._id] === 'F' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-white'}`}>FALTA</button>
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className="p-8 bg-white border-t border-gray-100 text-center">
-                <button onClick={salvarChamada} disabled={loading} className="w-full bg-[#061a0d] hover:bg-black text-white py-6 rounded-[30px] font-black uppercase text-xs shadow-2xl active:scale-95 transition-all">
+                <button onClick={salvarChamada} disabled={loading} className="w-full bg-[#061a0d] hover:bg-black text-white py-6 rounded-[30px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all text-xs border-b-4 border-green-800">
                   {loading ? "PROCESSANDO..." : "CONCLUIR FREQUÊNCIA"}
                 </button>
               </div>
@@ -138,7 +138,7 @@ export default function Chamada() {
                   <h3 className="font-black text-green-900 uppercase italic text-2xl tracking-tighter">Relatório de Presença</h3>
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{chamadaSelecionada.data}</p>
                 </div>
-                <button onClick={() => setChamadaSelecionada(null)} className="bg-gray-100 hover:bg-red-500 hover:text-white text-gray-400 w-12 h-12 rounded-full font-black flex items-center justify-center">✕</button>
+                <button onClick={() => setChamadaSelecionada(null)} className="bg-gray-100 hover:bg-red-500 hover:text-white text-gray-400 w-12 h-12 rounded-full font-black flex items-center justify-center transition-all">✕</button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {chamadaSelecionada.lista.map((item, idx) => (
@@ -165,12 +165,12 @@ export default function Chamada() {
             <div className="flex items-center gap-4 mb-10 border-l-2 border-yellow-500 pl-4"><h3 className="font-black text-white uppercase italic text-xl tracking-tighter">Histórico</h3></div>
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {historico.length === 0 ? (
-                <div className="text-center py-20 opacity-30 text-white"><p className="text-[10px] font-black uppercase tracking-widest">Vazio</p></div>
+                <div className="text-center py-20 opacity-30 text-white"><div className="text-6xl mb-4">📂</div><p className="text-[10px] font-black uppercase tracking-widest">Vazio</p></div>
               ) : (
                 historico.map((h, i) => (
-                  <button key={i} onClick={() => setChamadaSelecionada(h)} className="w-full p-6 bg-white/5 hover:bg-white/20 rounded-[35px] border-l-8 border-green-800 flex justify-between items-center transition-all group shadow-lg border border-white/5">
-                    <div className="text-left"><p className="text-base font-black text-white mb-1 group-hover:text-yellow-400">{h.data}</p><p className="text-[11px] font-bold text-white/50 uppercase">{h.lista.length} Membros</p></div>
-                    <div className="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-xs">VER</div>
+                  <button key={i} onClick={() => setChamadaSelecionada(h)} className="w-full p-6 bg-white/5 hover:bg-white/20 rounded-[35px] border-l-8 border-green-800 flex justify-between items-center transition-all group active:scale-95 shadow-lg border border-white/5">
+                    <div className="text-left"><p className="text-base font-black text-white mb-1 group-hover:text-yellow-400 transition-colors">{h.data}</p><p className="text-[11px] font-bold text-white/50 uppercase tracking-tight">{h.lista.length} Membros</p></div>
+                    <div className="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg group-hover:bg-yellow-500 group-hover:text-[#0a2614] transition-all text-white font-black text-xs">VER</div>
                   </button>
                 ))
               )}
