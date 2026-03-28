@@ -1,192 +1,413 @@
 import React, { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 
-export default function AdminDashboard() {
-  const navigate = useNavigate();
-  const [membros, setMembros] = useState([]);
-  const [view, setView] = useState('tabela'); 
-  const [pontuandoId, setPontuandoId] = useState('');
-  const [membroParaEditar, setMembroParaEditar] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [historicoAberto, setHistoricoAberto] = useState(null);
-  const [menuLateralAberto, setMenuLateralAberto] = useState(false);
+
+
+export default function GerenciarUnidades() {
 
   const [nome, setNome] = useState('');
-  const [unidade, setUnidade] = useState('');
-  const [funcao, setFuncao] = useState('');
+
+  const [pontos, setPontos] = useState(0);
+
   const [arquivo, setArquivo] = useState(null);
+
+  const [unidades, setUnidades] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [mostrandoForm, setMostrandoForm] = useState(false);
+
+  const [editandoId, setEditandoId] = useState(null); // Estado para controlar edição
+
+  
+
+  const [pontuandoNome, setPontuandoNome] = useState('');
+
   const [inputPontos, setInputPontos] = useState('');
+
   const [inputMotivo, setInputMotivo] = useState('');
 
+  const [historicoAberto, setHistoricoAberto] = useState(null);
+
+
+
+  const navigate = useNavigate();
+
   const API_URL = "https://desbrava-app.onrender.com";
-  const FOTO_PADRAO = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
-  const carregarMembros = () => {
-    fetch(`${API_URL}/membros`)
-      .then(res => res.json())
-      .then(data => setMembros(Array.isArray(data) ? data : []))
-      .catch(err => console.error("Erro ao carregar:", err));
-  };
 
-  useEffect(() => carregarMembros(), []);
 
-  const deletarMembro = async (id) => {
-    if (window.confirm("Deseja realmente excluir este desbravador?")) {
-      try {
-        const res = await fetch(`${API_URL}/membros/${id}`, { method: 'DELETE' });
-        if (res.ok) carregarMembros();
-      } catch (err) { alert("Erro ao excluir."); }
+  const carregarUnidades = async () => {
+
+    try {
+
+      const res = await fetch(`${API_URL}/ranking-unidades`);
+
+      const data = await res.json();
+
+      setUnidades(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+
+      console.error("Erro ao carregar unidades:", error);
+
     }
+
   };
+
+
+
+  useEffect(() => {
+
+    carregarUnidades();
+
+  }, []);
+
+
 
   const handleSalvar = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    const data = new FormData();
-    data.append('nome', nome);
-    data.append('unidade', unidade);
-    data.append('funcao', funcao);
-    if (arquivo) data.append('foto', arquivo);
 
-    const isEdicao = view === 'edicao' && membroParaEditar;
-    
-    // MUDANÇA DESTRUTIVA: Usando PATCH em vez de PUT para a edição
-    // O POST continua igual para o cadastro novo
-    const method = isEdicao ? 'PATCH' : 'POST'; 
-    const url = isEdicao ? `${API_URL}/membros/${membroParaEditar._id}` : `${API_URL}/membros`;
-    
+    e.preventDefault();
+
+    setLoading(true);
+
+    const data = new FormData();
+
+    data.append('nome', nome.toUpperCase());
+
+    data.append('pontos_proprios', pontos);
+
+    if (arquivo) { data.append('logo', arquivo); }
+
+
+
+    // Define se é criação ou edição
+
+    const url = editandoId ? `${API_URL}/unidades/${editandoId}` : `${API_URL}/unidades`;
+
+    const method = editandoId ? 'PUT' : 'POST';
+
+
+
     try {
-      const res = await fetch(url, { 
-        method: method, 
-        body: data 
+
+      const response = await fetch(url, {
+
+        method: method,
+
+        body: data,
+
+      });
+
+      if (response.ok) {
+
+        alert(editandoId ? "✅ Unidade atualizada!" : "✅ Unidade salva!");
+
+        limparFormulario();
+
+        carregarUnidades();
+
+      }
+
+    } catch (error) {
+
+      alert("❌ Erro de conexão.");
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+
+
+  const abrirEdicao = (u) => {
+
+    setEditandoId(u._id); // Assume que o banco retorna o ID em _id
+
+    setNome(u.nome);
+
+    setPontos(u.pontos_proprios || 0);
+
+    setMostrandoForm(true);
+
+  };
+
+
+
+  const limparFormulario = () => {
+
+    setNome(''); setPontos(0); setArquivo(null); setMostrandoForm(false); setEditandoId(null);
+
+  };
+
+
+
+  const salvarPontosUnidade = async (nomeUnidade) => {
+
+    if (!inputPontos || !inputMotivo) {
+
+      alert("Preencha quantidade e motivo!");
+
+      return;
+
+    }
+
+    const data = new FormData();
+
+    data.append('valor', inputPontos);
+
+    data.append('motivo', inputMotivo);
+
+
+
+    try {
+
+      const res = await fetch(`${API_URL}/unidades/${nomeUnidade}/pontos`, {
+
+        method: 'PATCH',
+
+        body: data
+
       });
 
       if (res.ok) {
-        alert("✅ Salvo com sucesso!");
-        limparFormulario();
-        carregarMembros();
-      } else {
-        // Se o PATCH também der 405, tentamos o PUT como última instância dentro do erro
-        if (res.status === 405 && isEdicao) {
-           const retry = await fetch(url, { method: 'PUT', body: data });
-           if (retry.ok) {
-             alert("✅ Salvo com sucesso!");
-             limparFormulario();
-             carregarMembros();
-             return;
-           }
-        }
-        alert(`❌ Erro ${res.status}: Servidor recusou a operação.`);
+
+        setPontuandoNome(''); setInputPontos(''); setInputMotivo('');
+
+        carregarUnidades();
+
       }
-    } catch (err) { 
-        alert("❌ ERRO DE CONEXÃO."); 
-    } finally { 
-        setLoading(false); 
+
+    } catch (err) {
+
+      alert("Erro ao pontuar unidade.");
+
     }
+
   };
 
-  const abrirEdicao = (m) => {
-    setMembroParaEditar(m); setNome(m.nome); setUnidade(m.unidade); setFuncao(m.funcao);
-    setView('edicao'); setMenuLateralAberto(false);
+
+
+  const deletarUnidade = async (nomeUnidade) => {
+
+    if (window.confirm(`Deseja excluir a unidade ${nomeUnidade}?`)) {
+
+      try {
+
+        await fetch(`${API_URL}/unidades/${nomeUnidade}`, { method: 'DELETE' });
+
+        carregarUnidades();
+
+      } catch (error) {
+
+        alert("Erro ao deletar.");
+
+      }
+
+    }
+
   };
 
-  const limparFormulario = () => {
-    setNome(''); setUnidade(''); setFuncao(''); setArquivo(null); setView('tabela'); setMembroParaEditar(null);
-    setMenuLateralAberto(false);
-  };
 
-  const salvarPontos = async (id) => {
-    if (!inputPontos || !inputMotivo) return alert("Preencha tudo!");
-    const data = new FormData();
-    data.append('valor', inputPontos);
-    data.append('motivo', inputMotivo);
-    try {
-      const res = await fetch(`${API_URL}/membros/${id}/pontos`, { method: 'PATCH', body: data });
-      if (res.ok) { setPontuandoId(''); setInputPontos(''); setInputMotivo(''); carregarMembros(); }
-    } catch (err) { alert("Erro ao pontuar."); }
-  };
 
   return (
-    <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800 flex flex-col">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800 h-20">
-          <button onClick={() => setMenuLateralAberto(true)} className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all flex-shrink-0">
-            <div className="space-y-1.5"><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div></div>
-          </button>
-          <div className="flex items-center gap-4">
-              <img src="/logo.png" className="w-10 h-10 object-contain" alt="Logo" />
-              <div className="w-[2px] h-10 bg-gray-300 mx-1"></div> 
-              <div className="flex flex-col">
-                  <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic">Clube Ágata</h1>
-                  <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase mt-1">Painel Administrativo</p>
-              </div>
-          </div>
-      </header>
 
-      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-6 text-center text-green-900 flex flex-col h-full">
-            <div className="flex justify-end"><button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button></div>
-            <h2 className="text-xl font-black uppercase italic mb-8 mt-2">Navegação</h2>
-            <div className="flex flex-col gap-4">
-                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95 shadow-md">+ NOVO DESBRAVADOR</button>
-                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs hover:bg-yellow-600">🛡️ UNIDADES</button>
-                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs">📅 CHAMADA</button>
+    <div className="p-4 md:p-8 max-w-2xl mx-auto bg-gray-50 min-h-screen font-sans text-gray-800">
+
+      
+
+      {historicoAberto && (
+
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+
+          <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden border-4 border-green-800">
+
+            <div className="bg-green-800 p-6 text-white flex justify-between items-center">
+
+              <div>
+
+                <h3 className="font-black uppercase italic leading-none text-lg tracking-tighter">Histórico da Unidade</h3>
+
+                <p className="text-[10px] opacity-70 mt-1 uppercase font-bold tracking-widest">{historicoAberto.nome}</p>
+
+              </div>
+
+              <button onClick={() => setHistoricoAberto(null)} className="bg-white/20 hover:bg-white/30 w-8 h-8 rounded-full font-black text-sm">X</button>
+
             </div>
-            <div className="mt-auto pb-6"><button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">SAIR</button></div>
+
+            <div className="p-6 max-h-[400px] overflow-y-auto bg-gray-50">
+
+              {!historicoAberto.historico_pontos || historicoAberto.historico_pontos.length === 0 ? (
+
+                <p className="text-center text-gray-400 font-bold py-10 uppercase text-[10px] tracking-[0.2em]">Nenhum ponto registrado</p>
+
+              ) : (
+
+                <div className="space-y-3">
+
+                  {[...historicoAberto.historico_pontos].reverse().map((h, i) => (
+
+                    <div key={i} className="flex justify-between items-center p-4 bg-white rounded-2xl border-l-4 border-yellow-500 shadow-sm">
+
+                      <div className="flex-1 pr-4">
+
+                        <p className="text-[10px] font-black uppercase text-green-900 leading-tight mb-1">{h.motivo}</p>
+
+                        <p className="text-[8px] text-gray-400 font-bold uppercase italic">{h.data}</p>
+
+                      </div>
+
+                      <div className="bg-green-800 text-white px-3 py-1 rounded-lg font-black text-xs">+ {h.valor}</div>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+              )}
+
+            </div>
+
+          </div>
+
         </div>
+
+      )}
+
+
+
+      <div className="bg-white p-6 rounded-[40px] shadow-lg border-t-8 border-green-800 text-center mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+
+        <h1 className="text-2xl font-black text-green-800 italic uppercase tracking-tighter">Gerenciar Unidades</h1>
+
+        <button onClick={() => navigate('/dashboard')} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-2xl font-black uppercase text-xs">VOLTAR</button>
+
       </div>
 
-      {menuLateralAberto && <div onClick={() => setMenuLateralAberto(false)} className="fixed inset-0 bg-black/20 z-40"></div>}
 
-      <main className="flex-1 p-2 md:p-8 mt-24 max-w-7xl mx-auto w-full overflow-y-auto">
-        {/* TABELA DE MEMBROS */}
-        {view === 'tabela' ? (
-          <div className="bg-white rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
-                  <tr><th className="p-8">Membro / Função</th><th className="p-8 text-center">Unidade</th><th className="p-8 text-center">Pontos</th><th className="p-8 text-center">Ações</th></tr>
-                </thead>
-                <tbody>
-                  {membros.map(m => (
-                    <tr key={m._id} className="border-b last:border-0 hover:bg-green-50 transition-colors">
-                      <td className="p-6">
-                        <div className="flex items-center gap-4">
-                          <img src={m.foto_url || FOTO_PADRAO} className="w-16 h-16 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="" onError={(e) => { e.target.src = FOTO_PADRAO; }} />
-                          <div><p className="font-black text-gray-800 uppercase text-sm">{m.nome}</p><p className="text-[10px] font-bold text-gray-400 uppercase italic">{m.funcao}</p></div>
-                        </div>
-                      </td>
-                      <td className="p-6 text-center font-bold text-gray-500 uppercase">{m.unidade}</td>
-                      <td className="p-6 text-center"><button onClick={() => setHistoricoAberto(m)} className="bg-green-100 text-green-800 px-6 py-3 rounded-2xl font-black text-2xl active:scale-90">{m.pontos}</button></td>
-                      <td className="p-6 text-center">
-                        <div className="flex justify-center gap-2">
-                          <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase">⭐ Pontuar</button>
-                          <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl">✏️</button>
-                          <button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white p-2.5 rounded-xl">🗑️</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+      {!mostrandoForm && (
+
+        <button onClick={() => setMostrandoForm(true)} className="w-full mb-8 bg-green-700 text-white py-5 rounded-[30px] font-black uppercase shadow-xl hover:bg-green-800 active:scale-95 transition-all">
+
+          + NOVA UNIDADE
+
+        </button>
+
+      )}
+
+
+
+      {mostrandoForm && (
+
+        <form onSubmit={handleSalvar} className="bg-white p-8 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10 animate-in zoom-in-95 duration-200">
+
+          <div className="space-y-6">
+
+            <h2 className="text-xl font-black text-green-800 uppercase italic">{editandoId ? 'Editar Unidade' : 'Cadastrar Unidade'}</h2>
+
+            <input type="text" placeholder="NOME DA UNIDADE" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" required />
+
+            <input type="number" placeholder="PONTOS ADICIONAIS" value={pontos} onChange={(e) => setPontos(e.target.value)} className="w-full border-2 p-4 rounded-2xl font-black outline-none focus:border-green-600" />
+
+            <div className="bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-gray-300">
+
+              <label className="text-[10px] font-black uppercase text-gray-400 block mb-2">Logo da Unidade</label>
+
+              <input type="file" accept="image/*" onChange={(e) => setArquivo(e.target.files[0])} className="text-xs font-bold w-full" />
+
             </div>
+
+            <div className="flex gap-4">
+
+              <button type="submit" disabled={loading} className="flex-1 bg-green-700 text-white py-5 rounded-2xl font-black uppercase shadow-xl">{loading ? "SALVANDO..." : "SALVAR ALTERAÇÕES"}</button>
+
+              <button type="button" onClick={limparFormulario} className="flex-1 bg-red-100 text-red-600 py-5 rounded-2xl font-black uppercase text-xs">CANCELAR</button>
+
+            </div>
+
           </div>
-        ) : (
-          <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10">
-            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{membroParaEditar ? 'Editar Informações' : 'Novo Desbravador'}</h2>
-            <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <input type="text" placeholder="NOME" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={nome} onChange={e => setNome(e.target.value)} required />
-               <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={unidade} onChange={e => setUnidade(e.target.value)} required />
-               <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
-               <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 text-xs font-bold" onChange={e => setArquivo(e.target.files[0])} /></div>
-               <div className="md:col-span-2 flex gap-4 mt-4">
-                  <button type="submit" disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase active:scale-95 transition-all">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
-                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase transition-all">Cancelar</button>
-               </div>
-            </form>
+
+        </form>
+
+      )}
+
+
+
+      <div className="space-y-4">
+
+        <h2 className="text-center font-black text-gray-400 uppercase text-[10px] tracking-widest mb-2">Unidades no Banco</h2>
+
+        {unidades.map((u, i) => (
+
+          <div key={i} className="bg-white p-4 rounded-[35px] shadow-lg border-2 border-gray-100 flex flex-col gap-4 transition-all hover:border-green-100">
+
+            <div className="flex items-center justify-between">
+
+              <div className="flex items-center gap-4">
+
+                <img src={u.logo_url} className="w-14 h-14 rounded-full object-cover border-4 border-green-100 shadow-sm" alt="logo" onError={(e) => { e.target.src = "https://via.placeholder.com/100?text=LOGO"; }} />
+
+                <div>
+
+                    <span className="font-black uppercase text-lg text-gray-800 italic leading-none">{u.nome}</span>
+
+                    <p onClick={() => setHistoricoAberto(u)} className="text-[10px] font-bold text-green-700 uppercase cursor-pointer hover:underline">Pontos: {u.total} 🔍</p>
+
+                </div>
+
+              </div>
+
+
+
+              {pontuandoNome === u.nome ? (
+
+                  <div className="flex flex-col gap-2 bg-yellow-50 p-3 rounded-2xl border-2 border-yellow-400 w-full max-w-[200px]">
+
+                      <input type="number" placeholder="Qtd" className="p-2 border rounded-lg font-bold text-xs" value={inputPontos} onChange={e => setInputPontos(e.target.value)} />
+
+                      <input type="text" placeholder="Motivo" className="p-2 border rounded-lg text-[10px]" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
+
+                      <div className="flex gap-2">
+
+                          <button onClick={() => salvarPontosUnidade(u.nome)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black uppercase text-[9px]">OK</button>
+
+                          <button onClick={() => setPontuandoNome('')} className="bg-red-500 text-white px-2 rounded-lg font-black text-xs">X</button>
+
+                      </div>
+
+                  </div>
+
+              ) : (
+
+                  <div className="flex gap-2">
+
+                    <button onClick={() => setPontuandoNome(u.nome)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl font-black shadow-md text-[9px] uppercase">⭐ PONTUAR</button>
+
+                    <button onClick={() => abrirEdicao(u)} className="bg-amber-400 hover:bg-amber-500 text-white p-2.5 rounded-xl shadow-md transition-all">✏️</button>
+
+                    <button onClick={() => deletarUnidade(u.nome)} className="bg-red-500 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-md">🗑️</button>
+
+                  </div>
+
+              )}
+
+            </div>
+
           </div>
-        )}
-      </main>
+
+        ))}
+
+      </div>
+
     </div>
+
   );
+
 }
