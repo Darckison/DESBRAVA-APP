@@ -25,7 +25,7 @@ export default function AdminDashboard() {
     fetch(`${API_URL}/membros`)
       .then(res => res.json())
       .then(data => setMembros(Array.isArray(data) ? data : []))
-      .catch(err => console.error("Erro ao carregar membros:", err));
+      .catch(err => console.error("Erro ao carregar:", err));
   };
 
   useEffect(() => carregarMembros(), []);
@@ -39,6 +39,7 @@ export default function AdminDashboard() {
     }
   };
 
+  // A MESMA LÓGICA PARA SALVAR E EDITAR
   const handleSalvar = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -49,64 +50,41 @@ export default function AdminDashboard() {
     data.append('funcao', funcao);
     if (arquivo) data.append('foto', arquivo);
 
+    // Se estiver editando, usa PUT e coloca o ID na URL. Se for novo, usa POST na URL geral.
     const isEdicao = view === 'edicao';
-    
-    // CORREÇÃO AQUI: Trocamos PUT por PATCH para resolver o erro 405 (Method Not Allowed)
-    const method = isEdicao ? 'PATCH' : 'POST'; 
+    const method = isEdicao ? 'PUT' : 'POST';
     const url = isEdicao ? `${API_URL}/membros/${membroParaEditar._id}` : `${API_URL}/membros`;
     
     try {
-      const res = await fetch(url, { 
-        method: method, 
-        body: data 
-      });
-
+      const res = await fetch(url, { method: method, body: data });
       if (res.ok) {
-        alert(isEdicao ? "✅ Cadastro atualizado!" : "✅ Novo desbravador salvo!");
+        alert(isEdicao ? "✅ Alterações salvas!" : "✅ Novo desbravador criado!");
         limparFormulario();
         carregarMembros();
       } else {
-        // Se o servidor ainda reclamar de PATCH, tentamos o PUT uma última vez por segurança
-        if (res.status === 405 && isEdicao) {
-          const retryRes = await fetch(url, { method: 'PUT', body: data });
-          if (retryRes.ok) {
-            alert("✅ Cadastro atualizado!");
-            limparFormulario();
-            carregarMembros();
-            return;
-          }
-        }
-        alert(`❌ Erro ao salvar: código ${res.status}`);
+        alert("❌ Erro ao salvar. Verifique os campos.");
       }
     } catch (err) { 
-        alert("❌ ERRO DE CONEXÃO COM O SERVIDOR."); 
+        alert("❌ ERRO DE CONEXÃO."); 
     } finally { 
         setLoading(false); 
     }
   };
 
   const salvarPontos = async (id) => {
-    if (!inputPontos || !inputMotivo) {
-      alert("Preencha a quantidade e o motivo!");
-      return;
-    }
+    if (!inputPontos || !inputMotivo) return alert("Preencha tudo!");
     const data = new FormData();
     data.append('valor', inputPontos);
     data.append('motivo', inputMotivo);
-    
     try {
       const res = await fetch(`${API_URL}/membros/${id}/pontos`, { method: 'PATCH', body: data });
-      if (res.ok) {
-        setPontuandoId(''); setInputPontos(''); setInputMotivo('');
-        carregarMembros();
-      }
-    } catch (err) { alert("Erro ao salvar pontos."); }
+      if (res.ok) { setPontuandoId(''); setInputPontos(''); setInputMotivo(''); carregarMembros(); }
+    } catch (err) { alert("Erro nos pontos."); }
   };
 
   const abrirEdicao = (m) => {
     setMembroParaEditar(m); setNome(m.nome); setUnidade(m.unidade); setFuncao(m.funcao);
-    setView('edicao');
-    setMenuLateralAberto(false);
+    setView('edicao'); setMenuLateralAberto(false);
   };
 
   const limparFormulario = () => {
@@ -115,16 +93,16 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800 flex flex-col overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#f1f5f2] font-sans text-gray-800 flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md p-4 flex items-center gap-4 border-b-4 border-green-800 h-20">
-          <button onClick={() => setMenuLateralAberto(true)} className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all flex-shrink-0">
+          <button onClick={() => setMenuLateralAberto(true)} className="bg-green-800 text-white p-3 rounded-xl shadow-lg active:scale-95 transition-all">
             <div className="space-y-1.5"><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div><div className="w-6 h-1 bg-white"></div></div>
           </button>
           <div className="flex items-center gap-4">
               <img src="/logo.png" className="w-10 h-10 object-contain" alt="Logo" />
               <div className="w-[2px] h-10 bg-gray-300 mx-1"></div> 
               <div className="flex flex-col">
-                  <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic leading-none tracking-tighter">Clube Ágata</h1>
+                  <h1 className="text-xl md:text-2xl font-black text-green-800 uppercase italic tracking-tighter">Clube Ágata</h1>
                   <p className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Painel Administrativo</p>
               </div>
           </div>
@@ -133,13 +111,13 @@ export default function AdminDashboard() {
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/70 backdrop-blur-md shadow-2xl transform transition-transform duration-300 border-r border-white/20 ${menuLateralAberto ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 text-center text-green-900 flex flex-col h-full">
             <div className="flex justify-end"><button onClick={() => setMenuLateralAberto(false)} className="text-gray-400 text-2xl font-black">✕</button></div>
-            <h2 className="text-xl font-black uppercase italic mb-8 mt-2 tracking-tighter">Navegação</h2>
+            <h2 className="text-xl font-black uppercase italic mb-8 mt-2">Navegação</h2>
             <div className="flex flex-col gap-4">
-                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">+ NOVO DESBRAVADOR</button>
-                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">🛡️ GERENCIAR UNIDADES</button>
-                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md active:scale-95">📅 FREQUÊNCIA "CHAMADA"</button>
+                <button onClick={() => { setView('cadastro'); setMenuLateralAberto(false); }} className="bg-green-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md">+ NOVO DESBRAVADOR</button>
+                <button onClick={() => { navigate('/admin-unidades'); setMenuLateralAberto(false); }} className="bg-yellow-50 text-green-950 p-4 rounded-2xl font-black uppercase text-xs shadow-md">🛡️ UNIDADES</button>
+                <button onClick={() => { navigate('/chamada'); setMenuLateralAberto(false); }} className="bg-blue-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-md">📅 CHAMADA</button>
             </div>
-            <div className="mt-auto pb-6"><button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">SAIR DO SISTEMA</button></div>
+            <div className="mt-auto pb-6"><button onClick={() => navigate('/')} className="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs active:scale-95">SAIR</button></div>
         </div>
       </div>
 
@@ -150,14 +128,14 @@ export default function AdminDashboard() {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <div className="bg-white rounded-[32px] w-full max-w-md shadow-2xl border-4 border-green-800 p-6">
               <div className="flex justify-between items-center mb-4">
-                <div><h3 className="font-black uppercase italic text-sm text-green-900">Histórico de Pontos</h3><p className="text-[10px] opacity-70 uppercase font-bold">{historicoAberto.nome}</p></div>
+                <div><h3 className="font-black uppercase italic text-sm">Histórico de Pontos</h3><p className="text-[10px] opacity-70 uppercase font-bold">{historicoAberto.nome}</p></div>
                 <button onClick={() => setHistoricoAberto(null)} className="text-gray-400 font-black">✕</button>
               </div>
-              <div className="max-h-[400px] overflow-y-auto space-y-4">
+              <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
                 {(!historicoAberto.historico_pontos || historicoAberto.historico_pontos.length === 0) ? <p className="text-center text-gray-400 py-10">Vazio</p> : 
                   historicoAberto.historico_pontos.map((h, i) => (
                     <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-2xl border-l-4 border-yellow-500 shadow-sm">
-                      <div className="flex-1"><p className="text-[10px] font-black uppercase text-green-900 leading-none">{h.motivo}</p><p className="text-[8px] text-gray-400">{h.data}</p></div>
+                      <div className="flex-1"><p className="text-[10px] font-black uppercase text-green-900 leading-none">{h.motivo}</p><p className="text-[8px] text-gray-400 font-bold">{h.data}</p></div>
                       <div className="bg-green-800 text-white px-3 py-1 rounded-lg font-black text-xs">+{h.valor}</div>
                     </div>
                   ))
@@ -168,11 +146,11 @@ export default function AdminDashboard() {
         )}
 
         {view === 'tabela' ? (
-          <div className="bg-white rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in duration-500">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-green-800 text-white uppercase text-xs font-black tracking-widest">
-                  <tr><th className="p-8">Membro / Função</th><th className="p-8 text-center">Unidade</th><th className="p-8 text-center">Pontos</th><th className="p-8 text-center">Ações</th></tr>
+                  <tr><th className="p-8">Membro</th><th className="p-8 text-center">Unidade</th><th className="p-8 text-center">Pontos</th><th className="p-8 text-center">Ações</th></tr>
                 </thead>
                 <tbody>
                   {membros.map(m => (
@@ -190,13 +168,16 @@ export default function AdminDashboard() {
                           <div className="flex flex-col gap-2 bg-yellow-50 p-4 rounded-2xl border-2 border-yellow-400 min-w-[200px]">
                             <input type="number" placeholder="Qtd" className="p-2 border rounded-lg font-bold" value={inputPontos} onChange={e => setInputPontos(e.target.value)} />
                             <input type="text" placeholder="Motivo" className="p-2 border rounded-lg text-xs" value={inputMotivo} onChange={e => setInputMotivo(e.target.value)} />
-                            <div className="flex gap-2"><button onClick={() => salvarPontos(m._id)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black text-[10px]">OK</button><button onClick={() => setPontuandoId('')} className="bg-red-500 text-white px-2 rounded-lg">✕</button></div>
+                            <div className="flex gap-2">
+                                <button onClick={() => salvarPontos(m._id)} className="bg-green-600 text-white flex-1 py-1 rounded-lg font-black uppercase text-[10px]">OK</button>
+                                <button onClick={() => setPontuandoId('')} className="bg-red-500 text-white px-2 rounded-lg font-black">✕</button>
+                            </div>
                           </div>
                         ) : (
                           <div className="flex justify-center gap-2">
-                            <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase active:scale-95">⭐ Pontuar</button>
-                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl shadow-md active:scale-95">✏️</button>
-                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white p-2.5 rounded-xl shadow-md active:scale-95">🗑️</button>
+                            <button onClick={() => setPontuandoId(m._id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all active:scale-95">⭐ Pontuar</button>
+                            <button onClick={() => abrirEdicao(m)} className="bg-amber-400 text-white p-2.5 rounded-xl shadow-md transition-all active:scale-95">✏️</button>
+                            <button onClick={() => deletarMembro(m._id)} className="bg-red-600 text-white p-2.5 rounded-xl shadow-md transition-all active:scale-95">🗑️</button>
                           </div>
                         )}
                       </td>
@@ -208,15 +189,16 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="bg-white p-8 md:p-10 rounded-[40px] shadow-2xl border-4 border-green-800 mb-10">
-            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic tracking-tight">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
+            <h2 className="text-2xl font-black mb-8 text-green-800 uppercase italic">{view === 'cadastro' ? 'Novo Desbravador' : 'Editar Informações'}</h2>
             <form onSubmit={handleSalvar} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <input type="text" placeholder="NOME COMPLETO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={nome} onChange={e => setNome(e.target.value)} required />
                <input type="text" placeholder="UNIDADE" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={unidade} onChange={e => setUnidade(e.target.value)} required />
                <input type="text" placeholder="FUNÇÃO" className="border-2 p-4 rounded-2xl font-black uppercase outline-none focus:border-green-600" value={funcao} onChange={e => setFuncao(e.target.value)} required />
-               <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
+               <div className="flex flex-col gap-2"><label className="text-[10px] font-black text-gray-400 uppercase">Foto</label><input type="file" className="border-2 p-3 rounded-2xl bg-gray-50 font-bold text-xs" onChange={e => setArquivo(e.target.files[0])} /></div>
                <div className="md:col-span-2 flex gap-4 mt-4">
-                  <button type="submit" disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase active:scale-95 transition-all">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
-                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase">Cancelar</button>
+                  {/* TYPE SUBMIT PARA DISPARAR A FUNÇÃO */}
+                  <button type="submit" disabled={loading} className="bg-green-700 text-white p-5 rounded-2xl font-black flex-1 shadow-xl uppercase transition-all active:scale-95">{loading ? "PROCESSANDO..." : "Salvar Registro"}</button>
+                  <button type="button" onClick={limparFormulario} className="bg-gray-400 text-white px-10 rounded-2xl font-black uppercase transition-all hover:bg-gray-500">Cancelar</button>
                </div>
             </form>
           </div>
