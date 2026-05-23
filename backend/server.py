@@ -124,7 +124,7 @@ async def criar_membro(
 
     await colecao_membros.insert_one({
         "nome": nome.upper(), 
-        "unidade": unity = unidade.upper(), 
+        "unidade": unidade.upper(), 
         "funcao": funcao.upper(),
         "foto_url": url_foto, 
         "pontos": 0, 
@@ -228,7 +228,7 @@ async def salvar_chamada(dados: dict):
             for registro in dados.get("presencas", []):
                 if registro.get("status") == "presente":
                     membro_id = registro.get("membro_id")
-                    if membro_id:
+                    if miembro_id:
                         novo_ponto = {
                             "valor": 10,  # Cada presença soma 10 pontos na tabela geral
                             "motivo": f"PRESENÇA NA REUNIÃO - {dados['data']}",
