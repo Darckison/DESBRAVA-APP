@@ -211,26 +211,74 @@ async def deletar_membro(id: str):
     await colecao_membros.delete_one({"_id": ObjectId(id)})
     return {"status": "sucesso"}
 
-# --- CHAMADA MODIFICADA ---
+# --- FERRAMENTA DE CORREÇÃO AUTOMÁTICA PARA CHAMADAS JÁ REALIZADAS ---
+@app.get("/recalcular-pontos-antigos")
+async def recalcular_pontos_antigos():
+    try:
+        # Zera os pontos de todo mundo para recalcular do zero sem duplicar
+        await colecao_membros.update_many({}, {"$set": {"pontos": 0, "historico_pontos": []}})
+        
+        todas_chamadas = await colecao_presenca.find().to_list(500)
+        contador = 0
+        
+        for chamada in todas_chamadas:
+            data_chamada = chamada.get("data", "ANTIGA")
+            
+            # Se a chamada já tiver a estrutura nova de IDs
+            if "presencas" in chamada:
+                for registro in chamada.get("presencas", []):
+                    if registro.get("status") == "presente":
+                        membro_id = registro.get("membro_id")
+                        if membro_id:
+                            novo_ponto = {
+                                "valor": 10,
+                                "motivo": f"PRESENÇA NA REUNIÃO - {data_chamada}",
+                                "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+                            }
+                            await colecao_membros.update_one(
+                                {"_id": ObjectId(membro_id)},
+                                {"$inc": {"pontos": 10}, "$push": {"historico_pontos": novo_ponto}}
+                            )
+                            contador += 1
+                            
+            # Se for uma chamada no formato antigo (apenas por nome)
+            elif "lista" in chamada:
+                for registro in chamada.get("lista", []):
+                    if registro.get("status") == "P":
+                        nome_membro = registro.get("nome")
+                        if nome_membro:
+                            novo_ponto = {
+                                "valor": 10,
+                                "motivo": f"PRESENÇA NA REUNIÃO - {data_chamada}",
+                                "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+                            }
+                            await colecao_membros.update_one(
+                                {"nome": {"$regex": f"^{nome_membro}$", "$options": "i"}},
+                                {"$inc": {"pontos": 10}, "$push": {"historico_pontos": novo_ponto}}
+                            )
+                            contador += 1
+                            
+        return {"status": "sucesso", "presencas_computadas": contador}
+    except Exception as e:
+        return {"status": "erro", "message": str(e)}
 
+# --- ROTA ORIGINAL DE SALVAR CHAMADA FUTURA ---
 @app.post("/chamada")
 async def salvar_chamada(dados: dict):
     try:
-        # 1. Salva ou atualiza o relatório na coleção de chamadas
         await colecao_presenca.update_one(
             {"data": dados["data"]},
             {"$set": dados},
             upsert=True
         )
         
-        # 2. Varre as presenças enviadas para atualizar a pontuação geral dos desbravadores (MÉTODO NOVO)
         if "presencas" in dados:
             for registro in dados.get("presencas", []):
                 if registro.get("status") == "presente":
                     membro_id = registro.get("membro_id")
-                    if miembro_id:
+                    if membro_id:
                         novo_ponto = {
-                            "valor": 10,  # Cada presença soma 10 pontos na tabela geral
+                            "valor": 10,
                             "motivo": f"PRESENÇA NA REUNIÃO - {dados['data']}",
                             "data": datetime.now().strftime("%d/%m/%Y %H:%M")
                         }
@@ -241,26 +289,6 @@ async def salvar_chamada(dados: dict):
                                 "$push": {"historico_pontos": novo_ponto}
                             }
                         )
-                        
-        # 3. Processa chamadas antigas de forma retroativa usando o array 'lista' (MÉTODO ANTIGO)
-        elif "lista" in dados:
-            for registro in dados.get("lista", []):
-                if registro.get("status") == "P":
-                    nome_membro = registro.get("nome")
-                    if nome_membro:
-                        novo_ponto = {
-                            "valor": 10,
-                            "motivo": f"PRESENÇA NA REUNIÃO - {dados['data']}",
-                            "data": datetime.now().strftime("%d/%m/%Y %H:%M")
-                        }
-                        await colecao_membros.update_one(
-                            {"nome": {"$regex": f"^{nome_membro}$", "$options": "i"}},
-                            {
-                                "$inc": {"pontos": 10},
-                                "$push": {"historico_pontos": novo_ponto}
-                            }
-                        )
-                        
         return {"status": "sucesso"}
     except Exception as e:
         return {"status": "erro", "message": str(e)}
