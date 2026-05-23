@@ -124,7 +124,7 @@ async def criar_membro(
 
     await colecao_membros.insert_one({
         "nome": nome.upper(), 
-        "unidade": unidade.upper(), 
+        "unidade": unity = unidade.upper(), 
         "funcao": funcao.upper(),
         "foto_url": url_foto, 
         "pontos": 0, 
@@ -223,23 +223,44 @@ async def salvar_chamada(dados: dict):
             upsert=True
         )
         
-        # 2. Varre as presenças enviadas para atualizar a pontuação geral dos desbravadores
-        for registro in dados.get("presencas", []):
-            if registro.get("status") == "presente":
-                membro_id = registro.get("membro_id")
-                if membro_id:
-                    novo_ponto = {
-                        "valor": 10,  # Cada presença soma 10 pontos na tabela geral
-                        "motivo": f"PRESENÇA NA REUNIÃO - {dados['data']}",
-                        "data": datetime.now().strftime("%d/%m/%Y %H:%M")
-                    }
-                    await colecao_membros.update_one(
-                        {"_id": ObjectId(membro_id)},
-                        {
-                            "$inc": {"pontos": 10},
-                            "$push": {"historico_pontos": novo_ponto}
+        # 2. Varre as presenças enviadas para atualizar a pontuação geral dos desbravadores (MÉTODO NOVO)
+        if "presencas" in dados:
+            for registro in dados.get("presencas", []):
+                if registro.get("status") == "presente":
+                    membro_id = registro.get("membro_id")
+                    if membro_id:
+                        novo_ponto = {
+                            "valor": 10,  # Cada presença soma 10 pontos na tabela geral
+                            "motivo": f"PRESENÇA NA REUNIÃO - {dados['data']}",
+                            "data": datetime.now().strftime("%d/%m/%Y %H:%M")
                         }
-                    )
+                        await colecao_membros.update_one(
+                            {"_id": ObjectId(membro_id)},
+                            {
+                                "$inc": {"pontos": 10},
+                                "$push": {"historico_pontos": novo_ponto}
+                            }
+                        )
+                        
+        # 3. Processa chamadas antigas de forma retroativa usando o array 'lista' (MÉTODO ANTIGO)
+        elif "lista" in dados:
+            for registro in dados.get("lista", []):
+                if registro.get("status") == "P":
+                    nome_membro = registro.get("nome")
+                    if nome_membro:
+                        novo_ponto = {
+                            "valor": 10,
+                            "motivo": f"PRESENÇA NA REUNIÃO - {dados['data']}",
+                            "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+                        }
+                        await colecao_membros.update_one(
+                            {"nome": {"$regex": f"^{nome_membro}$", "$options": "i"}},
+                            {
+                                "$inc": {"pontos": 10},
+                                "$push": {"historico_pontos": novo_ponto}
+                            }
+                        )
+                        
         return {"status": "sucesso"}
     except Exception as e:
         return {"status": "erro", "message": str(e)}
