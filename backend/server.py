@@ -36,7 +36,7 @@ colecao_unidades = db_unidades_banco["unidades"]
 colecao_presenca = db_principal["presencas"]
 
 # ==========================================
-#         ROTAS DE UNIDADES
+#          ROTAS DE UNIDADES
 # ==========================================
 
 @app.post("/unidades")
@@ -104,7 +104,7 @@ async def adicionar_pontos_unidade(nome: str, valor: int = Form(...), motivo: st
     return {"message": "ok"}
 
 # ==========================================
-#         ROTAS DE MEMBROS
+#          ROTAS DE MEMBROS
 # ==========================================
 
 @app.post("/membros")
@@ -211,16 +211,38 @@ async def deletar_membro(id: str):
     await colecao_membros.delete_one({"_id": ObjectId(id)})
     return {"status": "sucesso"}
 
-# --- CHAMADA ---
+# --- CHAMADA MODIFICADA ---
 
 @app.post("/chamada")
 async def salvar_chamada(dados: dict):
-    await colecao_presenca.update_one(
-        {"data": dados["data"]},
-        {"$set": dados},
-        upsert=True
-    )
-    return {"status": "sucesso"}
+    try:
+        # 1. Salva ou atualiza o relatório na coleção de chamadas
+        await colecao_presenca.update_one(
+            {"data": dados["data"]},
+            {"$set": dados},
+            upsert=True
+        )
+        
+        # 2. Varre as presenças enviadas para atualizar a pontuação geral dos desbravadores
+        for registro in dados.get("presencas", []):
+            if registro.get("status") == "presente":
+                membro_id = registro.get("membro_id")
+                if membro_id:
+                    novo_ponto = {
+                        "valor": 10,  # Cada presença soma 10 pontos na tabela geral
+                        "motivo": f"PRESENÇA NA REUNIÃO - {dados['data']}",
+                        "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+                    }
+                    await colecao_membros.update_one(
+                        {"_id": ObjectId(membro_id)},
+                        {
+                            "$inc": {"pontos": 10},
+                            "$push": {"historico_pontos": novo_ponto}
+                        }
+                    )
+        return {"status": "sucesso"}
+    except Exception as e:
+        return {"status": "erro", "message": str(e)}
 
 @app.get("/chamada-historico")
 async def historico_chamada():
