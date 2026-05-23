@@ -39,6 +39,8 @@ export default function Chamada() {
 
   const salvarChamada = async () => {
     setLoading(true);
+    
+    // Mantém a estrutura que sua interface usa nos relatórios salvos
     const listaFinal = membros.map(m => ({
       nome: m.nome,
       foto: m.foto_url,
@@ -46,11 +48,21 @@ export default function Chamada() {
       unidade: m.unidade
     }));
 
+    // ADEQUAÇÃO DA PASTA DE PRESENÇAS EXIGIDA PELO SERVIDOR PYTHON PARA OS PONTOS
+    const presencasParaServidor = membros.map(m => ({
+      membro_id: m._id,
+      status: presencas[m._id] === 'P' ? 'presente' : 'ausente'
+    }));
+
     try {
       const res = await fetch(`${API_URL}/chamada`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: hoje, lista: listaFinal })
+        body: JSON.stringify({ 
+          data: hoje, 
+          lista: listaFinal,
+          presencas: presencasParaServidor // Injetado para o laço do Python rodar os pontos
+        })
       });
       if (res.ok) {
         alert("✅ Chamada de hoje salva com sucesso!");
@@ -102,7 +114,6 @@ export default function Chamada() {
                 {membros.map(m => (
                   <div key={m._id} className="flex items-center justify-between p-4 bg-white rounded-[35px] shadow-sm border border-gray-100 transition-all hover:shadow-xl">
                     <div className="flex items-center gap-4">
-                      {/* LÓGICA ATUALIZADA AQUI */}
                       <img 
                         src={m.foto_url && m.foto_url !== "" ? m.foto_url : FOTO_PADRAO} 
                         className="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md" 
@@ -161,7 +172,7 @@ export default function Chamada() {
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10 relative">
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-[50px] shadow-2xl border-t-[12px] border-yellow-500 sticky top-10 border border-white/10">
             <div className="flex items-center gap-4 mb-10 border-l-2 border-yellow-500 pl-4"><h3 className="font-black text-white uppercase italic text-xl tracking-tighter">Histórico</h3></div>
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {historico.length === 0 ? (
